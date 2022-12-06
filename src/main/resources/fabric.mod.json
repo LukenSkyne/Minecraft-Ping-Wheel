@@ -7,7 +7,7 @@
   "authors": [],
   "contact": {},
   "license": "MIT",
-  "icon": "assets/ping-wheel/icon.png",
+  "icon": "assets/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
