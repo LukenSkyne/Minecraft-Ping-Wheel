@@ -41,46 +41,6 @@ object Core {
 		return Vec3d(temp2)
 	}
 
-	private fun castRayToBlock(
-		entity: Entity,
-		direction: Vec3d,
-		maxDistance: Double,
-		tickDelta: Float,
-		includeFluids: Boolean,
-	): BlockHitResult {
-		val cameraPosVec = entity.getCameraPosVec(tickDelta)
-
-		return entity.world.raycast(RaycastContext(
-			cameraPosVec,
-			cameraPosVec.add(direction.multiply(maxDistance)),
-			RaycastContext.ShapeType.OUTLINE,
-			if (includeFluids) RaycastContext.FluidHandling.ANY else RaycastContext.FluidHandling.NONE,
-			entity,
-		))
-	}
-
-	private fun castRayToEntity(
-		entity: Entity,
-		direction: Vec3d,
-		maxDistance: Double,
-		tickDelta: Float,
-	): EntityHitResult? {
-		val cameraPosVec = entity.getCameraPosVec(tickDelta)
-		val box = entity
-			.boundingBox
-			.stretch(entity.getRotationVec(1.0f).multiply(maxDistance))
-			.expand(1.0, 1.0, 1.0)
-
-		return ProjectileUtil.raycast(
-			entity,
-			cameraPosVec,
-			cameraPosVec.add(direction.multiply(maxDistance)),
-			box,
-			{ targetEntity -> !targetEntity.isSpectator },
-			maxDistance,
-		)
-	}
-
 	private fun castRayDirectional(direction: Vec3d, tickDelta: Float): HitResult? {
 		val cameraEntity = Game.cameraEntity
 
@@ -88,9 +48,29 @@ object Core {
 			return null
 		}
 
-		val blockHitResult = castRayToBlock(cameraEntity, direction, REACH_DISTANCE, tickDelta, HIT_FLUIDS)
+		val rayStartVec = cameraEntity.getCameraPosVec(tickDelta)
+		val rayEndVec = rayStartVec.add(direction.multiply(REACH_DISTANCE))
+		val boundingBox = cameraEntity
+			.boundingBox
+			.stretch(cameraEntity.getRotationVec(1.0f).multiply(REACH_DISTANCE))
+			.expand(1.0, 1.0, 1.0)
 
-		return castRayToEntity(cameraEntity, direction, REACH_DISTANCE, tickDelta) ?: return blockHitResult
+		val blockHitResult = cameraEntity.world.raycast(RaycastContext(
+			rayStartVec,
+			rayEndVec,
+			RaycastContext.ShapeType.OUTLINE,
+			if (HIT_FLUIDS) RaycastContext.FluidHandling.ANY else RaycastContext.FluidHandling.NONE,
+			cameraEntity,
+		))
+
+		return ProjectileUtil.raycast(
+			cameraEntity,
+			rayStartVec,
+			rayEndVec,
+			boundingBox,
+			{ targetEntity -> !targetEntity.isSpectator },
+			REACH_DISTANCE,
+		) ?: return blockHitResult
 	}
 
 	@JvmStatic
