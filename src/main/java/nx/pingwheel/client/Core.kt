@@ -1,15 +1,21 @@
 package nx.pingwheel.client
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import net.fabricmc.fabric.api.networking.v1.PacketSender
+import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
+import net.minecraft.client.network.ClientPlayNetworkHandler
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.projectile.ProjectileUtil
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.*
 import net.minecraft.world.RaycastContext
-import nx.pingwheel.client.util.ConLog
 import nx.pingwheel.client.util.Game
 import nx.pingwheel.client.util.Math
 import nx.pingwheel.client.util.rotateZ
+import nx.pingwheel.shared.Constants
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import kotlin.math.PI
 import kotlin.math.pow
@@ -19,12 +25,10 @@ object Core {
 	private const val REACH_DISTANCE = 256.0
 
 	private var queuePing = false
-	private var pingPos: Vec3d? = null
-	private var pingPosScreen: Vector4f? = null
+	private var pingRepo = mutableListOf<PingData>()
 
 	@JvmStatic
 	fun doPing() {
-		ConLog.info("key.ping-wheel.ping pressed")
 		queuePing = true
 	}
 
@@ -114,8 +118,7 @@ object Core {
 		)
 
 		val hitResult = castRayDirectional(direction, tickDelta, cameraEntity.isSneaking)
-
-		pingPos = when (hitResult?.type) {
+		val pingPos = when (hitResult?.type) {
 			HitResult.Type.BLOCK -> {
 				hitResult.pos
 			}
@@ -128,6 +131,29 @@ object Core {
 				null
 			}
 		}
+
+		if (pingPos != null) {
+			val packet = PacketByteBufs.create()
+			packet.writeDouble(pingPos.x)
+			packet.writeDouble(pingPos.y)
+			packet.writeDouble(pingPos.z)
+
+			ClientPlayNetworking.send(Constants.C2S_PING_LOCATION, packet)
+		}
+	}
+
+	@JvmStatic
+	fun onReceivePing(
+		client: MinecraftClient,
+		handler: ClientPlayNetworkHandler,
+		buf: PacketByteBuf,
+		responseSender: PacketSender
+	) {
+		val pingPos = Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble())
+
+		client.execute {
+			pingRepo.add(PingData(pingPos))
+		}
 	}
 
 	@JvmStatic
@@ -136,17 +162,21 @@ object Core {
 
 		processPing(tickDelta)
 
-		val pingPos = pingPos
-		pingPosScreen = if (pingPos != null) Math.project3Dto2D(pingPos, modelViewMatrix, projectionMatrix) else null
+		for (ping in pingRepo) {
+			ping.screenPos = Math.project3Dto2D(ping.pos, modelViewMatrix, projectionMatrix)
+			ping.lifeTime -= tickDelta
+		}
+
+		pingRepo.removeIf { p -> p.lifeTime < 0 }
 	}
 
 	@JvmStatic
 	fun onRenderGUI(stack: MatrixStack, ci: CallbackInfo) {
-		val pingPosScreen = pingPosScreen
+		for (ping in pingRepo) {
+			val pingPosScreen = ping.screenPos ?: continue
 
-		if (pingPosScreen != null) {
 			val cameraPosVec = Game.player?.getCameraPosVec(Game.tickDelta)
-			val distanceToPing = cameraPosVec?.distanceTo(pingPos) ?: 0.0
+			val distanceToPing = cameraPosVec?.distanceTo(ping.pos) ?: 0.0
 			val pingScaleMin = 0.25f
 
 			var pingScale = (1 / (distanceToPing.pow(0.3))).toFloat()
@@ -155,9 +185,6 @@ object Core {
 				pingScale = pingScaleMin
 
 			stack.push() // push
-			val white = -0x1
-			//val black = -0x1000000
-
 			val uiScale = Game.window.scaleFactor
 			stack.translate(
 				pingPosScreen.x / uiScale,
@@ -167,12 +194,15 @@ object Core {
 
 			stack.scale(pingScale, pingScale, 1f)
 
+			val white = ColorHelper.Argb.getArgb(255, 255, 255, 255)
+			val shadowBlack = ColorHelper.Argb.getArgb(64, 0, 0, 0)
+
 			stack.push() // push text
 			val text = "%.1fm".format(distanceToPing)
 			val textWidth: Int = Game.textRenderer.getWidth(text)
 			val textHeight: Int = Game.textRenderer.fontHeight
 			stack.translate((-textWidth * 0.5f).toDouble(), (-textHeight * 2.5f).toDouble(), 0.0)
-			DrawableHelper.fill(stack, -2, -2, textWidth + 1, textHeight, 0x40000000)
+			DrawableHelper.fill(stack, -2, -2, textWidth + 1, textHeight, shadowBlack)
 			Game.textRenderer.draw(stack, text, 0f, 0f, white)
 			stack.pop() // pop text
 
