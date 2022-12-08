@@ -1,28 +1,28 @@
 {
-  "schemaVersion": 1,
-  "id": "ping-wheel",
-  "version": "${version}",
-  "name": "Ping Wheel",
-  "description": "a simple mod to add the well known location ping mechanism found in modern co-op multiplayer games",
-  "authors": [],
-  "contact": {},
-  "license": "MIT",
-  "icon": "assets/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "client": [
-      "nx.pingwheel.client.PingWheelClient"
-    ],
-    "main": [
-      "nx.pingwheel.PingWheel"
-    ]
-  },
-  "mixins": [
-    "ping-wheel.mixins.json"
-  ],
-  "depends": {
-    "fabricloader": ">=0.14.11",
-    "fabric": "*",
-    "minecraft": "1.19.2"
-  }
+	"schemaVersion": 1,
+	"id": "ping-wheel",
+	"version": "${version}",
+	"name": "Ping Wheel",
+	"description": "a simple mod to add the well known location ping mechanism found in modern co-op multiplayer games",
+	"authors": [],
+	"contact": {},
+	"license": "MIT",
+	"icon": "assets/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"nx.pingwheel.client.PingWheelClient"
+		],
+		"main": [
+			"nx.pingwheel.PingWheel"
+		]
+	},
+	"mixins": [
+		"ping-wheel.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.11",
+		"fabric": "*",
+		"minecraft": "1.19.2"
+	}
 }
