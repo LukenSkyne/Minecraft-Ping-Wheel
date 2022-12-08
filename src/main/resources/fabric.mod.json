@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "id": "ping-wheel",
-  "version": "0.0.1",
+  "version": "${version}",
   "name": "Ping Wheel",
-  "description": "",
+  "description": "a simple mod to add the well known location ping mechanism found in modern co-op multiplayer games",
   "authors": [],
   "contact": {},
   "license": "MIT",
