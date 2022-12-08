@@ -30,7 +30,7 @@ public class PingWheelClient implements ClientModInitializer {
 	}
 
 	private void SetupKeyBindings() {
-		kbPing = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.ping-wheel.ping", InputUtil.Type.MOUSE, GLFW.GLFW_MOUSE_BUTTON_5, "key.ping-wheel.main"));
+		kbPing = KeyBindingHelper.registerKeyBinding(new KeyBinding("ping-wheel.key.mark-location", InputUtil.Type.MOUSE, GLFW.GLFW_MOUSE_BUTTON_5, "ping-wheel.settings-header"));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (kbPing.wasPressed()) {
