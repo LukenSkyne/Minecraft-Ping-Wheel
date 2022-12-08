@@ -34,7 +34,7 @@ public class PingWheelClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (kbPing.wasPressed()) {
-				Core.doPing();
+				Core.markLocation();
 			}
 		});
 	}

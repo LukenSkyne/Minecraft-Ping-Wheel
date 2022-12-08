@@ -28,7 +28,7 @@ object Core {
 	private var pingRepo = mutableListOf<PingData>()
 
 	@JvmStatic
-	fun doPing() {
+	fun markLocation() {
 		queuePing = true
 	}
 
