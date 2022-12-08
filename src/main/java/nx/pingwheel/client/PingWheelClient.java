@@ -22,7 +22,7 @@ public class PingWheelClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		LOGGER.info("Client Init");
+		LOGGER.info("[Ping-Wheel] Client Init");
 
 		SetupKeyBindings();
 

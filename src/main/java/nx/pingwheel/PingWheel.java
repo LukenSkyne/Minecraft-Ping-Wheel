@@ -15,7 +15,7 @@ public class PingWheel implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("Server Init");
+		LOGGER.info("[Ping-Wheel] Server Init");
 
 		ServerPlayNetworking.registerGlobalReceiver(Constants.C2S_PING_LOCATION, (server, player, handler, buf, responseSender) -> {
 			final var packet = PacketByteBufs.copy(buf);
