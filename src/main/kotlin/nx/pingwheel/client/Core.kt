@@ -149,11 +149,9 @@ object Core {
 
 	private fun getDistanceScale(distance: Float): Float {
 		val scaleMin = 1f
-		val scaleMax = 2f
-		val zoomMultiplier = 1f / (Game.player?.fovMultiplier ?: 1f)
-		val scale = 2f / distance.pow(0.3f) * zoomMultiplier
+		val scale = 2f / distance.pow(0.3f)
 
-		return min(max(scaleMin, scale), scaleMax)
+		return max(scaleMin, scale)
 	}
 
 	@JvmStatic
