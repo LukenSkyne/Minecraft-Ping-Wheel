@@ -9,9 +9,11 @@ import net.minecraft.client.network.ClientPlayNetworkHandler
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.projectile.ProjectileUtil
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.sound.SoundCategory
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.*
 import net.minecraft.world.RaycastContext
+import nx.pingwheel.PingWheel
 import nx.pingwheel.client.util.Game
 import nx.pingwheel.client.util.Math
 import nx.pingwheel.client.util.rotateZ
@@ -164,6 +166,23 @@ object Core {
 
 		client.execute {
 			pingRepo.add(PingData(pingPos))
+
+			val playerPos = client.player?.pos
+			val soundDirection = playerPos?.relativize(pingPos)?.normalize()
+			val distanceToPing = playerPos?.distanceTo(pingPos)?.toFloat() ?: 1f
+			val soundVolume = getDistanceScale(distanceToPing)
+
+			if (soundDirection != null) {
+				val soundPos = playerPos.add(soundDirection.multiply(5.0))
+				client.world?.playSound(
+					client.player,
+					BlockPos(soundPos),
+					PingWheel.PING_SOUND_EVENT,
+					SoundCategory.BLOCKS,
+					soundVolume,
+					1f
+				)
+			}
 		}
 	}
 
