@@ -18,6 +18,8 @@ import nx.pingwheel.client.util.rotateZ
 import nx.pingwheel.shared.Constants
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import kotlin.math.PI
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 
 object Core {
@@ -142,6 +144,15 @@ object Core {
 		}
 	}
 
+	private fun getDistanceScale(distance: Float): Float {
+		val scaleMin = 1f
+		val scaleMax = 2f
+		val zoomMultiplier = 1f / (Game.player?.fovMultiplier ?: 1f)
+		val scale = 2f / distance.pow(0.3f) * zoomMultiplier
+
+		return min(max(scaleMin, scale), scaleMax)
+	}
+
 	@JvmStatic
 	fun onReceivePing(
 		client: MinecraftClient,
@@ -173,45 +184,39 @@ object Core {
 	@JvmStatic
 	fun onRenderGUI(stack: MatrixStack, ci: CallbackInfo) {
 		for (ping in pingRepo) {
-			val pingPosScreen = ping.screenPos ?: continue
-
-			val cameraPosVec = Game.player?.getCameraPosVec(Game.tickDelta)
-			val distanceToPing = cameraPosVec?.distanceTo(ping.pos) ?: 0.0
-			val pingScaleMin = 0.25f
-
-			var pingScale = (1 / (distanceToPing.pow(0.3))).toFloat()
-
-			if (pingScale < pingScaleMin)
-				pingScale = pingScaleMin
-
-			stack.push() // push
 			val uiScale = Game.window.scaleFactor
-			stack.translate(
-				pingPosScreen.x / uiScale,
-				pingPosScreen.y / uiScale,
-				0.0
-			)
+			val uiScaleAdjustment = Math.mapValue(uiScale.toFloat(), 1f, 5f, 1f, 2f)
 
-			stack.scale(pingScale, pingScale, 1f)
+			val pingPosScreen = ping.screenPos ?: continue
+			val cameraPosVec = Game.player?.getCameraPosVec(Game.tickDelta)
+			val distanceToPing = cameraPosVec?.distanceTo(ping.pos)?.toFloat() ?: 0f
+			val pingScale = getDistanceScale(distanceToPing) / uiScale.toFloat() * uiScaleAdjustment
 
 			val white = ColorHelper.Argb.getArgb(255, 255, 255, 255)
 			val shadowBlack = ColorHelper.Argb.getArgb(64, 0, 0, 0)
 
+			stack.push() // push
+
+			stack.translate((pingPosScreen.x / uiScale), (pingPosScreen.y / uiScale), 0.0)
+			stack.scale(pingScale, pingScale, 1f)
+
 			stack.push() // push text
+
 			val text = "%.1fm".format(distanceToPing)
-			val textWidth: Int = Game.textRenderer.getWidth(text)
-			val textHeight: Int = Game.textRenderer.fontHeight
-			stack.translate((-textWidth * 0.5f).toDouble(), (-textHeight * 2.5f).toDouble(), 0.0)
-			DrawableHelper.fill(stack, -2, -2, textWidth + 1, textHeight, shadowBlack)
+			val textMetrics = Vec2f(
+				Game.textRenderer.getWidth(text).toFloat(),
+				Game.textRenderer.fontHeight.toFloat()
+			)
+			val textOffset = textMetrics.multiply(-0.5f).add(Vec2f(0f, textMetrics.y * -1.5f))
+
+			stack.translate(textOffset.x.toDouble(), textOffset.y.toDouble(), 0.0)
+
+			DrawableHelper.fill(stack, -2, -2, textMetrics.x.toInt() + 1, textMetrics.y.toInt(), shadowBlack)
 			Game.textRenderer.draw(stack, text, 0f, 0f, white)
 			stack.pop() // pop text
 
 			stack.rotateZ(PI.toFloat() / 4f)
-			stack.translate(
-				-2.5,
-				-2.5,
-				0.0
-			)
+			stack.translate(-2.5, -2.5, 0.0)
 			DrawableHelper.fill(stack, 0, 0, 5, 5, white)
 			stack.pop() // pop
 		}
