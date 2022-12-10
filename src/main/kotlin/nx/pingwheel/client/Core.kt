@@ -18,10 +18,10 @@ import nx.pingwheel.client.util.Game
 import nx.pingwheel.client.util.Math
 import nx.pingwheel.client.util.rotateZ
 import nx.pingwheel.shared.Constants
+import nx.pingwheel.shared.DirectionalSoundInstance
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import kotlin.math.PI
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.pow
 
 object Core {
@@ -166,22 +166,16 @@ object Core {
 		client.execute {
 			pingRepo.add(PingData(pingPos, Game.world?.time?.toInt() ?: 0))
 
-			val playerPos = client.player?.pos
-			val soundDirection = playerPos?.relativize(pingPos)?.normalize()
-			val distanceToPing = playerPos?.distanceTo(pingPos)?.toFloat() ?: 1f
-			val soundVolume = getDistanceScale(distanceToPing)
-
-			if (soundDirection != null) {
-				val soundPos = playerPos.add(soundDirection.multiply(5.0))
-				client.world?.playSound(
-					client.player,
-					BlockPos(soundPos),
+			Game.soundManager.play(
+				DirectionalSoundInstance(
 					PingWheel.PING_SOUND_EVENT,
-					SoundCategory.BLOCKS,
-					soundVolume,
-					1f
+					SoundCategory.VOICE,
+					1f,
+					1f,
+					0,
+					pingPos,
 				)
-			}
+			)
 		}
 	}
 
