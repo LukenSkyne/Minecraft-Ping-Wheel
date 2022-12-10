@@ -27,6 +27,7 @@ import kotlin.math.pow
 object Core {
 
 	private const val REACH_DISTANCE = 256.0
+	private const val PING_LIFETIME = 140 // 7 seconds in Game Ticks
 
 	private var queuePing = false
 	private var pingRepo = mutableListOf<PingData>()
@@ -165,7 +166,7 @@ object Core {
 		val pingPos = Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble())
 
 		client.execute {
-			pingRepo.add(PingData(pingPos))
+			pingRepo.add(PingData(pingPos, Game.world?.time?.toInt() ?: 0))
 
 			val playerPos = client.player?.pos
 			val soundDirection = playerPos?.relativize(pingPos)?.normalize()
@@ -192,12 +193,14 @@ object Core {
 
 		processPing(tickDelta)
 
+		val time = Game.world?.time?.toInt() ?: 0
+
 		for (ping in pingRepo) {
 			ping.screenPos = Math.project3Dto2D(ping.pos, modelViewMatrix, projectionMatrix)
-			ping.lifeTime -= tickDelta
+			ping.aliveTime = time - ping.spawnTime
 		}
 
-		pingRepo.removeIf { p -> p.lifeTime < 0 }
+		pingRepo.removeIf { p -> p.aliveTime!! > PING_LIFETIME }
 	}
 
 	@JvmStatic

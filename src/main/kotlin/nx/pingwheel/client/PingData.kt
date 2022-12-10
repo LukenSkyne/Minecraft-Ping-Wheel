@@ -5,6 +5,7 @@ import net.minecraft.util.math.Vector4f
 
 data class PingData(
 	val pos: Vec3d,
+	var spawnTime: Int,
+	var aliveTime: Int? = null,
 	var screenPos: Vector4f? = null,
-	var lifeTime: Float = 300f,
 )
