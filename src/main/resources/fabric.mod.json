@@ -3,9 +3,17 @@
 	"id": "ping-wheel",
 	"version": "${version}",
 	"name": "Ping Wheel",
-	"description": "a simple mod to add the well known location ping mechanism found in modern co-op multiplayer games",
-	"authors": [],
-	"contact": {},
+	"description": "The ability to mark locations similar to the ping mechanism found in modern co-op multiplayer games.",
+	"authors": [
+		"Luken"
+	],
+	"contributors": [
+		"RXJpaw"
+	],
+	"contact": {
+		"sources": "https://github.com/LukenSkyne/Minecraft-Ping-Wheel",
+		"issues": "https://github.com/LukenSkyne/Minecraft-Ping-Wheel/issues"
+	},
 	"license": "MIT",
 	"icon": "assets/ping-wheel/icon.png",
 	"environment": "*",
