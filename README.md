@@ -29,9 +29,12 @@ The following screenshot shows two pings in different distances with according s
 
 ## Dependencies
 
-This mod mostly uses kotlin, because kotlin is more awesome than Java.
+This mod mostly uses kotlin internally and therefore requires Kotlin Language support in addition to the Fabric API.
 
 <p>
+  <a href="https://www.curseforge.com/minecraft/mc-mods/fabric-api">
+    <img alt="Fabric API" src="https://i.imgur.com/7nVV86o.png" width="200"/>
+  </a>
   <a href="https://www.curseforge.com/minecraft/mc-mods/fabric-language-kotlin">
     <img alt="Fabric Kotlin" src="https://i.imgur.com/c1DH9VL.png" width="200"/>
   </a>
