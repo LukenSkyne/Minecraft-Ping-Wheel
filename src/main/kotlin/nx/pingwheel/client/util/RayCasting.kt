@@ -33,18 +33,28 @@ object RayCasting {
 		box: Box,
 		predicate: Predicate<Entity>,
 	): EntityHitResult? {
+		var minDist = min.squaredDistanceTo(max)
+		var minHitResult: EntityHitResult? = null
+
 		for (ent in entity.world.getOtherEntities(entity, box, predicate)) {
 			val targetBoundingBox = ent.boundingBox
 				.expand(ent.targetingMargin.toDouble())
 				.expand(0.25)
 			val hitPos = targetBoundingBox.raycast(min, max)
 
-			if (hitPos.isPresent) {
-				return EntityHitResult(ent, hitPos.get())
+			if (!hitPos.isPresent)
+				continue
+
+			val hitResult = EntityHitResult(ent, hitPos.get())
+			val hitDist = min.squaredDistanceTo(hitResult.pos)
+
+			if (minDist > hitDist) {
+				minDist = hitDist
+				minHitResult = hitResult
 			}
 		}
 
-		return null
+		return minHitResult
 	}
 
 	@JvmStatic
