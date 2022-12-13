@@ -7,7 +7,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.network.ClientPlayNetworkHandler
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.entity.projectile.ProjectileUtil
+import net.minecraft.entity.Entity
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.sound.SoundCategory
 import net.minecraft.util.hit.EntityHitResult
@@ -21,6 +21,7 @@ import nx.pingwheel.client.util.rotateZ
 import nx.pingwheel.shared.Constants
 import nx.pingwheel.shared.DirectionalSoundInstance
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
+import java.util.function.Predicate
 import kotlin.math.PI
 import kotlin.math.max
 import kotlin.math.pow
@@ -51,6 +52,30 @@ object Core {
 		return Vec3d(temp2)
 	}
 
+	private fun castRayToEntity(
+		entity: Entity,
+		min: Vec3d,
+		max: Vec3d,
+		box: Box,
+		predicate: Predicate<Entity>,
+	): EntityHitResult? {
+		val entityIter = entity.world.getOtherEntities(entity, box, predicate).iterator()
+
+		while (entityIter.hasNext()) {
+			val ent = entityIter.next() as Entity
+			val targetBoundingBox = ent.boundingBox
+				.expand(ent.targetingMargin.toDouble())
+				.expand(0.25)
+			val hitPos = targetBoundingBox.raycast(min, max)
+
+			if (hitPos.isPresent) {
+				return EntityHitResult(ent, hitPos.get())
+			}
+		}
+
+		return null
+	}
+
 	private fun castRayDirectional(direction: Vec3d, tickDelta: Float, hitFluids: Boolean): HitResult? {
 		val cameraEntity = Game.cameraEntity
 
@@ -75,14 +100,18 @@ object Core {
 			)
 		)
 
-		return ProjectileUtil.raycast(
+		val entityHitResult = castRayToEntity(
 			cameraEntity,
 			rayStartVec,
 			rayEndVec,
 			boundingBox,
-			{ targetEntity -> !targetEntity.isSpectator },
-			REACH_DISTANCE,
-		) ?: return blockHitResult
+		) { targetEntity -> !targetEntity.isSpectator } ?: blockHitResult
+
+		if (rayStartVec.squaredDistanceTo(entityHitResult.pos) < rayStartVec.squaredDistanceTo(blockHitResult.pos)) {
+			return entityHitResult
+		}
+
+		return blockHitResult
 	}
 
 	private fun processPing(tickDelta: Float) {
