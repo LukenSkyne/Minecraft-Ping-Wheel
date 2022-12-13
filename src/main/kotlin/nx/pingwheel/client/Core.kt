@@ -10,6 +10,7 @@ import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.projectile.ProjectileUtil
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.sound.SoundCategory
+import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.*
 import net.minecraft.world.RaycastContext
@@ -123,28 +124,24 @@ object Core {
 		)
 
 		val hitResult = castRayDirectional(direction, tickDelta, cameraEntity.isSneaking)
-		val pingPos = when (hitResult?.type) {
-			HitResult.Type.BLOCK -> {
-				hitResult.pos
-			}
 
-			HitResult.Type.ENTITY -> {
-				hitResult.pos
-			}
-
-			else -> {
-				null
-			}
+		if (hitResult == null || hitResult.type == HitResult.Type.MISS) {
+			return
 		}
 
-		if (pingPos != null) {
-			val packet = PacketByteBufs.create()
-			packet.writeDouble(pingPos.x)
-			packet.writeDouble(pingPos.y)
-			packet.writeDouble(pingPos.z)
+		val packet = PacketByteBufs.create()
+		packet.writeDouble(hitResult.pos.x)
+		packet.writeDouble(hitResult.pos.y)
+		packet.writeDouble(hitResult.pos.z)
 
-			ClientPlayNetworking.send(Constants.C2S_PING_LOCATION, packet)
+		if (hitResult.type == HitResult.Type.ENTITY) {
+			packet.writeBoolean(true)
+			packet.writeUuid((hitResult as EntityHitResult).entity.uuid)
+		} else {
+			packet.writeBoolean(false)
 		}
+
+		ClientPlayNetworking.send(Constants.C2S_PING_LOCATION, packet)
 	}
 
 	private fun getDistanceScale(distance: Float): Float {
@@ -162,9 +159,10 @@ object Core {
 		responseSender: PacketSender
 	) {
 		val pingPos = Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble())
+		val uuid = if (buf.readBoolean()) buf.readUuid() else null
 
 		client.execute {
-			pingRepo.add(PingData(pingPos, Game.world?.time?.toInt() ?: 0))
+			pingRepo.add(PingData(pingPos, uuid, Game.world?.time?.toInt() ?: 0))
 
 			Game.soundManager.play(
 				DirectionalSoundInstance(
@@ -181,18 +179,30 @@ object Core {
 
 	@JvmStatic
 	fun onRenderWorld(stack: MatrixStack, projectionMatrix: Matrix4f, tickDelta: Float) {
+		val world = Game.world ?: return
 		val modelViewMatrix = stack.peek().positionMatrix
 
 		processPing(tickDelta)
 
-		val time = Game.world?.time?.toInt() ?: 0
+		val time = world.time.toInt()
 
 		for (ping in pingRepo) {
+			if (ping.uuid != null) {
+				val ent = world.entities.find { entity -> entity.uuid == ping.uuid }
+
+				if (ent == null) {
+					ping.aliveTime = PING_LIFETIME
+					continue
+				}
+
+				ping.pos = ent.getLerpedPos(tickDelta).add(0.0, ent.boundingBox.yLength, 0.0)
+			}
+
 			ping.screenPos = Math.project3Dto2D(ping.pos, modelViewMatrix, projectionMatrix)
 			ping.aliveTime = time - ping.spawnTime
 		}
 
-		pingRepo.removeIf { p -> p.aliveTime!! > PING_LIFETIME }
+		pingRepo.removeIf { p -> p.aliveTime!! >= PING_LIFETIME }
 	}
 
 	@JvmStatic
