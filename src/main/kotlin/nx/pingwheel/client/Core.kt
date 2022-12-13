@@ -7,21 +7,19 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.network.ClientPlayNetworkHandler
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.entity.Entity
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.sound.SoundCategory
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.*
-import net.minecraft.world.RaycastContext
 import nx.pingwheel.PingWheel
 import nx.pingwheel.client.util.Game
 import nx.pingwheel.client.util.Math
+import nx.pingwheel.client.util.RayCasting
 import nx.pingwheel.client.util.rotateZ
 import nx.pingwheel.shared.Constants
 import nx.pingwheel.shared.DirectionalSoundInstance
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
-import java.util.function.Predicate
 import kotlin.math.PI
 import kotlin.math.max
 import kotlin.math.pow
@@ -37,81 +35,6 @@ object Core {
 	@JvmStatic
 	fun markLocation() {
 		queuePing = true
-	}
-
-	private fun map(
-		anglePerPixel: Float, center: Vec3d, horizontalRotationAxis: Vec3f,
-		verticalRotationAxis: Vec3f, x: Int, y: Int, width: Int, height: Int
-	): Vec3d {
-		val horizontalRotation = (x - width / 2f) * anglePerPixel
-		val verticalRotation = (y - height / 2f) * anglePerPixel
-		val temp2 = Vec3f(center)
-		temp2.rotate(verticalRotationAxis.getDegreesQuaternion(verticalRotation))
-		temp2.rotate(horizontalRotationAxis.getDegreesQuaternion(horizontalRotation))
-
-		return Vec3d(temp2)
-	}
-
-	private fun castRayToEntity(
-		entity: Entity,
-		min: Vec3d,
-		max: Vec3d,
-		box: Box,
-		predicate: Predicate<Entity>,
-	): EntityHitResult? {
-		val entityIter = entity.world.getOtherEntities(entity, box, predicate).iterator()
-
-		while (entityIter.hasNext()) {
-			val ent = entityIter.next() as Entity
-			val targetBoundingBox = ent.boundingBox
-				.expand(ent.targetingMargin.toDouble())
-				.expand(0.25)
-			val hitPos = targetBoundingBox.raycast(min, max)
-
-			if (hitPos.isPresent) {
-				return EntityHitResult(ent, hitPos.get())
-			}
-		}
-
-		return null
-	}
-
-	private fun castRayDirectional(direction: Vec3d, tickDelta: Float, hitFluids: Boolean): HitResult? {
-		val cameraEntity = Game.cameraEntity
-
-		if (cameraEntity == null || Game.world == null) {
-			return null
-		}
-
-		val rayStartVec = cameraEntity.getCameraPosVec(tickDelta)
-		val rayEndVec = rayStartVec.add(direction.multiply(REACH_DISTANCE))
-		val boundingBox = cameraEntity
-			.boundingBox
-			.stretch(cameraEntity.getRotationVec(1.0f).multiply(REACH_DISTANCE))
-			.expand(1.0, 1.0, 1.0)
-
-		val blockHitResult = cameraEntity.world.raycast(
-			RaycastContext(
-				rayStartVec,
-				rayEndVec,
-				RaycastContext.ShapeType.OUTLINE,
-				if (hitFluids) RaycastContext.FluidHandling.ANY else RaycastContext.FluidHandling.NONE,
-				cameraEntity,
-			)
-		)
-
-		val entityHitResult = castRayToEntity(
-			cameraEntity,
-			rayStartVec,
-			rayEndVec,
-			boundingBox,
-		) { targetEntity -> !targetEntity.isSpectator } ?: blockHitResult
-
-		if (rayStartVec.squaredDistanceTo(entityHitResult.pos) < rayStartVec.squaredDistanceTo(blockHitResult.pos)) {
-			return entityHitResult
-		}
-
-		return blockHitResult
 	}
 
 	private fun processPing(tickDelta: Float) {
@@ -141,7 +64,7 @@ object Core {
 		verticalRotationAxis = Vec3f(cameraDirection)
 		verticalRotationAxis.cross(horizontalRotationAxis)
 
-		val direction = map(
+		val direction = RayCasting.mapDirection(
 			angleSize,
 			cameraDirection,
 			horizontalRotationAxis,
@@ -152,7 +75,7 @@ object Core {
 			scaledWindow.y.toInt(),
 		)
 
-		val hitResult = castRayDirectional(direction, tickDelta, cameraEntity.isSneaking)
+		val hitResult = RayCasting.traceDirectional(direction, tickDelta, REACH_DISTANCE, cameraEntity.isSneaking)
 
 		if (hitResult == null || hitResult.type == HitResult.Type.MISS) {
 			return
