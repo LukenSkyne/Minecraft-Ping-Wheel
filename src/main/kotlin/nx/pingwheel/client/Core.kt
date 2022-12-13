@@ -142,19 +142,16 @@ object Core {
 			if (ping.uuid != null) {
 				val ent = world.entities.find { entity -> entity.uuid == ping.uuid }
 
-				if (ent == null) {
-					ping.aliveTime = PING_LIFETIME
-					continue
+				if (ent != null) {
+					ping.pos = ent.getLerpedPos(tickDelta).add(0.0, ent.boundingBox.yLength, 0.0)
 				}
-
-				ping.pos = ent.getLerpedPos(tickDelta).add(0.0, ent.boundingBox.yLength, 0.0)
 			}
 
 			ping.screenPos = Math.project3Dto2D(ping.pos, modelViewMatrix, projectionMatrix)
 			ping.aliveTime = time - ping.spawnTime
 		}
 
-		pingRepo.removeIf { p -> p.aliveTime!! >= PING_LIFETIME }
+		pingRepo.removeIf { p -> p.aliveTime!! > PING_LIFETIME }
 	}
 
 	@JvmStatic
