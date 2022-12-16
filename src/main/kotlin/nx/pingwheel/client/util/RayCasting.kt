@@ -5,25 +5,10 @@ import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.Box
 import net.minecraft.util.math.Vec3d
-import net.minecraft.util.math.Vec3f
 import net.minecraft.world.RaycastContext
 import java.util.function.Predicate
 
 object RayCasting {
-
-	@JvmStatic
-	fun mapDirection(
-		anglePerPixel: Float, center: Vec3d, horizontalRotationAxis: Vec3f,
-		verticalRotationAxis: Vec3f, x: Int, y: Int, width: Int, height: Int
-	): Vec3d {
-		val horizontalRotation = (x - width / 2f) * anglePerPixel
-		val verticalRotation = (y - height / 2f) * anglePerPixel
-		val temp2 = Vec3f(center)
-		temp2.rotate(verticalRotationAxis.getDegreesQuaternion(verticalRotation))
-		temp2.rotate(horizontalRotationAxis.getDegreesQuaternion(horizontalRotation))
-
-		return Vec3d(temp2)
-	}
 
 	@JvmStatic
 	fun traceEntity(

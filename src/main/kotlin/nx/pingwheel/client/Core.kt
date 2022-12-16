@@ -11,7 +11,9 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.sound.SoundCategory
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
-import net.minecraft.util.math.*
+import net.minecraft.util.math.ColorHelper
+import net.minecraft.util.math.Vec2f
+import net.minecraft.util.math.Vec3d
 import nx.pingwheel.PingWheel
 import nx.pingwheel.client.util.Game
 import nx.pingwheel.client.util.Math
@@ -19,6 +21,7 @@ import nx.pingwheel.client.util.RayCasting
 import nx.pingwheel.client.util.rotateZ
 import nx.pingwheel.shared.Constants
 import nx.pingwheel.shared.DirectionalSoundInstance
+import org.joml.Matrix4f
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import kotlin.math.PI
 import kotlin.math.max
@@ -44,38 +47,8 @@ object Core {
 
 		queuePing = false
 		val cameraEntity = Game.cameraEntity ?: return
-
-		val scaledWindow = Vec2f(Game.window.scaledWidth.toFloat(), Game.window.scaledHeight.toFloat())
 		val cameraDirection = cameraEntity.getRotationVec(tickDelta)
-		val fov = Game.options.fov.value
-		val angleSize = fov / scaledWindow.y
-
-		var verticalRotationAxis = Vec3f(cameraDirection)
-		verticalRotationAxis.cross(Vec3f.POSITIVE_Y)
-
-		if (!verticalRotationAxis.normalize()) {
-			return
-		}
-
-		val horizontalRotationAxis = Vec3f(cameraDirection)
-		horizontalRotationAxis.cross(verticalRotationAxis)
-		horizontalRotationAxis.normalize()
-
-		verticalRotationAxis = Vec3f(cameraDirection)
-		verticalRotationAxis.cross(horizontalRotationAxis)
-
-		val direction = RayCasting.mapDirection(
-			angleSize,
-			cameraDirection,
-			horizontalRotationAxis,
-			verticalRotationAxis,
-			(scaledWindow.x / 2f).toInt(),
-			(scaledWindow.y / 2f).toInt(),
-			scaledWindow.x.toInt(),
-			scaledWindow.y.toInt(),
-		)
-
-		val hitResult = RayCasting.traceDirectional(direction, tickDelta, REACH_DISTANCE, cameraEntity.isSneaking)
+		val hitResult = RayCasting.traceDirectional(cameraDirection, tickDelta, REACH_DISTANCE, cameraEntity.isSneaking)
 
 		if (hitResult == null || hitResult.type == HitResult.Type.MISS) {
 			return
