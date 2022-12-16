@@ -6,11 +6,12 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vector4f
 
 object Math {
+
 	@JvmStatic
 	fun mapValue(value: Float, inMin: Float, inMax: Float, outMin: Float, outMax: Float): Float {
 		return ((value - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin
 	}
-	
+
 	@JvmStatic
 	fun project3Dto2D(pos3D: Vec3d, modelViewMatrix: Matrix4f, projectionMatrix: Matrix4f): Vector4f? {
 		val in3D = Game.gameRenderer.camera.pos.negate().add(pos3D);
