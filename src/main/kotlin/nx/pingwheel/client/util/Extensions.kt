@@ -2,50 +2,32 @@ package nx.pingwheel.client.util
 
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.util.math.Matrix4f
-import net.minecraft.util.math.Quaternion
-import nx.pingwheel.client.PingWheelClient
-import org.apache.logging.log4j.Logger
-import org.lwjgl.BufferUtils
-import kotlin.math.cos
-import kotlin.math.sin
+import org.joml.Matrix4f
+import org.joml.Quaternionf
 
 // global reference to the minecraft client
 val Game: MinecraftClient = MinecraftClient.getInstance()
-val ConLog: Logger = PingWheelClient.LOGGER
 
 // .rotateZ extension for usage similar to .translate and .scale
 fun MatrixStack.rotateZ(theta: Float) {
-	val m = BufferUtils.createFloatBuffer(16)
-	val m4f = Matrix4f()
-
-	m.put(cos(theta)); m.put(-sin(theta)); m.put(0f); m.put(0f)
-	m.put(sin(theta)); m.put(cos(theta)); m.put(0f); m.put(0f)
-	m.put(0f); m.put(0f); m.put(1f); m.put(0f)
-	m.put(0f); m.put(0f); m.put(0f); m.put(1f)
-
-	m4f.readRowMajor(m)
-	multiplyPositionMatrix(m4f)
+	multiplyPositionMatrix(Matrix4f().rotateZ(theta))
 }
 
 // extension of .multiply without mutating the original and instead return a quaternion
-fun Matrix4f.multiplyReturn(q: Quaternion): Quaternion {
-	val m = BufferUtils.createFloatBuffer(16)
-	writeRowMajor(m)
-
-	return Quaternion(
-		m[0] * q.x + m[1] * q.y + m[2] * q.z + m[3] * q.w,
-		m[4] * q.x + m[5] * q.y + m[6] * q.z + m[7] * q.w,
-		m[8] * q.x + m[9] * q.y + m[10] * q.z + m[11] * q.w,
-		m[12] * q.x + m[13] * q.y + m[14] * q.z + m[15] * q.w
+fun Matrix4f.multiplyReturn(q: Quaternionf): Quaternionf {
+	return Quaternionf(
+		m00() * q.x + m10() * q.y + m20() * q.z + m30() * q.w,
+		m01() * q.x + m11() * q.y + m21() * q.z + m31() * q.w,
+		m02() * q.x + m12() * q.y + m22() * q.z + m32() * q.w,
+		m03() * q.x + m13() * q.y + m23() * q.z + m33() * q.w
 	)
 }
 
 // retrieve quaternion in screen space
-fun Quaternion.toScreen(): Quaternion {
+fun Quaternionf.toScreen(): Quaternionf {
 	val newW = 1f / w * 0.5f
 
-	return Quaternion(
+	return Quaternionf(
 		x * newW + 0.5f,
 		y * newW + 0.5f,
 		z * newW + 0.5f,

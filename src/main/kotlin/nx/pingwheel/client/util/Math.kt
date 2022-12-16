@@ -1,9 +1,9 @@
 package nx.pingwheel.client.util
 
-import net.minecraft.util.math.Matrix4f
-import net.minecraft.util.math.Quaternion
 import net.minecraft.util.math.Vec3d
-import net.minecraft.util.math.Vector4f
+import org.joml.Matrix4f
+import org.joml.Quaternionf
+import org.joml.Vector4f
 
 object Math {
 	@JvmStatic
@@ -16,7 +16,7 @@ object Math {
 		val in3D = Game.gameRenderer.camera.pos.negate().add(pos3D);
 
 		val wnd = Game.window
-		val quaternion = Quaternion(
+		val quaternion = Quaternionf(
 			in3D.x.toFloat(), in3D.y.toFloat(), in3D.z.toFloat(),
 			1f
 		)

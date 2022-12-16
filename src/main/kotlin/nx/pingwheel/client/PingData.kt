@@ -1,7 +1,7 @@
 package nx.pingwheel.client
 
 import net.minecraft.util.math.Vec3d
-import net.minecraft.util.math.Vector4f
+import org.joml.Vector4f
 import java.util.UUID
 
 data class PingData(
