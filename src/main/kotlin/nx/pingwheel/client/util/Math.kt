@@ -6,6 +6,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.util.math.Vector4f
 
 object Math {
+
 	@JvmStatic
 	fun mapValue(value: Float, inMin: Float, inMax: Float, outMin: Float, outMax: Float): Float {
 		return ((value - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin
@@ -36,14 +37,5 @@ object Math {
 		}
 
 		return Vector4f(x, wnd.height - y, screenCoords.z, 1f / (screenCoords.w * 2f))
-	}
-
-	fun hexToVec(color: Long): Vector4f {
-		val a: Float = (color shr 24 and 0xFF) / 255f
-		val r: Float = (color shr 16 and 0xFF) / 255f
-		val g: Float = (color shr 8 and 0xFF) / 255f
-		val b: Float = (color and 0xFF) / 255f
-
-		return Vector4f(r, g, b, a)
 	}
 }
