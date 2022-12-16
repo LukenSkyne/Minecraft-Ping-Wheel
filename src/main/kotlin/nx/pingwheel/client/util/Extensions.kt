@@ -4,15 +4,12 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Quaternion
-import nx.pingwheel.client.PingWheelClient
-import org.apache.logging.log4j.Logger
 import org.lwjgl.BufferUtils
 import kotlin.math.cos
 import kotlin.math.sin
 
 // global reference to the minecraft client
 val Game: MinecraftClient = MinecraftClient.getInstance()
-val ConLog: Logger = PingWheelClient.LOGGER
 
 // .rotateZ extension for usage similar to .translate and .scale
 fun MatrixStack.rotateZ(theta: Float) {
