@@ -66,7 +66,8 @@ object Draw {
 		bufferBuilder.vertex(matrix, p2.x, p2.y, 0.0f).next()
 		bufferBuilder.vertex(matrix, p1.x, p1.y, 0.0f).next()
 
-		BufferRenderer.drawWithShader(bufferBuilder.end())
+		bufferBuilder.end()
+		BufferRenderer.draw(bufferBuilder)
 
 		GlStateManager._enableTexture()
 		GlStateManager._disableBlend()

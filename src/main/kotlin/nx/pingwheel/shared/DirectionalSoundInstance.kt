@@ -6,7 +6,6 @@ import net.minecraft.client.sound.MovingSoundInstance
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvent
 import net.minecraft.util.math.Vec3d
-import net.minecraft.util.math.random.Random
 import nx.pingwheel.client.util.Game
 import kotlin.math.*
 
@@ -16,9 +15,8 @@ class DirectionalSoundInstance(
 	category: SoundCategory,
 	volume: Float,
 	pitch: Float,
-	seed: Long,
 	pos: Vec3d,
-) : MovingSoundInstance(sound, category, Random.create(seed)) {
+) : MovingSoundInstance(sound, category) {
 
 	private val pos: Vec3d
 

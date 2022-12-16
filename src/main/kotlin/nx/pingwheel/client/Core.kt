@@ -47,7 +47,7 @@ object Core {
 
 		val scaledWindow = Vec2f(Game.window.scaledWidth.toFloat(), Game.window.scaledHeight.toFloat())
 		val cameraDirection = cameraEntity.getRotationVec(tickDelta)
-		val fov = Game.options.fov.value
+		val fov = Game.options.fov.toFloat()
 		val angleSize = fov / scaledWindow.y
 
 		var verticalRotationAxis = Vec3f(cameraDirection)
@@ -122,7 +122,6 @@ object Core {
 					SoundCategory.VOICE,
 					1f,
 					1f,
-					0,
 					pingPos,
 				)
 			)
