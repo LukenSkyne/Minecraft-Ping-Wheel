@@ -44,38 +44,8 @@ object Core {
 
 		queuePing = false
 		val cameraEntity = Game.cameraEntity ?: return
-
-		val scaledWindow = Vec2f(Game.window.scaledWidth.toFloat(), Game.window.scaledHeight.toFloat())
 		val cameraDirection = cameraEntity.getRotationVec(tickDelta)
-		val fov = Game.options.fov.toFloat()
-		val angleSize = fov / scaledWindow.y
-
-		var verticalRotationAxis = Vec3f(cameraDirection)
-		verticalRotationAxis.cross(Vec3f.POSITIVE_Y)
-
-		if (!verticalRotationAxis.normalize()) {
-			return
-		}
-
-		val horizontalRotationAxis = Vec3f(cameraDirection)
-		horizontalRotationAxis.cross(verticalRotationAxis)
-		horizontalRotationAxis.normalize()
-
-		verticalRotationAxis = Vec3f(cameraDirection)
-		verticalRotationAxis.cross(horizontalRotationAxis)
-
-		val direction = RayCasting.mapDirection(
-			angleSize,
-			cameraDirection,
-			horizontalRotationAxis,
-			verticalRotationAxis,
-			(scaledWindow.x / 2f).toInt(),
-			(scaledWindow.y / 2f).toInt(),
-			scaledWindow.x.toInt(),
-			scaledWindow.y.toInt(),
-		)
-
-		val hitResult = RayCasting.traceDirectional(direction, tickDelta, REACH_DISTANCE, cameraEntity.isSneaking)
+		val hitResult = RayCasting.traceDirectional(cameraDirection, tickDelta, REACH_DISTANCE, cameraEntity.isSneaking)
 
 		if (hitResult == null || hitResult.type == HitResult.Type.MISS) {
 			return
