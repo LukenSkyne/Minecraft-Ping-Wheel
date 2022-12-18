@@ -7,16 +7,18 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawableHelper
 import net.minecraft.client.network.ClientPlayNetworkHandler
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.entity.EntityType
+import net.minecraft.entity.ItemEntity
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.sound.SoundCategory
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
-import net.minecraft.util.math.*
+import net.minecraft.util.math.ColorHelper
+import net.minecraft.util.math.Matrix4f
+import net.minecraft.util.math.Vec2f
+import net.minecraft.util.math.Vec3d
 import nx.pingwheel.PingWheel
-import nx.pingwheel.client.util.Game
-import nx.pingwheel.client.util.Math
-import nx.pingwheel.client.util.RayCasting
-import nx.pingwheel.client.util.rotateZ
+import nx.pingwheel.client.util.*
 import nx.pingwheel.shared.Constants
 import nx.pingwheel.shared.DirectionalSoundInstance
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
@@ -113,6 +115,11 @@ object Core {
 				val ent = world.entities.find { entity -> entity.uuid == ping.uuid }
 
 				if (ent != null) {
+					if (ent.type == EntityType.ITEM) {
+						val itemEnt = ent as ItemEntity
+						ping.itemStack = itemEnt.stack.copy()
+					}
+
 					ping.pos = ent.getLerpedPos(tickDelta).add(0.0, ent.boundingBox.yLength, 0.0)
 				}
 			}
@@ -131,8 +138,8 @@ object Core {
 			val uiScaleAdjustment = Math.mapValue(uiScale.toFloat(), 1f, 5f, 1f, 2f)
 
 			val pingPosScreen = ping.screenPos ?: continue
-			val cameraPosVec = Game.player?.getCameraPosVec(Game.tickDelta)
-			val distanceToPing = cameraPosVec?.distanceTo(ping.pos)?.toFloat() ?: 0f
+			val cameraPosVec = Game.player?.getCameraPosVec(Game.tickDelta) ?: continue
+			val distanceToPing = cameraPosVec.distanceTo(ping.pos).toFloat()
 			val pingScale = getDistanceScale(distanceToPing) / uiScale.toFloat() * uiScaleAdjustment
 
 			val white = ColorHelper.Argb.getArgb(255, 255, 255, 255)
@@ -156,11 +163,26 @@ object Core {
 
 			DrawableHelper.fill(stack, -2, -2, textMetrics.x.toInt() + 1, textMetrics.y.toInt(), shadowBlack)
 			Game.textRenderer.draw(stack, text, 0f, 0f, white)
+
 			stack.pop() // pop text
 
-			stack.rotateZ(PI.toFloat() / 4f)
-			stack.translate(-2.5, -2.5, 0.0)
-			DrawableHelper.fill(stack, 0, 0, 5, 5, white)
+			if (ping.itemStack != null) {
+				val model = Game.itemRenderer.getModel(ping.itemStack, null, null, 0)
+
+				Draw.renderGuiItemModel(
+					ping.itemStack,
+					(pingPosScreen.x / uiScale),
+					(pingPosScreen.y / uiScale),
+					model,
+					stack,
+					pingScale * 2 / 3
+				)
+			} else {
+				stack.rotateZ(PI.toFloat() / 4f)
+				stack.translate(-2.5, -2.5, 0.0)
+				DrawableHelper.fill(stack, 0, 0, 5, 5, white)
+			}
+
 			stack.pop() // pop
 		}
 	}
