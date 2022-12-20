@@ -24,6 +24,9 @@
 		],
 		"main": [
 			"nx.pingwheel.PingWheel"
+		],
+		"modmenu": [
+			"nx.pingwheel.integration.ModMenuIntegration"
 		]
 	},
 	"mixins": [
