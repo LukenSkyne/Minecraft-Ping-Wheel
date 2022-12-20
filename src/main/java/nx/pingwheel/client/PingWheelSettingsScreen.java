@@ -22,6 +22,7 @@ public class PingWheelSettingsScreen extends Screen {
 	final private PingWheelConfigHandler configHandler;
 	final private Config config;
 
+	private Screen parent;
 	private ButtonListWidget list;
 	private TextFieldWidget channelTextField;
 
@@ -29,6 +30,11 @@ public class PingWheelSettingsScreen extends Screen {
 		super(Text.translatable("ping-wheel.settings.title"));
 		this.configHandler = PingWheelConfigHandler.getInstance();
 		this.config = configHandler.getConfig();
+	}
+
+	public PingWheelSettingsScreen(Screen parent) {
+		this();
+		this.parent = parent;
 	}
 
 	public void tick() {
@@ -90,7 +96,12 @@ public class PingWheelSettingsScreen extends Screen {
 
 	public void close() {
 		configHandler.save();
-		super.close();
+
+		if (parent != null && this.client != null) {
+			this.client.setScreen(parent);
+		} else {
+			super.close();
+		}
 	}
 
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
