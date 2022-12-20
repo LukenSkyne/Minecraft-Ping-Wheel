@@ -26,6 +26,13 @@ dependencies {
 
 	// Kotlin language support
 	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+
+	// Gson
+	implementation "com.google.code.gson:gson:2.10"
+
+	// Lombok
+	compileOnly "org.projectlombok:lombok:1.18.24"
+	annotationProcessor "org.projectlombok:lombok:1.18.24"
 }
 
 processResources {
