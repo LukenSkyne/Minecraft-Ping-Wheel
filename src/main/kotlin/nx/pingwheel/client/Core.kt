@@ -24,6 +24,7 @@ import nx.pingwheel.shared.DirectionalSoundInstance
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo
 import kotlin.math.PI
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 
 object Core {
@@ -31,8 +32,9 @@ object Core {
 	private const val REACH_DISTANCE = 256.0
 	private const val PING_LIFETIME = 140 // 7 seconds in Game Ticks
 
-	private var queuePing = false
+	private val config = PingWheelConfigHandler.getInstance().config
 	private var pingRepo = mutableListOf<PingData>()
+	private var queuePing = false
 
 	@JvmStatic
 	fun markLocation() {
@@ -47,13 +49,14 @@ object Core {
 		queuePing = false
 		val cameraEntity = Game.cameraEntity ?: return
 		val cameraDirection = cameraEntity.getRotationVec(tickDelta)
-		val hitResult = RayCasting.traceDirectional(cameraDirection, tickDelta, REACH_DISTANCE, cameraEntity.isSneaking)
+		val hitResult = RayCasting.traceDirectional(cameraDirection, tickDelta, min(REACH_DISTANCE, config.pingDistance.toDouble()), cameraEntity.isSneaking)
 
 		if (hitResult == null || hitResult.type == HitResult.Type.MISS) {
 			return
 		}
 
 		val packet = PacketByteBufs.create()
+		packet.writeString(config.channel)
 		packet.writeDouble(hitResult.pos.x)
 		packet.writeDouble(hitResult.pos.y)
 		packet.writeDouble(hitResult.pos.z)
@@ -82,7 +85,22 @@ object Core {
 		buf: PacketByteBuf,
 		responseSender: PacketSender
 	) {
+		val channel = buf.readString()
+
+		if (channel != config.channel) {
+			return
+		}
+
 		val pingPos = Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble())
+
+		if (config.pingDistance < 2048) {
+			val vecToPing = Game.player?.pos?.relativize(pingPos)
+
+			if (vecToPing != null && vecToPing.length() > config.pingDistance.toDouble()) {
+				return
+			}
+		}
+
 		val uuid = if (buf.readBoolean()) buf.readUuid() else null
 
 		client.execute {
@@ -91,8 +109,8 @@ object Core {
 			Game.soundManager.play(
 				DirectionalSoundInstance(
 					PingWheel.PING_SOUND_EVENT,
-					SoundCategory.VOICE,
-					1f,
+					SoundCategory.MASTER,
+					config.pingVolume / 100f,
 					1f,
 					0,
 					pingPos,
