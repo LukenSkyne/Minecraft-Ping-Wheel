@@ -5,7 +5,7 @@
 
 	"ping-wheel.settings.pingVolume": "Ping Volume: %s%%",
 	"ping-wheel.settings.itemIconVisible": "Item Icons",
-	"ping-wheel.settings.pingDistance": "Ping Distance: %s",
+	"ping-wheel.settings.pingDistance": "Ping Distance: %sm",
 	"ping-wheel.settings.pingDistance.hidden": "Ping Distance: Hidden",
 	"ping-wheel.settings.pingDistance.unlimited": "Unlimited Ping Distance",
 	"ping-wheel.settings.channel": "Ping Channel",
