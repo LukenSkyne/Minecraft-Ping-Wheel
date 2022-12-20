@@ -1,21 +1,14 @@
 package nx.pingwheel.client;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.option.SimpleOption;
-import net.minecraft.client.util.OrderableTooltip;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-
-import java.util.List;
-import java.util.Optional;
 
 public class PingWheelSettingsScreen extends Screen {
 
@@ -91,7 +84,10 @@ public class PingWheelSettingsScreen extends Screen {
 
 		this.addSelectableChild(this.list);
 
-		this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height - 27, 200, 20, ScreenTexts.DONE, (button) -> close()));
+		this.addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, (button) -> close())
+				.position(this.width / 2 - 100, this.height - 27)
+				.size(200, 20)
+				.build());
 	}
 
 	public void close() {
@@ -114,17 +110,8 @@ public class PingWheelSettingsScreen extends Screen {
 
 		super.render(matrices, mouseX, mouseY, delta);
 
-		var tooltipLines = getHoveredButtonTooltip(this.list, mouseX, mouseY);
-
-		if (tooltipLines.isEmpty() && (this.channelTextField.isHovered() && !this.channelTextField.isFocused())) {
-			tooltipLines = this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140);
+		if ((this.channelTextField.isHovered() && !this.channelTextField.isFocused())) {
+			this.renderOrderedTooltip(matrices, this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140), mouseX, mouseY);
 		}
-
-		this.renderOrderedTooltip(matrices, tooltipLines, mouseX, mouseY);
-	}
-
-	private static List<OrderedText> getHoveredButtonTooltip(ButtonListWidget buttonList, int mouseX, int mouseY) {
-		Optional<ClickableWidget> optional = buttonList.getHoveredButton(mouseX, mouseY);
-		return optional.isPresent() && optional.get() instanceof OrderableTooltip ? ((OrderableTooltip) optional.get()).getOrderedTooltip() : ImmutableList.of();
 	}
 }

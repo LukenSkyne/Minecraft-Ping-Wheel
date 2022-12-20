@@ -14,10 +14,6 @@ import net.minecraft.sound.SoundCategory
 import net.minecraft.util.hit.EntityHitResult
 import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.ColorHelper
-import net.minecraft.util.math.Matrix4f
-import net.minecraft.util.math.Vec2f
-import net.minecraft.util.math.Vec3d
-import net.minecraft.util.math.ColorHelper
 import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
 import nx.pingwheel.PingWheel
@@ -53,7 +49,12 @@ object Core {
 		queuePing = false
 		val cameraEntity = Game.cameraEntity ?: return
 		val cameraDirection = cameraEntity.getRotationVec(tickDelta)
-		val hitResult = RayCasting.traceDirectional(cameraDirection, tickDelta, min(REACH_DISTANCE, config.pingDistance.toDouble()), cameraEntity.isSneaking)
+		val hitResult = RayCasting.traceDirectional(
+			cameraDirection,
+			tickDelta,
+			min(REACH_DISTANCE, config.pingDistance.toDouble()),
+			cameraEntity.isSneaking
+		)
 
 		if (hitResult == null || hitResult.type == HitResult.Type.MISS) {
 			return
