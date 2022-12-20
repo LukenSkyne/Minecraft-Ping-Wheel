@@ -50,7 +50,13 @@ public class PingWheelSettingsScreen extends Screen {
 				0, 100, 1,
 				(gameOptions) -> (double)config.getPingVolume(),
 				(gameOptions, pingVolume) -> config.setPingVolume(pingVolume.intValue()),
-				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingVolume", config.getPingVolume())
+				(gameOptions, option) -> {
+					if (config.getPingVolume() == 0) {
+						return new TranslatableText("ping-wheel.settings.pingVolume", ScreenTexts.OFF);
+					}
+
+					return new TranslatableText("ping-wheel.settings.pingVolume", String.format("%s%%", config.getPingVolume()));
+				}
 		);
 
 		var pingDistanceOption = new DoubleOption(
@@ -62,12 +68,12 @@ public class PingWheelSettingsScreen extends Screen {
 					var pingDistance = config.getPingDistance();
 
 					if (pingDistance == 0) {
-						return new TranslatableText("ping-wheel.settings.pingDistance.hidden");
+						return new TranslatableText("ping-wheel.settings.pingDistance", new TranslatableText("ping-wheel.settings.pingDistance.hidden"));
 					} else if (pingDistance == 2048) {
-						return new TranslatableText("ping-wheel.settings.pingDistance.unlimited");
+						return new TranslatableText("ping-wheel.settings.pingDistance", new TranslatableText("ping-wheel.settings.pingDistance.unlimited"));
 					}
 
-					return new TranslatableText("ping-wheel.settings.pingDistance", pingDistance);
+					return new TranslatableText("ping-wheel.settings.pingDistance", String.format("%sm", pingDistance));
 				}
 		);
 
