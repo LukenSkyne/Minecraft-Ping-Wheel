@@ -117,7 +117,7 @@ public class PingWheelSettingsScreen extends Screen {
 		var tooltipLines = getHoveredButtonTooltip(this.list, mouseX, mouseY);
 
 		if (tooltipLines.isEmpty() && (this.channelTextField.isHovered() && !this.channelTextField.isFocused())) {
-			tooltipLines = this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 200);
+			tooltipLines = this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140);
 		}
 
 		this.renderOrderedTooltip(matrices, tooltipLines, mouseX, mouseY);
