@@ -43,7 +43,7 @@ public class ConfigHandler {
 			try {
 				Files.createFile(configFile.toPath());
 			} catch (IOException e) {
-				System.err.println("Creating Config failed: " + e);
+				PingWheelClient.LOGGER.error("[Ping-Wheel] Creating Config failed: " + e);
 				return;
 			}
 		}
@@ -53,13 +53,12 @@ public class ConfigHandler {
 			gson.toJson(config, writer);
 			writer.close();
 		} catch (Exception e) {
-			System.err.println("Saving Config failed: " + e);
+			PingWheelClient.LOGGER.error("[Ping-Wheel] Saving Config failed: " + e);
 			return;
 		}
 
 		configHash = config.hashCode();
-		System.out.println("Saved " + config);
-
+		PingWheelClient.LOGGER.info("[Ping-Wheel] Saved " + config);
 	}
 
 	public void load() {
@@ -79,14 +78,13 @@ public class ConfigHandler {
 
 		if (config == null) {
 			config = new Config();
-			System.out.println("Config is broken -> reset to defaults");
+			PingWheelClient.LOGGER.info("[Ping-Wheel] Config is broken -> reset to defaults");
 
 			save();
 			return;
 		}
 
 		configHash = config.hashCode();
-		System.out.println("Loaded " + config);
-
+		PingWheelClient.LOGGER.info("[Ping-Wheel] Loaded " + config);
 	}
 }
