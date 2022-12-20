@@ -28,6 +28,8 @@ public class PingWheelClient implements ClientModInitializer {
 
 		SetupKeyBindings();
 
+		PingWheelConfigHandler.getInstance().load();
+
 		ClientPlayNetworking.registerGlobalReceiver(Constants.S2C_PING_LOCATION, Core::onReceivePing);
 	}
 

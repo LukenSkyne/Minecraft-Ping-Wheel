@@ -19,11 +19,16 @@ import java.util.Optional;
 
 public class PingWheelSettingsScreen extends Screen {
 
+	final private PingWheelConfigHandler configHandler;
+	final private Config config;
+
 	private ButtonListWidget list;
 	private TextFieldWidget channelTextField;
 
 	public PingWheelSettingsScreen() {
 		super(Text.translatable("ping-wheel.settings.title"));
+		this.configHandler = PingWheelConfigHandler.getInstance();
+		this.config = configHandler.getConfig();
 	}
 
 	public void tick() {
@@ -39,10 +44,8 @@ public class PingWheelSettingsScreen extends Screen {
 				(optionText, value) -> Text.translatable("ping-wheel.settings.pingVolume", value),
 				(new SimpleOption.ValidatingIntSliderCallbacks(0, 100)),
 				Codec.intRange(0, 100),
-				100,
-				(value) -> {
-					System.out.println("pingVolume = " + value);
-				}
+				config.getPingVolume(),
+				config::setPingVolume
 		);
 
 		var pingDistanceOption = new SimpleOption<>(
@@ -60,20 +63,16 @@ public class PingWheelSettingsScreen extends Screen {
 				(new SimpleOption.ValidatingIntSliderCallbacks(0, 128))
 						.withModifier((value) -> value * 16, (value) -> value / 16),
 				Codec.intRange(0, 2048),
-				2048,
-				(value) -> {
-					System.out.println("pingDistance = " + value);
-				}
+				config.getPingDistance(),
+				config::setPingDistance
 		);
 
 		this.list.addOptionEntry(pingVolumeOption, pingDistanceOption);
 
 		var itemIconsVisibleOption = SimpleOption.ofBoolean(
 				"ping-wheel.settings.itemIconVisible",
-				true,
-				(value) -> {
-					System.out.println("itemIconsVisible = " + value);
-				}
+				config.isItemIconVisible(),
+				config::setItemIconVisible
 		);
 
 		this.list.addOptionEntry(itemIconsVisibleOption, null);
@@ -86,14 +85,11 @@ public class PingWheelSettingsScreen extends Screen {
 
 		this.addSelectableChild(this.list);
 
-		this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height - 27, 200, 20, ScreenTexts.DONE, (button) -> {
-			System.out.println("PingWheelSettingsScreen Done");
-			close();
-		}));
+		this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height - 27, 200, 20, ScreenTexts.DONE, (button) -> close()));
 	}
 
 	public void close() {
-		System.out.println("PingWheelSettingsScreen closing!!");
+		configHandler.save();
 		super.close();
 	}
 
