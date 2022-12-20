@@ -29,6 +29,10 @@ The following screenshot shows two pings in different distances with according s
 
 <img src=".github/in-game-screenshot.png" alt="In-Game">
 
+When enabled, this feature replaces the ping icon with the respective item texture (or model).
+
+<img src=".github/item-icon-showcase.png" alt="Item-Icons">
+
 ## Dependencies
 
 This mod mostly uses kotlin internally and therefore requires Kotlin Language support in addition to the Fabric API.
