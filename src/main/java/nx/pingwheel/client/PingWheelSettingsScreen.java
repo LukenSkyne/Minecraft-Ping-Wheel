@@ -47,7 +47,13 @@ public class PingWheelSettingsScreen extends Screen {
 		var pingVolumeOption = new SimpleOption<>(
 				"ping-wheel.settings.pingVolume",
 				SimpleOption.emptyTooltip(),
-				(optionText, value) -> Text.translatable("ping-wheel.settings.pingVolume", value),
+				(optionText, value) -> {
+					if (value == 0) {
+						return Text.translatable("ping-wheel.settings.pingVolume", ScreenTexts.OFF);
+					}
+
+					return Text.translatable("ping-wheel.settings.pingVolume", String.format("%s%%", value));
+				},
 				(new SimpleOption.ValidatingIntSliderCallbacks(0, 100)),
 				Codec.intRange(0, 100),
 				config.getPingVolume(),
@@ -59,12 +65,12 @@ public class PingWheelSettingsScreen extends Screen {
 				SimpleOption.emptyTooltip(),
 				(optionText, value) -> {
 					if (value == 0) {
-						return Text.translatable("ping-wheel.settings.pingDistance.hidden");
+						return Text.translatable("ping-wheel.settings.pingDistance", Text.translatable("ping-wheel.settings.pingDistance.hidden"));
 					} else if (value == 2048) {
-						return Text.translatable("ping-wheel.settings.pingDistance.unlimited");
+						return Text.translatable("ping-wheel.settings.pingDistance", Text.translatable("ping-wheel.settings.pingDistance.unlimited"));
 					}
 
-					return Text.translatable("ping-wheel.settings.pingDistance", value);
+					return Text.translatable("ping-wheel.settings.pingDistance", String.format("%sm", value));
 				},
 				(new SimpleOption.ValidatingIntSliderCallbacks(0, 128))
 						.withModifier((value) -> value * 16, (value) -> value / 16),
