@@ -132,7 +132,7 @@ object Core {
 				val ent = world.entities.find { entity -> entity.uuid == ping.uuid }
 
 				if (ent != null) {
-					if (ent.type == EntityType.ITEM) {
+					if (ent.type == EntityType.ITEM && config.itemIconVisible) {
 						val itemEnt = ent as ItemEntity
 						ping.itemStack = itemEnt.stack.copy()
 					}
@@ -183,7 +183,7 @@ object Core {
 
 			stack.pop() // pop text
 
-			if (ping.itemStack != null) {
+			if (ping.itemStack != null && config.itemIconVisible) {
 				val model = Game.itemRenderer.getModel(ping.itemStack, null, null, 0)
 
 				Draw.renderGuiItemModel(
