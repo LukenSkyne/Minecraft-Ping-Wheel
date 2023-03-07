@@ -78,13 +78,22 @@ public class PingWheelClient implements ClientModInitializer {
 					return 1;
 				}));
 
+		var cmdConfig = literal("config")
+				.executes((context) -> {
+					MinecraftClient.getInstance().setScreen(new PingWheelSettingsScreen());
+					MinecraftClient.getInstance().run();
+
+					return 1;
+				});
+
 		var cmd = literal("pingwheel")
 				.executes((context) -> {
 					context.getSource().sendFeedback(new LiteralText("/pingwheel channel [<channel_name>]"));
 
 					return 1;
 				})
-				.then(cmdChannel);
+				.then(cmdChannel)
+				.then(cmdConfig);
 
 		ClientCommandManager.DISPATCHER.register(cmd);
 	}
