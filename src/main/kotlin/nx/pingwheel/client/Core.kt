@@ -30,7 +30,7 @@ import kotlin.math.pow
 object Core {
 
 	private const val REACH_DISTANCE = 256.0
-	private const val PING_LIFETIME = 140 // 7 seconds in Game Ticks
+	private const val TPS = 20
 
 	private val config = PingWheelConfigHandler.getInstance().config
 	private var pingRepo = mutableListOf<PingData>()
@@ -145,7 +145,7 @@ object Core {
 			ping.aliveTime = time - ping.spawnTime
 		}
 
-		pingRepo.removeIf { p -> p.aliveTime!! > PING_LIFETIME }
+		pingRepo.removeIf { p -> p.aliveTime!! > config.pingDuration * TPS }
 	}
 
 	@JvmStatic
