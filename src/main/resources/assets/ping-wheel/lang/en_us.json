@@ -8,6 +8,7 @@
 	"ping-wheel.settings.pingDistance": "Ping Distance: %s",
 	"ping-wheel.settings.pingDistance.hidden": "Hidden",
 	"ping-wheel.settings.pingDistance.unlimited": "Unlimited",
+	"ping-wheel.settings.pingDuration": "Ping Duration: %s",
 	"ping-wheel.settings.channel": "Ping Channel",
 	"ping-wheel.settings.channel.tooltip": "You only send and receive Pings to and from players on the same channel",
 
