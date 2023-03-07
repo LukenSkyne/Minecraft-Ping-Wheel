@@ -29,7 +29,7 @@ import kotlin.math.pow
 
 object Core {
 
-	private const val REACH_DISTANCE = 256.0
+	private const val REACH_DISTANCE = 1024.0
 	private const val TPS = 20
 
 	private val config = PingWheelConfigHandler.getInstance().config
