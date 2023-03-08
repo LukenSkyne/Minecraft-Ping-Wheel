@@ -1,10 +1,12 @@
 package nx.pingwheel.client;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -86,15 +88,29 @@ public class PingWheelClient implements ClientModInitializer {
 					return 1;
 				});
 
-		var cmd = literal("pingwheel")
-				.executes((context) -> {
-					context.getSource().sendFeedback(new LiteralText("/pingwheel channel [<channel_name>]"));
+		Command<FabricClientCommandSource> helpCallback = (context) -> {
+			var output = """
+				§f/pingwheel config
+				§7(manage pingwheel configuration)
+				§f/pingwheel channel
+				§7(get your current channel)
+				§f/pingwheel channel <channel_name>
+				§7(set your current channel, use "" for global channel)""";
 
-					return 1;
-				})
-				.then(cmdChannel)
-				.then(cmdConfig);
+			context.getSource().sendFeedback(new LiteralText(output));
 
-		ClientCommandManager.DISPATCHER.register(cmd);
+			return 1;
+		};
+
+		var cmdHelp = literal("help")
+				.executes(helpCallback);
+
+		var cmdBase = literal("pingwheel")
+				.executes(helpCallback)
+				.then(cmdHelp)
+				.then(cmdConfig)
+				.then(cmdChannel);
+
+		ClientCommandManager.DISPATCHER.register(cmdBase);
 	}
 }
