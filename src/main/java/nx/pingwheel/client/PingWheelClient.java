@@ -82,8 +82,8 @@ public class PingWheelClient implements ClientModInitializer {
 
 		var cmdConfig = literal("config")
 				.executes((context) -> {
-					MinecraftClient.getInstance().setScreen(new PingWheelSettingsScreen());
-					MinecraftClient.getInstance().run();
+					var client = context.getSource().getClient();
+					client.send(() -> client.setScreen(new PingWheelSettingsScreen()));
 
 					return 1;
 				});
