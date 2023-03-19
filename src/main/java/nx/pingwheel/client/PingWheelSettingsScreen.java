@@ -32,6 +32,10 @@ public class PingWheelSettingsScreen extends Screen {
 
 	public void tick() {
 		this.channelTextField.tick();
+
+		if (this.channelTextField.isFocused() && this.getFocused() != this.channelTextField) {
+			this.setFocused(this.channelTextField);
+		}
 	}
 
 	protected void init() {
