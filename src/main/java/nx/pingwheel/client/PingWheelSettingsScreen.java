@@ -2,7 +2,7 @@ package nx.pingwheel.client;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonListWidget;
+import net.minecraft.client.gui.widget.OptionListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.option.SimpleOption;
@@ -16,7 +16,7 @@ public class PingWheelSettingsScreen extends Screen {
 	final private Config config;
 
 	private Screen parent;
-	private ButtonListWidget list;
+	private OptionListWidget list;
 	private TextFieldWidget channelTextField;
 
 	public PingWheelSettingsScreen() {
@@ -39,7 +39,7 @@ public class PingWheelSettingsScreen extends Screen {
 	}
 
 	protected void init() {
-		this.list = new ButtonListWidget(this.client, this.width, this.height, 32, this.height - 32, 25);
+		this.list = new OptionListWidget(this.client, this.width, this.height, 32, this.height - 32, 25);
 
 		var pingVolumeOption = new SimpleOption<>(
 				"ping-wheel.settings.pingVolume",
@@ -123,7 +123,7 @@ public class PingWheelSettingsScreen extends Screen {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		this.renderBackground(matrices);
 		this.list.render(matrices, mouseX, mouseY, delta);
-		drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 5, 16777215);
+		drawCenteredTextWithShadow(matrices, this.textRenderer, this.title, this.width / 2, 5, 16777215);
 
 		drawTextWithShadow(matrices, this.textRenderer, Text.translatable("ping-wheel.settings.channel"), this.width / 2 - 100, 128, 10526880);
 		this.channelTextField.render(matrices, mouseX, mouseY, delta);

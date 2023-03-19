@@ -6,7 +6,7 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.render.DiffuseLighting
 import net.minecraft.client.render.OverlayTexture
 import net.minecraft.client.render.model.BakedModel
-import net.minecraft.client.render.model.json.ModelTransformation
+import net.minecraft.client.render.model.json.ModelTransformationMode
 import net.minecraft.client.texture.SpriteAtlasTexture
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.item.ItemStack
@@ -30,7 +30,7 @@ object Draw {
 		val matrixStack = RenderSystem.getModelViewStack()
 		matrixStack.push()
 
-		matrixStack.translate(x, y, (100.0f + Game.itemRenderer.zOffset).toDouble())
+		matrixStack.translate(x, y, 100.0)
 
 		matrixStack.scale(scale, scale, scale)
 
@@ -50,7 +50,7 @@ object Draw {
 		}
 		Game.itemRenderer.renderItem(
 			stack,
-			ModelTransformation.Mode.GUI,
+			ModelTransformationMode.GUI,
 			false,
 			matrixStack2,
 			immediate,
