@@ -80,12 +80,14 @@ public class PingWheelSettingsScreen extends Screen {
 				config::setItemIconVisible
 		);
 
-		var pingDurationOption = new DoubleOption(
+		var pingDurationOption = new SimpleOption<>(
 				"ping-wheel.settings.pingDuration",
-				1, 60, 1,
-				(gameOptions) -> (double)config.getPingDuration(),
-				(gameOptions, pingDuration) -> config.setPingDuration(pingDuration.intValue()),
-				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingDuration", String.format("%ss", config.getPingDuration()))
+				SimpleOption.emptyTooltip(),
+				(optionText, value) -> Text.translatable("ping-wheel.settings.pingDuration", String.format("%ss", value)),
+				(new SimpleOption.ValidatingIntSliderCallbacks(1, 60)),
+				Codec.intRange(1, 60),
+				config.getPingDuration(),
+				config::setPingDuration
 		);
 
 		this.list.addOptionEntry(itemIconsVisibleOption, pingDurationOption);
