@@ -85,7 +85,15 @@ public class PingWheelSettingsScreen extends Screen {
 				(gameOptions, option, iconItemVisibility) -> config.setItemIconVisible(iconItemVisibility)
 		);
 
-		this.list.addOptionEntry(itemIconsVisibleOption, null);
+		var pingDurationOption = new DoubleOption(
+				"ping-wheel.settings.pingDuration",
+				1, 60, 1,
+				(gameOptions) -> (double)config.getPingDuration(),
+				(gameOptions, pingDuration) -> config.setPingDuration(pingDuration.intValue()),
+				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingDuration", String.format("%ss", config.getPingDuration()))
+		);
+
+		this.list.addOptionEntry(itemIconsVisibleOption, pingDurationOption);
 
 		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 140, 200, 20, Text.of(""));
 		this.channelTextField.setMaxLength(128);
