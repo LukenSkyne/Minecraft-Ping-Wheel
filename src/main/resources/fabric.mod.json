@@ -33,9 +33,9 @@
 		"ping-wheel.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.14.14",
+		"fabricloader": ">=0.14.21",
 		"fabric-api": "*",
 		"fabric-language-kotlin": "*",
-		"minecraft": "1.19.4"
+		"minecraft": "1.20"
 	}
 }
