@@ -29,7 +29,7 @@ public class PingWheel implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(Constants.C2S_PING_LOCATION, (server, player, handler, buf, responseSender) -> {
 			final var packet = PacketByteBufs.copy(buf);
 
-			for (ServerPlayerEntity p : PlayerLookup.world(player.getWorld())) {
+			for (ServerPlayerEntity p : PlayerLookup.world(player.getServerWorld())) {
 				ServerPlayNetworking.send(p, Constants.S2C_PING_LOCATION, packet);
 			}
 		});

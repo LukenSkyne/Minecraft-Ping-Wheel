@@ -4,7 +4,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.gui.DrawableHelper
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.network.ClientPlayNetworkHandler
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.EntityType
@@ -125,9 +125,9 @@ object Core {
 	}
 
 	@JvmStatic
-	fun onRenderWorld(stack: MatrixStack, projectionMatrix: Matrix4f, tickDelta: Float) {
+	fun onRenderWorld(matrices: MatrixStack, projectionMatrix: Matrix4f, tickDelta: Float) {
 		val world = Game.world ?: return
-		val modelViewMatrix = stack.peek().positionMatrix
+		val modelViewMatrix = matrices.peek().positionMatrix
 
 		processPing(tickDelta)
 
@@ -155,7 +155,7 @@ object Core {
 	}
 
 	@JvmStatic
-	fun onRenderGUI(stack: MatrixStack, ci: CallbackInfo) {
+	fun onRenderGUI(ctx: DrawContext, ci: CallbackInfo) {
 		for (ping in pingRepo) {
 			val uiScale = Game.window.scaleFactor
 			val uiScaleAdjustment = Math.mapValue(uiScale.toFloat(), 1f, 5f, 1f, 2f)
@@ -168,12 +168,13 @@ object Core {
 			val white = ColorHelper.Argb.getArgb(255, 255, 255, 255)
 			val shadowBlack = ColorHelper.Argb.getArgb(64, 0, 0, 0)
 
-			stack.push() // push
 
-			stack.translate((pingPosScreen.x / uiScale), (pingPosScreen.y / uiScale), 0.0)
-			stack.scale(pingScale, pingScale, 1f)
+			ctx.matrices.push() // push
 
-			stack.push() // push text
+			ctx.matrices.translate((pingPosScreen.x / uiScale), (pingPosScreen.y / uiScale), 0.0)
+			ctx.matrices.scale(pingScale, pingScale, 1f)
+
+			ctx.matrices.push() // push text
 
 			val text = "%.1fm".format(distanceToPing)
 			val textMetrics = Vec2f(
@@ -182,12 +183,12 @@ object Core {
 			)
 			val textOffset = textMetrics.multiply(-0.5f).add(Vec2f(0f, textMetrics.y * -1.5f))
 
-			stack.translate(textOffset.x.toDouble(), textOffset.y.toDouble(), 0.0)
+			ctx.matrices.translate(textOffset.x.toDouble(), textOffset.y.toDouble(), 0.0)
 
-			DrawableHelper.fill(stack, -2, -2, textMetrics.x.toInt() + 1, textMetrics.y.toInt(), shadowBlack)
-			Game.textRenderer.draw(stack, text, 0f, 0f, white)
+			ctx.fill(-2, -2, textMetrics.x.toInt() + 1, textMetrics.y.toInt(), shadowBlack)
+			ctx.drawText(Game.textRenderer, text, 0, 0, white, false)
 
-			stack.pop() // pop text
+			ctx.matrices.pop() // pop text
 
 			if (ping.itemStack != null && config.itemIconVisible) {
 				val model = Game.itemRenderer.getModel(ping.itemStack, null, null, 0)
@@ -197,16 +198,16 @@ object Core {
 					(pingPosScreen.x / uiScale),
 					(pingPosScreen.y / uiScale),
 					model,
-					stack,
+					ctx.matrices,
 					pingScale * 2 / 3
 				)
 			} else {
-				stack.rotateZ(PI.toFloat() / 4f)
-				stack.translate(-2.5, -2.5, 0.0)
-				DrawableHelper.fill(stack, 0, 0, 5, 5, white)
+				ctx.matrices.rotateZ(PI.toFloat() / 4f)
+				ctx.matrices.translate(-2.5, -2.5, 0.0)
+				ctx.fill(0, 0, 5, 5, white)
 			}
 
-			stack.pop() // pop
+			ctx.matrices.pop() // pop
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package nx.pingwheel.client;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.OptionListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -120,18 +121,19 @@ public class PingWheelSettingsScreen extends Screen {
 		}
 	}
 
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-		this.renderBackground(matrices);
-		this.list.render(matrices, mouseX, mouseY, delta);
-		drawCenteredTextWithShadow(matrices, this.textRenderer, this.title, this.width / 2, 5, 16777215);
+	public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
+		this.renderBackground(ctx);
+		this.list.render(ctx, mouseX, mouseY, delta);
+		ctx.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 5, 16777215);
 
-		drawTextWithShadow(matrices, this.textRenderer, Text.translatable("ping-wheel.settings.channel"), this.width / 2 - 100, 128, 10526880);
-		this.channelTextField.render(matrices, mouseX, mouseY, delta);
 
-		super.render(matrices, mouseX, mouseY, delta);
+		ctx.drawTextWithShadow(this.textRenderer, Text.translatable("ping-wheel.settings.channel"), this.width / 2 - 100, 128, 10526880);
+		this.channelTextField.render(ctx, mouseX, mouseY, delta);
+
+		super.render(ctx, mouseX, mouseY, delta);
 
 		if ((this.channelTextField.isHovered() && !this.channelTextField.isFocused())) {
-			this.renderOrderedTooltip(matrices, this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140), mouseX, mouseY);
+			ctx.drawOrderedTooltip(this.textRenderer, this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140), mouseX, mouseY);
 		}
 	}
 }

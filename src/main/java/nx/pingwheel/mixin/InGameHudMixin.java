@@ -1,7 +1,7 @@
 package nx.pingwheel.mixin;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.util.math.MatrixStack;
 import nx.pingwheel.client.Core;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +16,7 @@ public abstract class InGameHudMixin {
             value = "FIELD",
             target = "Lnet/minecraft/client/option/GameOptions;debugEnabled:Z",
             opcode = Opcodes.GETFIELD, args = {"log=false"}))
-    private void onRenderPreDebugScreen(MatrixStack stack, float f, CallbackInfo ci) {
-        Core.onRenderGUI(stack, ci);
+    private void onRenderPreDebugScreen(DrawContext ctx, float f, CallbackInfo ci) {
+        Core.onRenderGUI(ctx, ci);
     }
 }
