@@ -113,7 +113,7 @@ object Core {
 
 			Game.soundManager.play(
 				DirectionalSoundInstance(
-					PingWheel.PING_SOUND_EVENT,
+					PingWheelClient.PING_SOUND_EVENT,
 					SoundCategory.MASTER,
 					config.pingVolume / 100f,
 					1f,
