@@ -16,7 +16,6 @@ import net.minecraft.util.hit.HitResult
 import net.minecraft.util.math.ColorHelper
 import net.minecraft.util.math.Vec2f
 import net.minecraft.util.math.Vec3d
-import nx.pingwheel.PingWheel
 import nx.pingwheel.client.util.*
 import nx.pingwheel.shared.Constants
 import nx.pingwheel.shared.DirectionalSoundInstance
@@ -113,7 +112,7 @@ object Core {
 
 			Game.soundManager.play(
 				DirectionalSoundInstance(
-					PingWheel.PING_SOUND_EVENT,
+					PingWheelClient.PING_SOUND_EVENT,
 					SoundCategory.MASTER,
 					config.pingVolume / 100f,
 					1f,

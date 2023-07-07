@@ -13,7 +13,11 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import nx.pingwheel.shared.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,6 +36,9 @@ public class PingWheelClient implements ClientModInitializer {
 	private static KeyBinding kbPing;
 	private static KeyBinding kbSettings;
 
+	public static final Identifier PING_SOUND_ID = new Identifier("ping-wheel:ping");
+	public static SoundEvent PING_SOUND_EVENT = SoundEvent.of(PING_SOUND_ID);
+
 	@Override
 	public void onInitializeClient() {
 		LOGGER.info("[Ping-Wheel] Client Init");
@@ -40,6 +47,8 @@ public class PingWheelClient implements ClientModInitializer {
 
 		SetupKeyBindings();
 		SetupClientCommands();
+
+		Registry.register(Registries.SOUND_EVENT, PING_SOUND_ID, PING_SOUND_EVENT);
 
 		ClientPlayNetworking.registerGlobalReceiver(Constants.S2C_PING_LOCATION, Core::onReceivePing);
 	}
