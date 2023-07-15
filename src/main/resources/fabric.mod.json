@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "ping-wheel",
+	"version": "${version}",
+	"name": "Ping Wheel",
+	"description": "The ability to mark locations similar to the ping mechanism found in modern co-op multiplayer games.",
+	"authors": [
+		"Luken"
+	],
+	"contributors": [
+		"RXJpaw"
+	],
+	"contact": {
+		"homepage": "https://www.curseforge.com/minecraft/mc-mods/ping-wheel",
+		"sources": "https://github.com/LukenSkyne/Minecraft-Ping-Wheel",
+		"issues": "https://github.com/LukenSkyne/Minecraft-Ping-Wheel/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/ping-wheel/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"nx.pingwheel.client.PingWheelClient"
+		],
+		"main": [
+			"nx.pingwheel.shared.PingWheel"
+		],
+		"modmenu": [
+			"nx.pingwheel.client.integration.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"ping-wheel.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.11",
+		"fabric": "*",
+		"minecraft": "1.18.x"
+	}
+}
