@@ -1,0 +1,58 @@
+name: "Build and Publish"
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: "Set up JDK 17"
+        uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: "17"
+
+      - name: "Build with Gradle"
+        id: build
+        run: "chmod +x gradlew && ./gradlew build publish"
+
+      - name: Extracting mod version
+        run: echo "MOD_VERSION=$(grep "mod_version=" gradle.properties | cut -d "=" -f 2)" >> $GITHUB_ENV
+
+      - name: Extracting minecraft version
+        run: echo "MC_VERSION=$(grep "minecraft_version=" gradle.properties | cut -d "=" -f 2)" >> $GITHUB_ENV
+
+      - name: "Rename output file"
+        run: "mv ./build/libs/*.jar ./build/libs/Ping-Wheel-${{ env.MOD_VERSION }}-fabric-${{ env.MC_VERSION }}.jar"
+
+      - name: Publish to Platforms
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: QQXAdCzh
+          modrinth-token: ${{ secrets.MODRINTH_API_TOKEN }}
+
+          curseforge-id: 734339
+          curseforge-token: ${{ secrets.CURSEFORGE_API_TOKEN }}
+
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+          name: "[${{ env.MC_VERSION }}] Ping Wheel ${{ env.MOD_VERSION }}"
+          changelog-file: CHANGELOG.md
+
+          loaders: |
+            fabric
+          game-versions: |
+            >=1.18 <=1.18.2
+          dependencies: |
+            fabric-api(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)
+
+          retry-attempts: 2
+          retry-delay: 10000
+          fail-mode: fail
