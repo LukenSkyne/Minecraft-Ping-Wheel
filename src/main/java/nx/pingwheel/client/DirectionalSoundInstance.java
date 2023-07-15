@@ -6,6 +6,7 @@ import net.minecraft.client.sound.MovingSoundInstance;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 
 import static nx.pingwheel.client.PingWheelClient.Game;
 
@@ -19,7 +20,7 @@ public class DirectionalSoundInstance extends MovingSoundInstance {
 									   float volume,
 									   float pitch,
 									   Vec3d pos) {
-		super(sound, category);
+		super(sound, category, Random.create(0));
 
 		this.volume = volume;
 		this.pitch = pitch;
