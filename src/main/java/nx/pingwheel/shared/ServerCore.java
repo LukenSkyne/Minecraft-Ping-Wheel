@@ -54,7 +54,7 @@ public class ServerCore {
 
 		packetCopy.writeUuid(player.getUuid());
 
-		for (ServerPlayerEntity p : PlayerLookup.world(player.getWorld())) {
+		for (ServerPlayerEntity p : PlayerLookup.world(player.getServerWorld())) {
 			if (!channel.equals(playerChannels.getOrDefault(p.getUuid(), ""))) {
 				continue;
 			}
