@@ -13,7 +13,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec2f;
 import nx.pingwheel.client.config.Config;
 import nx.pingwheel.client.helper.Draw;
@@ -22,6 +21,7 @@ import nx.pingwheel.client.helper.PingData;
 import nx.pingwheel.client.helper.Raycast;
 import nx.pingwheel.shared.network.PingLocationPacketC2S;
 import nx.pingwheel.shared.network.PingLocationPacketS2C;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -155,7 +155,7 @@ public class ClientCore {
 			var shadowBlack = ColorHelper.Argb.getArgb(64, 0, 0, 0);
 
 			m.push();
-			m.translate((pos.getX() / uiScale), (pos.getY() / uiScale), 0);
+			m.translate((pos.x / uiScale), (pos.y / uiScale), 0);
 			m.scale(pingScale, pingScale, 1f);
 
 			var text = String.format("%.1fm", distanceToPing);
@@ -176,8 +176,8 @@ public class ClientCore {
 
 				Draw.renderGuiItemModel(
 					ping.itemStack,
-					(pos.getX() / uiScale),
-					(pos.getY() / uiScale),
+					(pos.x / uiScale),
+					(pos.y / uiScale),
 					model,
 					pingScale * 2 / 3
 				);
