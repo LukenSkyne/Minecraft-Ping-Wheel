@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -21,7 +22,6 @@ import nx.pingwheel.client.helper.PingData;
 import nx.pingwheel.client.helper.Raycast;
 import nx.pingwheel.shared.network.PingLocationPacketC2S;
 import nx.pingwheel.shared.network.PingLocationPacketS2C;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -39,6 +39,7 @@ public class ClientCore {
 	private static final Config Config = ConfigHandler.getConfig();
 	private static final ArrayList<PingData> pingRepo = new ArrayList<>();
 	private static boolean queuePing = false;
+	private static ClientWorld lastWorld = null;
 
 	public static void markLocation() {
 		queuePing = true;
@@ -91,6 +92,11 @@ public class ClientCore {
 									 float tickDelta) {
 		if (Game.world == null) {
 			return;
+		}
+
+		if (lastWorld != Game.world) {
+			lastWorld = Game.world;
+			pingRepo.clear();
 		}
 
 		if (queuePing) {
