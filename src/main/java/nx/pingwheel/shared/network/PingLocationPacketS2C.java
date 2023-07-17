@@ -2,8 +2,6 @@ package nx.pingwheel.shared.network;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
@@ -21,24 +19,10 @@ public class PingLocationPacketS2C {
 	private Vec3d pos;
 	@Nullable
 	private UUID entity;
+	private int sequence;
+	private UUID author;
 
 	public static final Identifier ID = new Identifier(PingWheel.MOD_ID + "-s2c", "ping-location");
-
-	public void send() {
-		var packet = PacketByteBufs.create();
-
-		packet.writeString(channel);
-		packet.writeDouble(pos.x);
-		packet.writeDouble(pos.y);
-		packet.writeDouble(pos.z);
-		packet.writeBoolean(entity != null);
-
-		if (entity != null) {
-			packet.writeUuid(entity);
-		}
-
-		ClientPlayNetworking.send(ID, packet);
-	}
 
 	public static Optional<PingLocationPacketS2C> parse(PacketByteBuf buf) {
 		try {
@@ -48,8 +32,14 @@ public class PingLocationPacketS2C {
 				buf.readDouble(),
 				buf.readDouble());
 			var uuid = buf.readBoolean() ? buf.readUuid() : null;
+			var sequence = (buf.readableBytes() > 0) ? buf.readInt() : -1;
+			var author = (buf.readableBytes() > 0) ? buf.readUuid() : UUID.randomUUID();
 
-			return Optional.of(new PingLocationPacketS2C(channel, pos, uuid));
+			if (buf.readableBytes() > 0) {
+				return Optional.empty();
+			}
+
+			return Optional.of(new PingLocationPacketS2C(channel, pos, uuid, sequence, author));
 		} catch (Exception e) {
 			return Optional.empty();
 		}

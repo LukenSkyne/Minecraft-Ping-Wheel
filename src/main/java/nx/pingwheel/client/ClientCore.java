@@ -40,6 +40,8 @@ public class ClientCore {
 	private static final ArrayList<PingData> pingRepo = new ArrayList<>();
 	private static boolean queuePing = false;
 	private static ClientWorld lastWorld = null;
+	private static int lastPing = 0;
+	private static int pingSequence = 0;
 
 	public static void markLocation() {
 		queuePing = true;
@@ -67,13 +69,13 @@ public class ClientCore {
 		}
 
 		Game.execute(() -> {
-			pingRepo.add(
-				new PingData(
-					pingLocation.getPos(),
-					pingLocation.getEntity(),
-					(int)Game.world.getTime()
-				)
-			);
+			addOrReplacePing(new PingData(
+				pingLocation.getPos(),
+				pingLocation.getEntity(),
+				pingLocation.getAuthor(),
+				pingLocation.getSequence(),
+				(int)Game.world.getTime()
+			));
 
 			Game.getSoundManager().play(
 				new DirectionalSoundInstance(
@@ -99,14 +101,19 @@ public class ClientCore {
 			pingRepo.clear();
 		}
 
+		var time = (int)Game.world.getTime();
+
 		if (queuePing) {
+			if (time - lastPing > Config.getCorrectionPeriod() * TPS) {
+				++pingSequence;
+			}
+
+			lastPing = time;
 			queuePing = false;
 			executePing(tickDelta);
 		}
 
 		var modelViewMatrix = matrixStack.peek().getPositionMatrix();
-
-		var time = (int)Game.world.getTime();
 
 		for (var ping : pingRepo) {
 			if (ping.getUuid() != null) {
@@ -210,7 +217,26 @@ public class ClientCore {
 			uuid = ((EntityHitResult)hitResult).getEntity().getUuid();
 		}
 
-		new PingLocationPacketC2S(Config.getChannel(), hitResult.getPos(), uuid).send();
+		new PingLocationPacketC2S(Config.getChannel(), hitResult.getPos(), uuid, pingSequence).send();
+	}
+
+	private static void addOrReplacePing(PingData newPing) {
+		int index = -1;
+
+		for (int i = 0; i < pingRepo.size(); i++) {
+			var entry = pingRepo.get(i);
+
+			if (entry.getAuthor().equals(newPing.getAuthor()) && entry.getSequence() == newPing.getSequence()) {
+				index = i;
+				break;
+			}
+		}
+
+		if (index != -1) {
+			pingRepo.set(index, newPing);
+		} else {
+			pingRepo.add(newPing);
+		}
 	}
 
 	private static Entity getEntity(UUID uuid) {

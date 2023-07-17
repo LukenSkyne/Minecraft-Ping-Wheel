@@ -18,6 +18,8 @@ public class ServerCore {
 			return;
 		}
 
+		packetCopy.writeUuid(player.getUuid());
+
 		for (ServerPlayerEntity p : PlayerLookup.world(player.getWorld())) {
 			ServerPlayNetworking.send(p, PingLocationPacketS2C.ID, packetCopy);
 		}

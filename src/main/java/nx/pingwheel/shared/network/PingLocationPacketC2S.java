@@ -21,6 +21,7 @@ public class PingLocationPacketC2S {
 	private Vec3d pos;
 	@Nullable
 	private UUID entity;
+	private int sequence;
 
 	public static final Identifier ID = new Identifier(PingWheel.MOD_ID + "-c2s", "ping-location");
 
@@ -37,6 +38,8 @@ public class PingLocationPacketC2S {
 			packet.writeUuid(entity);
 		}
 
+		packet.writeInt(sequence);
+
 		ClientPlayNetworking.send(ID, packet);
 	}
 
@@ -48,8 +51,13 @@ public class PingLocationPacketC2S {
 				buf.readDouble(),
 				buf.readDouble());
 			var uuid = buf.readBoolean() ? buf.readUuid() : null;
+			var sequence = buf.readInt();
 
-			return Optional.of(new PingLocationPacketC2S(channel, pos, uuid));
+			if (buf.readableBytes() > 0) {
+				return Optional.empty();
+			}
+
+			return Optional.of(new PingLocationPacketC2S(channel, pos, uuid, sequence));
 		} catch (Exception e) {
 			return Optional.empty();
 		}
