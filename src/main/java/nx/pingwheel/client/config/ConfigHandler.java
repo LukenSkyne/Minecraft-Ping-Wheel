@@ -3,11 +3,13 @@ package nx.pingwheel.client.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import nx.pingwheel.shared.network.UpdateChannelPacketC2S;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static nx.pingwheel.shared.PingWheel.Game;
 import static nx.pingwheel.shared.PingWheel.LOGGER;
 
 public class ConfigHandler {
@@ -35,6 +37,10 @@ public class ConfigHandler {
 	public void save() {
 		if (configHash == config.hashCode()) {
 			return;
+		}
+
+		if (Game.getNetworkHandler() != null) {
+			new UpdateChannelPacketC2S(config.getChannel()).send();
 		}
 
 		var configFile = configPath.resolve(configName).toFile();
