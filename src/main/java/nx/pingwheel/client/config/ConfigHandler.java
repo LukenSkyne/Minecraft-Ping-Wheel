@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static nx.pingwheel.shared.PingWheel.Game;
+import static nx.pingwheel.client.PingWheelClient.Game;
 import static nx.pingwheel.shared.PingWheel.LOGGER;
 
 public class ConfigHandler {

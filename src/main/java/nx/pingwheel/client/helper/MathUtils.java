@@ -7,7 +7,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vector4f;
 import org.lwjgl.BufferUtils;
 
-import static nx.pingwheel.shared.PingWheel.Game;
+import static nx.pingwheel.client.PingWheelClient.Game;
 
 public class MathUtils {
 

@@ -7,7 +7,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
 
-import static nx.pingwheel.shared.PingWheel.Game;
+import static nx.pingwheel.client.PingWheelClient.Game;
 
 @Environment(EnvType.CLIENT)
 public class DirectionalSoundInstance extends MovingSoundInstance {

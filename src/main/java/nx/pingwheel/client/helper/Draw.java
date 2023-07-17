@@ -10,7 +10,7 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 
-import static nx.pingwheel.shared.PingWheel.Game;
+import static nx.pingwheel.client.PingWheelClient.Game;
 
 public class Draw {
 

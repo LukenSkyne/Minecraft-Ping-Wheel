@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.sound.SoundEvent;
@@ -26,12 +27,12 @@ import java.util.function.Function;
 
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.literal;
-import static nx.pingwheel.shared.PingWheel.Game;
 import static nx.pingwheel.shared.PingWheel.MOD_ID;
 
 @Environment(EnvType.CLIENT)
 public class PingWheelClient implements ClientModInitializer {
 
+	public static final MinecraftClient Game = MinecraftClient.getInstance();
 	public static final ConfigHandler ConfigHandler = new ConfigHandler(MOD_ID + ".json");
 	public static final Identifier PING_SOUND_ID = new Identifier(MOD_ID, "ping");
 	public static final SoundEvent PING_SOUND_EVENT = new SoundEvent(PING_SOUND_ID);

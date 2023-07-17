@@ -4,7 +4,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
 import nx.pingwheel.shared.network.PingLocationPacketC2S;
 import nx.pingwheel.shared.network.UpdateChannelPacketC2S;
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +24,6 @@ public class PingWheel implements ModInitializer {
 				return super.newMessage("[Ping-Wheel] " + message);
 			}
 		});
-	public static final MinecraftClient Game = MinecraftClient.getInstance();
 
 	@Override
 	public void onInitialize() {

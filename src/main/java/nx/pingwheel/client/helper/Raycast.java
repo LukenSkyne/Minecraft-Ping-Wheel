@@ -9,7 +9,7 @@ import net.minecraft.world.RaycastContext;
 
 import java.util.function.Predicate;
 
-import static nx.pingwheel.shared.PingWheel.Game;
+import static nx.pingwheel.client.PingWheelClient.Game;
 
 public class Raycast {
 

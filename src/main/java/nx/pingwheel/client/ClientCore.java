@@ -26,9 +26,7 @@ import nx.pingwheel.shared.network.PingLocationPacketS2C;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static nx.pingwheel.client.PingWheelClient.ConfigHandler;
-import static nx.pingwheel.client.PingWheelClient.PING_SOUND_EVENT;
-import static nx.pingwheel.shared.PingWheel.Game;
+import static nx.pingwheel.client.PingWheelClient.*;
 
 @Environment(EnvType.CLIENT)
 public class ClientCore {
