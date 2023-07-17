@@ -60,6 +60,16 @@ public class PingWheelSettingsScreen extends Screen {
 				}
 		);
 
+		var pingDurationOption = new DoubleOption(
+			"ping-wheel.settings.pingDuration",
+			1, 60, 1,
+			(gameOptions) -> (double)config.getPingDuration(),
+			(gameOptions, pingDuration) -> config.setPingDuration(pingDuration.intValue()),
+			(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingDuration", String.format("%ss", config.getPingDuration()))
+		);
+
+		this.list.addOptionEntry(pingVolumeOption, pingDurationOption);
+
 		var pingDistanceOption = new DoubleOption(
 				"ping-wheel.settings.pingDistance",
 				0, 2048, 16,
@@ -78,7 +88,15 @@ public class PingWheelSettingsScreen extends Screen {
 				}
 		);
 
-		this.list.addOptionEntry(pingVolumeOption, pingDistanceOption);
+		var correctionPeriodOption = new DoubleOption(
+			"ping-wheel.settings.correctionPeriod",
+			0.1f, 5.0f, 0.1f,
+			(gameOptions) -> (double)config.getCorrectionPeriod(),
+			(gameOptions, correctionPeriod) -> config.setCorrectionPeriod(correctionPeriod.floatValue()),
+			(gameOptions, option) -> new TranslatableText("ping-wheel.settings.correctionPeriod", String.format("%.1fs", config.getCorrectionPeriod()))
+		);
+
+		this.list.addOptionEntry(pingDistanceOption, correctionPeriodOption);
 
 		var itemIconsVisibleOption = CyclingOption.create(
 				"ping-wheel.settings.itemIconVisible",
@@ -86,15 +104,9 @@ public class PingWheelSettingsScreen extends Screen {
 				(gameOptions, option, iconItemVisibility) -> config.setItemIconVisible(iconItemVisibility)
 		);
 
-		var pingDurationOption = new DoubleOption(
-				"ping-wheel.settings.pingDuration",
-				1, 60, 1,
-				(gameOptions) -> (double)config.getPingDuration(),
-				(gameOptions, pingDuration) -> config.setPingDuration(pingDuration.intValue()),
-				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingDuration", String.format("%ss", config.getPingDuration()))
-		);
 
-		this.list.addOptionEntry(itemIconsVisibleOption, pingDurationOption);
+
+		this.list.addOptionEntry(itemIconsVisibleOption, null);
 
 		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 140, 200, 20, Text.of(""));
 		this.channelTextField.setMaxLength(128);

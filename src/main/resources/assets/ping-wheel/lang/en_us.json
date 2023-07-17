@@ -4,11 +4,12 @@
 	"ping-wheel.subtitles.ping": "Location Ping Alert",
 
 	"ping-wheel.settings.pingVolume": "Ping Volume: %s",
-	"ping-wheel.settings.itemIconVisible": "Item Icons",
+	"ping-wheel.settings.pingDuration": "Ping Duration: %s",
 	"ping-wheel.settings.pingDistance": "Ping Distance: %s",
 	"ping-wheel.settings.pingDistance.hidden": "Hidden",
 	"ping-wheel.settings.pingDistance.unlimited": "Unlimited",
-	"ping-wheel.settings.pingDuration": "Ping Duration: %s",
+	"ping-wheel.settings.correctionPeriod": "Correction Period: %s",
+	"ping-wheel.settings.itemIconVisible": "Item Icons",
 	"ping-wheel.settings.channel": "Ping Channel",
 	"ping-wheel.settings.channel.tooltip": "You only send and receive Pings to and from players on the same channel",
 
