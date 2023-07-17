@@ -5,8 +5,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -14,10 +14,11 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import nx.pingwheel.client.config.ConfigHandler;
 import nx.pingwheel.shared.network.PingLocationPacketS2C;
 import nx.pingwheel.shared.network.UpdateChannelPacketC2S;
@@ -25,8 +26,8 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Function;
 
-import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.literal;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 import static nx.pingwheel.shared.PingWheel.MOD_ID;
 
 @Environment(EnvType.CLIENT)
@@ -35,7 +36,7 @@ public class PingWheelClient implements ClientModInitializer {
 	public static final MinecraftClient Game = MinecraftClient.getInstance();
 	public static final ConfigHandler ConfigHandler = new ConfigHandler(MOD_ID + ".json");
 	public static final Identifier PING_SOUND_ID = new Identifier(MOD_ID, "ping");
-	public static final SoundEvent PING_SOUND_EVENT = new SoundEvent(PING_SOUND_ID);
+	public static final SoundEvent PING_SOUND_EVENT = SoundEvent.of(PING_SOUND_ID);
 
 	private static KeyBinding kbPing;
 	private static KeyBinding kbSettings;
@@ -47,7 +48,7 @@ public class PingWheelClient implements ClientModInitializer {
 		SetupKeyBindings();
 		SetupClientCommands();
 
-		Registry.register(Registry.SOUND_EVENT, PING_SOUND_ID, PING_SOUND_EVENT);
+		Registry.register(Registries.SOUND_EVENT, PING_SOUND_ID, PING_SOUND_EVENT);
 
 		ClientPlayNetworking.registerGlobalReceiver(PingLocationPacketS2C.ID, (a, b, packet, c) -> ClientCore.onPingLocation(packet));
 		ClientPlayConnectionEvents.JOIN.register((a, b, c) -> new UpdateChannelPacketC2S(ConfigHandler.getConfig().getChannel()).send());
@@ -74,7 +75,7 @@ public class PingWheelClient implements ClientModInitializer {
 		var cmdChannel = literal("channel")
 				.executes((context) -> {
 					var currentChannel = ConfigHandler.getConfig().getChannel();
-					context.getSource().sendFeedback(new LiteralText(String.format("Current Ping-Wheel channel: %s", formatChannel.apply(currentChannel))));
+					context.getSource().sendFeedback(Text.of(String.format("Current Ping-Wheel channel: %s", formatChannel.apply(currentChannel))));
 
 					return 1;
 				})
@@ -84,7 +85,7 @@ public class PingWheelClient implements ClientModInitializer {
 					ConfigHandler.getConfig().setChannel(newChannel);
 					ConfigHandler.save();
 
-					context.getSource().sendFeedback(new LiteralText(String.format("Set Ping-Wheel channel to: %s", formatChannel.apply(newChannel))));
+					context.getSource().sendFeedback(Text.of(String.format("Set Ping-Wheel channel to: %s", formatChannel.apply(newChannel))));
 
 					return 1;
 				}));
@@ -106,7 +107,7 @@ public class PingWheelClient implements ClientModInitializer {
 				§f/pingwheel channel <channel_name>
 				§7(set your current channel, use "" for global channel)""";
 
-			context.getSource().sendFeedback(new LiteralText(output));
+			context.getSource().sendFeedback(Text.of(output));
 
 			return 1;
 		};
@@ -120,6 +121,6 @@ public class PingWheelClient implements ClientModInitializer {
 				.then(cmdConfig)
 				.then(cmdChannel);
 
-		ClientCommandManager.DISPATCHER.register(cmdBase);
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(cmdBase));
 	}
 }
