@@ -49,7 +49,7 @@ jobs:
           loaders: |
             fabric
           game-versions: |
-            >=1.18 <=1.18.2
+            1.20.2
           dependencies: |
             fabric-api(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)
 
