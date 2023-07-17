@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
@@ -30,7 +30,7 @@ public class Draw {
 
 		var matrixStack = RenderSystem.getModelViewStack();
 		matrixStack.push();
-		matrixStack.translate(x, y, (100.f + Game.getItemRenderer().zOffset));
+		matrixStack.translate(x, y, 100);
 		matrixStack.scale(scale, scale, scale);
 		matrixStack.scale(1.f, -1.f, 1.f);
 		matrixStack.scale(16.f, 16.f, 16.f);
@@ -44,7 +44,7 @@ public class Draw {
 		}
 		Game.getItemRenderer().renderItem(
 			itemStack,
-			ModelTransformation.Mode.GUI,
+			ModelTransformationMode.GUI,
 			false,
 			matrixStackDummy,
 			immediate,
