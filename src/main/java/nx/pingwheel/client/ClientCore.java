@@ -165,7 +165,9 @@ public class ClientCore {
 				Game.textRenderer.getWidth(text),
 				Game.textRenderer.fontHeight
 			);
-			var textOffset = textMetrics.multiply(-0.5f).add(new Vec2f(0f, textMetrics.y * -1.5f));
+			var textOffset = textMetrics.multiply(-0.5f)
+                .add(new Vec2f(0f, -1.5f * textMetrics.y))
+                .add(new Vec2f(0f, 0.75f * (6 - Config.getIconSize())));
 
 			m.push();
 			m.translate(textOffset.x, textOffset.y, 0);
@@ -181,10 +183,22 @@ public class ClientCore {
 					(pos.x / uiScale),
 					(pos.y / uiScale),
 					model,
-					pingScale * 2 / 3
+					(pingScale * 2 / 3) * Config.getIconSize() / 6.0f
 				);
 			} else {
-				ctx.drawTexture(PING_TEXTURE_ID, -3, -3, 0, 0, 0, 6, 6, 6, 6);
+				var offset = Config.getIconSize() / -2;
+				ctx.drawTexture(
+                    PING_TEXTURE_ID,
+                    offset,
+                    offset,
+                    0,
+                    0,
+                    0,
+                    Config.getIconSize(),
+                    Config.getIconSize(),
+                    Config.getIconSize(),
+                    Config.getIconSize()
+                );
 			}
 
 			m.pop();

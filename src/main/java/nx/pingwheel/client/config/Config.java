@@ -14,6 +14,7 @@ public class Config {
 	int pingDuration = 7;
 	int pingDistance = 2048;
 	float correctionPeriod = 1f;
+	int iconSize = 6;
 	boolean itemIconVisible = true;
 	String channel = "";
 }

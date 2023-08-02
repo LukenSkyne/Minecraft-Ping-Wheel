@@ -101,13 +101,23 @@ public class PingWheelSettingsScreen extends Screen {
 
 		this.list.addOptionEntry(pingDistanceOption, correctionPeriodOption);
 
+		var iconSizeOption = new SimpleOption<>(
+			"ping-wheel.settings.iconSize",
+			SimpleOption.emptyTooltip(),
+			(optionText, value) -> Text.translatable("ping-wheel.settings.iconSize", String.format("%spx", value)),
+			(new SimpleOption.ValidatingIntSliderCallbacks(1, 32)),
+			Codec.intRange(1, 32),
+			config.getIconSize(),
+			config::setIconSize
+		);
+
 		var itemIconsVisibleOption = SimpleOption.ofBoolean(
 			"ping-wheel.settings.itemIconVisible",
 			config.isItemIconVisible(),
 			config::setItemIconVisible
 		);
 
-		this.list.addOptionEntry(itemIconsVisibleOption, null);
+		this.list.addOptionEntry(iconSizeOption, itemIconsVisibleOption);
 
 		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 140, 200, 20, Text.empty());
 		this.channelTextField.setMaxLength(128);
