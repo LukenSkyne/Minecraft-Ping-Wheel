@@ -184,9 +184,7 @@ public class ClientCore {
 					pingScale * 2 / 3
 				);
 			} else {
-				MathUtils.rotateZ(m, (float)(Math.PI / 4f));
-				m.translate(-2.5, -2.5, 0);
-				ctx.fill(0, 0, 5, 5, white);
+				ctx.drawTexture(PING_TEXTURE_ID, -3, -3, 0, 0, 0, 6, 6, 6, 6);
 			}
 
 			m.pop();
