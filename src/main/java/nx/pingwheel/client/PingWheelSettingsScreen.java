@@ -121,7 +121,7 @@ public class PingWheelSettingsScreen extends Screen {
 
 		this.list.addOptionEntry(iconSizeOption, itemIconsVisibleOption);
 
-		this.iconButtonWidget = ButtonWidget.builder(Text.translatable("ping-wheel.settings.changeIcon"), (button) -> config.getIcon().nextIcon(2))
+		this.iconButtonWidget = ButtonWidget.builder(Text.translatable("ping-wheel.settings.changeIcon"), (button) -> config.getIcon().nextIcon(4))
 				.dimensions(this.width / 2 - 155, 110, 150, 20)
 				.build();
 
