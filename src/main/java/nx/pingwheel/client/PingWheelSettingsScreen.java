@@ -1,6 +1,7 @@
 package nx.pingwheel.client;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -20,6 +21,7 @@ public class PingWheelSettingsScreen extends Screen {
 	private Screen parent;
 	private OptionListWidget list;
 	private TextFieldWidget channelTextField;
+	private ButtonWidget iconButtonWidget;
 
 	public PingWheelSettingsScreen() {
 		super(Text.translatable("ping-wheel.settings.title"));
@@ -119,7 +121,13 @@ public class PingWheelSettingsScreen extends Screen {
 
 		this.list.addOptionEntry(iconSizeOption, itemIconsVisibleOption);
 
-		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 140, 200, 20, Text.empty());
+		this.iconButtonWidget = ButtonWidget.builder(Text.translatable("ping-wheel.settings.changeIcon"), (button) -> config.getIcon().nextIcon(2))
+				.dimensions(this.width / 2 - 155, 110, 150, 20)
+				.build();
+
+		this.addDrawableChild(iconButtonWidget);
+
+		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 165, 200, 20, Text.empty());
 		this.channelTextField.setMaxLength(128);
 		this.channelTextField.setText(config.getChannel());
 		this.channelTextField.setChangedListener(config::setChannel);
@@ -148,10 +156,28 @@ public class PingWheelSettingsScreen extends Screen {
 		this.list.render(ctx, mouseX, mouseY, delta);
 		ctx.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 5, 16777215);
 
-		ctx.drawTextWithShadow(this.textRenderer, Text.translatable("ping-wheel.settings.channel"), this.width / 2 - 100, 128, 10526880);
+		MinecraftClient.getInstance().getTextureManager().bindTexture(config.getIcon().getTextureId());
+
+		ctx.drawTextWithShadow(this.textRenderer, Text.translatable("ping-wheel.settings.channel"), this.width / 2 - 100, 150, 10526880);
 		this.channelTextField.render(ctx, mouseX, mouseY, delta);
 
 		super.render(ctx, mouseX, mouseY, delta);
+
+		var textureSize = this.iconButtonWidget.getHeight() / 2;
+		var padding = (this.iconButtonWidget.getHeight() - textureSize) / 2;
+
+		ctx.drawTexture(
+				config.getIcon().getTextureId(),
+				this.iconButtonWidget.getX() + this.iconButtonWidget.getWidth() - this.iconButtonWidget.getHeight() + padding,
+				this.iconButtonWidget.getY() + padding,
+				0,
+				0,
+				0,
+				textureSize,
+				textureSize,
+				textureSize,
+				textureSize
+		);
 
 		if (this.channelTextField.isHovered() && !this.channelTextField.isFocused()) {
 			ctx.drawOrderedTooltip(this.textRenderer, this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140), mouseX, mouseY);

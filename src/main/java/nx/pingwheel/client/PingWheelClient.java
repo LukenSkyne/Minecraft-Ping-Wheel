@@ -8,7 +8,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -38,7 +37,6 @@ public class PingWheelClient implements ClientModInitializer {
 	public static final ConfigHandler ConfigHandler = new ConfigHandler(MOD_ID + ".json");
 	public static final Identifier PING_SOUND_ID = new Identifier(MOD_ID, "ping");
 	public static final SoundEvent PING_SOUND_EVENT = SoundEvent.of(PING_SOUND_ID);
-	public static final Identifier PING_TEXTURE_ID = new Identifier(MOD_ID, "textures/gui/ping.png");
 
 
 	private static KeyBinding kbPing;
@@ -55,8 +53,6 @@ public class PingWheelClient implements ClientModInitializer {
 
 		ClientPlayNetworking.registerGlobalReceiver(PingLocationPacketS2C.ID, (a, b, packet, c) -> ClientCore.onPingLocation(packet));
 		ClientPlayConnectionEvents.JOIN.register((a, b, c) -> new UpdateChannelPacketC2S(ConfigHandler.getConfig().getChannel()).send());
-
-		ClientLifecycleEvents.CLIENT_STARTED.register(client -> MinecraftClient.getInstance().getTextureManager().bindTexture(PING_TEXTURE_ID));
 	}
 
 	private void SetupKeyBindings() {

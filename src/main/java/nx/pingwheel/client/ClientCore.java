@@ -188,7 +188,7 @@ public class ClientCore {
 			} else {
 				var offset = Config.getIconSize() / -2;
 				ctx.drawTexture(
-                    PING_TEXTURE_ID,
+                    Config.getIcon().getTextureId(),
                     offset,
                     offset,
                     0,
