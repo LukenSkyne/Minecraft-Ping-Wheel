@@ -38,7 +38,6 @@ public class PingWheelClient implements ClientModInitializer {
 	public static final Identifier PING_SOUND_ID = new Identifier(MOD_ID, "ping");
 	public static final SoundEvent PING_SOUND_EVENT = SoundEvent.of(PING_SOUND_ID);
 
-
 	private static KeyBinding kbPing;
 	private static KeyBinding kbSettings;
 

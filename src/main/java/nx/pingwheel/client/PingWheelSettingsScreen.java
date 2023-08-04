@@ -167,16 +167,16 @@ public class PingWheelSettingsScreen extends Screen {
 		var padding = (this.iconButtonWidget.getHeight() - textureSize) / 2;
 
 		ctx.drawTexture(
-				config.getIcon().getTextureId(),
-				this.iconButtonWidget.getX() + this.iconButtonWidget.getWidth() - this.iconButtonWidget.getHeight() + padding,
-				this.iconButtonWidget.getY() + padding,
-				0,
-				0,
-				0,
-				textureSize,
-				textureSize,
-				textureSize,
-				textureSize
+			config.getIcon().getTextureId(),
+			this.iconButtonWidget.getX() + this.iconButtonWidget.getWidth() - this.iconButtonWidget.getHeight() + padding,
+			this.iconButtonWidget.getY() + padding,
+			0,
+			0,
+			0,
+			textureSize,
+			textureSize,
+			textureSize,
+			textureSize
 		);
 
 		if (this.channelTextField.isHovered() && !this.channelTextField.isFocused()) {
