@@ -3,7 +3,6 @@ package nx.pingwheel.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -12,7 +11,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.ColorHelper;
@@ -30,7 +28,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import static nx.pingwheel.client.PingWheelClient.*;
-import static nx.pingwheel.shared.PingWheel.MOD_ID;
 
 @Environment(EnvType.CLIENT)
 public class ClientCore {
@@ -185,10 +182,8 @@ public class ClientCore {
 					model,
 					pingScale * 2 / 3
 				);
-			} else {
-				var textureId = new Identifier(MOD_ID, "textures/ping.png");
-				MinecraftClient.getInstance().getTextureManager().bindTexture(textureId);
-				RenderSystem.setShaderTexture(0, textureId);
+			} else if (Config.isCustomIcon()) {
+				RenderSystem.setShaderTexture(0, PING_TEXTURE_ID);
 				RenderSystem.enableBlend();
 				DrawableHelper.drawTexture(
 					m,
@@ -203,6 +198,10 @@ public class ClientCore {
 					5
 				);
 				RenderSystem.disableBlend();
+			} else {
+				MathUtils.rotateZ(m, (float)(Math.PI / 4f));
+				m.translate(-2.5, -2.5, 0);
+				DrawableHelper.fill(m, 0, 0, 5, 5, white);
 			}
 
 			m.pop();
