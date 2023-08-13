@@ -104,15 +104,15 @@ public class PingWheelSettingsScreen extends Screen {
 				(gameOptions, option, customIcon) -> config.setCustomIcon(customIcon)
 		);
 
-		var iconSizeOption = new DoubleOption(
-				"ping-wheel.settings.iconSize",
-				1, 32, 1,
-				(gameOptions) -> (double)config.getIconSize(),
-				(gameOptions, iconSize) -> config.setIconSize(iconSize.intValue()),
-				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.iconSize", String.format("%spx", config.getIconSize()))
+		var pingSizeOption = new DoubleOption(
+				"ping-wheel.settings.pingSize",
+				2, 16, 1,
+				(gameOptions) -> (double)config.getPingSize(),
+				(gameOptions, pingSize) -> config.setPingSize(pingSize.intValue()),
+				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingSize", String.format("%spx", config.getPingSize()))
 		);
 
-		this.list.addOptionEntry(customIconOption, iconSizeOption);
+		this.list.addOptionEntry(customIconOption, pingSizeOption);
 
 		var itemIconsVisibleOption = CyclingOption.create(
 			"ping-wheel.settings.itemIconVisible",

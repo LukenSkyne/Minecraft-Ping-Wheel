@@ -150,7 +150,8 @@ public class ClientCore {
 			var pos = ping.screenPos;
 			var cameraPosVec = Game.player.getCameraPosVec(tickDelta);
 			var distanceToPing = (float)cameraPosVec.distanceTo(ping.getPos());
-			var pingScale = getDistanceScale(distanceToPing) / uiScale * uiScaleAdjustment;
+			int pingSize = Config.getPingSize();
+			var pingScale = getDistanceScale(distanceToPing) * (pingSize / 5.0f) / uiScale * uiScaleAdjustment;
 
 			var white = ColorHelper.Argb.getArgb(255, 255, 255, 255);
 			var shadowBlack = ColorHelper.Argb.getArgb(64, 0, 0, 0);
@@ -172,6 +173,8 @@ public class ClientCore {
 			Game.textRenderer.draw(m, text, 0f, 0f, white);
 			m.pop();
 
+			m.scale(1f / pingScale, 1f / pingScale, 1f);
+
 			if (ping.itemStack != null && Config.isItemIconVisible()) {
 				var model = Game.getItemRenderer().getModel(ping.itemStack, null, null, 0);
 
@@ -187,21 +190,21 @@ public class ClientCore {
 				RenderSystem.enableBlend();
 				DrawableHelper.drawTexture(
 					m,
-					-3,
-					-3,
+					-pingSize / 2,
+					-pingSize / 2,
 					0,
 					0,
 					0,
-					5,
-					5,
-					5,
-					5
+					pingSize,
+					pingSize,
+					pingSize,
+					pingSize
 				);
 				RenderSystem.disableBlend();
 			} else {
 				MathUtils.rotateZ(m, (float)(Math.PI / 4f));
-				m.translate(-2.5, -2.5, 0);
-				DrawableHelper.fill(m, 0, 0, 5, 5, white);
+				m.translate((double) -pingSize / 2, (double) -pingSize / 2, 0);
+				DrawableHelper.fill(m, 0, 0, pingSize, pingSize, white);
 			}
 
 			m.pop();

@@ -15,7 +15,7 @@ public class Config {
 	int pingDistance = 2048;
 	float correctionPeriod = 1f;
 	boolean customIcon = false;
-	int iconSize = 5;
+	int pingSize = 5;
 	boolean itemIconVisible = true;
 	String channel = "";
 }
