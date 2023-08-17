@@ -173,8 +173,6 @@ public class ClientCore {
 			Game.textRenderer.draw(m, text, 0f, 0f, white);
 			m.pop();
 
-			m.scale(1f / pingScale, 1f / pingScale, 1f);
-
 			if (ping.itemStack != null && Config.isItemIconVisible()) {
 				var model = Game.getItemRenderer().getModel(ping.itemStack, null, null, 0);
 
@@ -186,25 +184,28 @@ public class ClientCore {
 					pingScale * 2 / 3
 				);
 			} else if (Config.isCustomIcon()) {
+				var scaleFactor = 20f / 17f;
+				m.scale(scaleFactor, scaleFactor, 1f);
+
 				RenderSystem.setShaderTexture(0, PING_TEXTURE_ID);
 				RenderSystem.enableBlend();
 				DrawableHelper.drawTexture(
 					m,
-					-pingSize / 2,
-					-pingSize / 2,
+					-3,
+					-3,
 					0,
 					0,
 					0,
-					pingSize,
-					pingSize,
-					pingSize,
-					pingSize
+					6,
+					6,
+					6,
+					6
 				);
 				RenderSystem.disableBlend();
 			} else {
 				MathUtils.rotateZ(m, (float)(Math.PI / 4f));
-				m.translate((double) -pingSize / 2, (double) -pingSize / 2, 0);
-				DrawableHelper.fill(m, 0, 0, pingSize, pingSize, white);
+				m.translate(-2.5, -2.5, 0);
+				DrawableHelper.fill(m, 0, 0, 5, 5, white);
 			}
 
 			m.pop();
