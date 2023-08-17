@@ -151,7 +151,7 @@ public class ClientCore {
 			var cameraPosVec = Game.player.getCameraPosVec(tickDelta);
 			var distanceToPing = (float)cameraPosVec.distanceTo(ping.getPos());
 			int pingSize = Config.getPingSize();
-			var pingScale = getDistanceScale(distanceToPing) * (pingSize / 5.0f) / uiScale * uiScaleAdjustment;
+			var pingScale = getDistanceScale(distanceToPing) * (pingSize / 100.0f) / uiScale * uiScaleAdjustment;
 
 			var white = ColorHelper.Argb.getArgb(255, 255, 255, 255);
 			var shadowBlack = ColorHelper.Argb.getArgb(64, 0, 0, 0);

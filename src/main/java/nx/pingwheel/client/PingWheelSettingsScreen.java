@@ -106,10 +106,10 @@ public class PingWheelSettingsScreen extends Screen {
 
 		var pingSizeOption = new DoubleOption(
 				"ping-wheel.settings.pingSize",
-				2, 16, 1,
+				40, 300, 10,
 				(gameOptions) -> (double)config.getPingSize(),
 				(gameOptions, pingSize) -> config.setPingSize(pingSize.intValue()),
-				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingSize", String.format("%spx", config.getPingSize()))
+				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingSize", String.format("%s%%", config.getPingSize()))
 		);
 
 		this.list.addOptionEntry(customIconOption, pingSizeOption);
