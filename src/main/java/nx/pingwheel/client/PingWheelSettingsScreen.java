@@ -98,10 +98,10 @@ public class PingWheelSettingsScreen extends Screen {
 
 		this.list.addOptionEntry(pingDistanceOption, correctionPeriodOption);
 
-		var customIconOption = CyclingOption.create(
-				"ping-wheel.settings.customIcon",
-				(gameOptions) -> config.isCustomIcon(),
-				(gameOptions, option, customIcon) -> config.setCustomIcon(customIcon)
+		var itemIconsVisibleOption = CyclingOption.create(
+			"ping-wheel.settings.itemIconVisible",
+			(gameOptions) -> config.isItemIconVisible(),
+			(gameOptions, option, iconItemVisibility) -> config.setItemIconVisible(iconItemVisibility)
 		);
 
 		var pingSizeOption = new DoubleOption(
@@ -112,17 +112,9 @@ public class PingWheelSettingsScreen extends Screen {
 				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingSize", String.format("%s%%", config.getPingSize()))
 		);
 
-		this.list.addOptionEntry(customIconOption, pingSizeOption);
+		this.list.addOptionEntry(itemIconsVisibleOption, pingSizeOption);
 
-		var itemIconsVisibleOption = CyclingOption.create(
-			"ping-wheel.settings.itemIconVisible",
-			(gameOptions) -> config.isItemIconVisible(),
-			(gameOptions, option, iconItemVisibility) -> config.setItemIconVisible(iconItemVisibility)
-		);
-
-		this.list.addOptionEntry(itemIconsVisibleOption, null);
-
-		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 165, 200, 20, Text.of(""));
+		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 140, 200, 20, Text.of(""));
 		this.channelTextField.setMaxLength(128);
 		this.channelTextField.setText(config.getChannel());
 		this.channelTextField.setChangedListener(config::setChannel);
@@ -148,7 +140,7 @@ public class PingWheelSettingsScreen extends Screen {
 		this.list.render(matrices, mouseX, mouseY, delta);
 		drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 5, 16777215);
 
-		drawTextWithShadow(matrices, this.textRenderer, new TranslatableText("ping-wheel.settings.channel"), this.width / 2 - 100, 150, 10526880);
+		drawTextWithShadow(matrices, this.textRenderer, new TranslatableText("ping-wheel.settings.channel"), this.width / 2 - 100, 128, 10526880);
 		this.channelTextField.render(matrices, mouseX, mouseY, delta);
 
 		super.render(matrices, mouseX, mouseY, delta);
