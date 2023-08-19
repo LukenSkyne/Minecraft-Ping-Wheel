@@ -183,7 +183,7 @@ public class ClientCore {
 					model,
 					pingScale * 2 / 3
 				);
-			} else if (Config.isCustomIcon()) {
+			} else if (hasCustomTexture()) {
 				var scaleFactor = 20f / 17f;
 				m.scale(scaleFactor, scaleFactor, 1f);
 
@@ -277,5 +277,9 @@ public class ClientCore {
 		var scale = 2f / Math.pow(distance, 0.3f);
 
 		return (float)Math.max(scaleMin, scale);
+	}
+
+	private static boolean hasCustomTexture() {
+		return Game.getTextureManager().getOrDefault(PING_TEXTURE_ID, null) != null;
 	}
 }
