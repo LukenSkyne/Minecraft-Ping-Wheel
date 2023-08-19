@@ -184,22 +184,22 @@ public class ClientCore {
 					pingScale * 2 / 3
 				);
 			} else if (hasCustomTexture()) {
-				var scaleFactor = 20f / 17f;
-				m.scale(scaleFactor, scaleFactor, 1f);
+				final var size = 12;
+				final var offset = size / -2;
 
 				RenderSystem.setShaderTexture(0, PING_TEXTURE_ID);
 				RenderSystem.enableBlend();
 				DrawableHelper.drawTexture(
 					m,
-					-3,
-					-3,
+					offset,
+					offset,
 					0,
 					0,
 					0,
-					6,
-					6,
-					6,
-					6
+					size,
+					size,
+					size,
+					size
 				);
 				RenderSystem.disableBlend();
 			} else {
