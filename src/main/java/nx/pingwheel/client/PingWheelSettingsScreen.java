@@ -99,14 +99,20 @@ public class PingWheelSettingsScreen extends Screen {
 		this.list.addOptionEntry(pingDistanceOption, correctionPeriodOption);
 
 		var itemIconsVisibleOption = CyclingOption.create(
-				"ping-wheel.settings.itemIconVisible",
-				(gameOptions) -> config.isItemIconVisible(),
-				(gameOptions, option, iconItemVisibility) -> config.setItemIconVisible(iconItemVisibility)
+			"ping-wheel.settings.itemIconVisible",
+			(gameOptions) -> config.isItemIconVisible(),
+			(gameOptions, option, iconItemVisibility) -> config.setItemIconVisible(iconItemVisibility)
 		);
 
+		var pingSizeOption = new DoubleOption(
+				"ping-wheel.settings.pingSize",
+				40, 300, 10,
+				(gameOptions) -> (double)config.getPingSize(),
+				(gameOptions, pingSize) -> config.setPingSize(pingSize.intValue()),
+				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingSize", String.format("%s%%", config.getPingSize()))
+		);
 
-
-		this.list.addOptionEntry(itemIconsVisibleOption, null);
+		this.list.addOptionEntry(itemIconsVisibleOption, pingSizeOption);
 
 		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 140, 200, 20, Text.of(""));
 		this.channelTextField.setMaxLength(128);

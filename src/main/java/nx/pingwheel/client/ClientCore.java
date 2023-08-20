@@ -1,5 +1,6 @@
 package nx.pingwheel.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawableHelper;
@@ -149,7 +150,8 @@ public class ClientCore {
 			var pos = ping.screenPos;
 			var cameraPosVec = Game.player.getCameraPosVec(tickDelta);
 			var distanceToPing = (float)cameraPosVec.distanceTo(ping.getPos());
-			var pingScale = getDistanceScale(distanceToPing) / uiScale * uiScaleAdjustment;
+			int pingSize = Config.getPingSize();
+			var pingScale = getDistanceScale(distanceToPing) * (pingSize / 100.0f) / uiScale * uiScaleAdjustment;
 
 			var white = ColorHelper.Argb.getArgb(255, 255, 255, 255);
 			var shadowBlack = ColorHelper.Argb.getArgb(64, 0, 0, 0);
@@ -181,6 +183,25 @@ public class ClientCore {
 					model,
 					pingScale * 2 / 3
 				);
+			} else if (hasCustomTexture()) {
+				final var size = 12;
+				final var offset = size / -2;
+
+				RenderSystem.setShaderTexture(0, PING_TEXTURE_ID);
+				RenderSystem.enableBlend();
+				DrawableHelper.drawTexture(
+					m,
+					offset,
+					offset,
+					0,
+					0,
+					0,
+					size,
+					size,
+					size,
+					size
+				);
+				RenderSystem.disableBlend();
 			} else {
 				MathUtils.rotateZ(m, (float)(Math.PI / 4f));
 				m.translate(-2.5, -2.5, 0);
@@ -256,5 +277,9 @@ public class ClientCore {
 		var scale = 2f / Math.pow(distance, 0.3f);
 
 		return (float)Math.max(scaleMin, scale);
+	}
+
+	private static boolean hasCustomTexture() {
+		return Game.getTextureManager().getOrDefault(PING_TEXTURE_ID, null) != null;
 	}
 }
