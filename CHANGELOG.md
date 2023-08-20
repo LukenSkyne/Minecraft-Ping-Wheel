@@ -1,4 +1,3 @@
-* Added correction period, which replaces pings sent in quick succession (adjustable between 0.1s and 5s)
-* Added server-sided channel handling to forward pings only to players on the same channel (used to be client filtered)
-* Converted the codebase to Java, removing the Kotlin language dependencies
-* Fixed pings not clearing when switching worlds or dimensions
+* Added ability to change ping icon via resource packs (visit [Customizing the Ping Icon](https://github.com/LukenSkyne/Minecraft-Ping-Wheel/wiki/Customizing-the-Ping-Icon) for more info)
+* Added option to adjust ping size (adjustable between 40% and 300%)
+* Added hidden config entry to change raycast distance (for compatibility)
