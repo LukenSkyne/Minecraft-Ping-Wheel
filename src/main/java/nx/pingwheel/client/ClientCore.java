@@ -32,7 +32,6 @@ import static nx.pingwheel.client.PingWheelClient.*;
 @Environment(EnvType.CLIENT)
 public class ClientCore {
 
-	private static final double REACH_DISTANCE = 1024.0;
 	private static final int TPS = 20;
 
 	private static final Config Config = ConfigHandler.getConfig();
@@ -227,7 +226,7 @@ public class ClientCore {
 		var hitResult = Raycast.traceDirectional(
 			cameraDirection,
 			tickDelta,
-			Math.min(REACH_DISTANCE, Config.getPingDistance()),
+			Math.min(Config.getRaycastDistance(), Config.getPingDistance()),
 			cameraEntity.isSneaking());
 
 		if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {

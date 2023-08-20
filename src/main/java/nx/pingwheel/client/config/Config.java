@@ -13,6 +13,7 @@ public class Config {
 	int pingVolume = 100;
 	int pingDuration = 7;
 	int pingDistance = 2048;
+	int raycastDistance = 1024; // hidden from settings screen
 	float correctionPeriod = 1f;
 	boolean itemIconVisible = true;
 	int pingSize = 100;
