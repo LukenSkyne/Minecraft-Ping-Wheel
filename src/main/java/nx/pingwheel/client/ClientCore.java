@@ -112,26 +112,7 @@ public class ClientCore {
 			executePing(tickDelta);
 		}
 
-		var modelViewMatrix = matrixStack.peek().getPositionMatrix();
-
-		for (var ping : pingRepo) {
-			if (ping.getUuid() != null) {
-				var ent = getEntity(ping.getUuid());
-
-				if (ent != null) {
-					if (ent.getType() == EntityType.ITEM && Config.isItemIconVisible()) {
-						ping.itemStack = ((ItemEntity)ent).getStack().copy();
-					}
-
-					ping.setPos(ent.getLerpedPos(tickDelta).add(0, ent.getBoundingBox().getYLength(), 0));
-				}
-			}
-
-			ping.screenPos = MathUtils.project3Dto2D(ping.getPos(), modelViewMatrix, projectionMatrix);
-			ping.aliveTime = time - ping.getSpawnTime();
-		}
-
-		pingRepo.removeIf(p -> p.aliveTime > Config.getPingDuration() * TPS);
+		processPings(matrixStack, projectionMatrix, tickDelta, time);
 	}
 
 	public static void onRenderGUI(MatrixStack m, float tickDelta) {
@@ -209,6 +190,29 @@ public class ClientCore {
 			}
 
 			m.pop();
+		}
+	}
+
+	private static void processPings(MatrixStack matrixStack, Matrix4f projectionMatrix, float tickDelta, int time) {
+		var modelViewMatrix = matrixStack.peek().getPositionMatrix();
+
+		pingRepo.removeIf(p -> p.aliveTime > Config.getPingDuration() * TPS);
+
+		for (var ping : pingRepo) {
+			if (ping.getUuid() != null) {
+				var ent = getEntity(ping.getUuid());
+
+				if (ent != null) {
+					if (ent.getType() == EntityType.ITEM && Config.isItemIconVisible()) {
+						ping.itemStack = ((ItemEntity)ent).getStack().copy();
+					}
+
+					ping.setPos(ent.getLerpedPos(tickDelta).add(0, ent.getBoundingBox().getYLength(), 0));
+				}
+			}
+
+			ping.screenPos = MathUtils.project3Dto2D(ping.getPos(), modelViewMatrix, projectionMatrix);
+			ping.aliveTime = time - ping.getSpawnTime();
 		}
 	}
 

@@ -1,11 +1,9 @@
 package nx.pingwheel.client;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.option.CyclingOption;
 import net.minecraft.client.option.DoubleOption;
@@ -16,14 +14,14 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import nx.pingwheel.client.config.Config;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static nx.pingwheel.client.PingWheelClient.ConfigHandler;
 
 public class PingWheelSettingsScreen extends Screen {
 
-	final private Config config;
+	private final Config config;
 
 	private Screen parent;
 	private ButtonListWidget list;
@@ -39,79 +37,25 @@ public class PingWheelSettingsScreen extends Screen {
 		this.parent = parent;
 	}
 
+	@Override
 	public void tick() {
 		this.channelTextField.tick();
 	}
 
+	@Override
 	protected void init() {
 		this.list = new ButtonListWidget(this.client, this.width, this.height, 32, this.height - 32, 25);
 
-		var pingVolumeOption = new DoubleOption(
-				"ping-wheel.settings.pingVolume",
-				0, 100, 1,
-				(gameOptions) -> (double)config.getPingVolume(),
-				(gameOptions, pingVolume) -> config.setPingVolume(pingVolume.intValue()),
-				(gameOptions, option) -> {
-					if (config.getPingVolume() == 0) {
-						return new TranslatableText("ping-wheel.settings.pingVolume", ScreenTexts.OFF);
-					}
-
-					return new TranslatableText("ping-wheel.settings.pingVolume", String.format("%s%%", config.getPingVolume()));
-				}
-		);
-
-		var pingDurationOption = new DoubleOption(
-			"ping-wheel.settings.pingDuration",
-			1, 60, 1,
-			(gameOptions) -> (double)config.getPingDuration(),
-			(gameOptions, pingDuration) -> config.setPingDuration(pingDuration.intValue()),
-			(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingDuration", String.format("%ss", config.getPingDuration()))
-		);
-
+		final var pingVolumeOption = getPingVolumeOption();
+		final var pingDurationOption = getPingDurationOption();
 		this.list.addOptionEntry(pingVolumeOption, pingDurationOption);
 
-		var pingDistanceOption = new DoubleOption(
-				"ping-wheel.settings.pingDistance",
-				0, 2048, 16,
-				(gameOptions) -> (double)config.getPingDistance(),
-				(gameOptions, pingDistance) -> config.setPingDistance(pingDistance.intValue()),
-				(gameOptions, option) -> {
-					var pingDistance = config.getPingDistance();
-
-					if (pingDistance == 0) {
-						return new TranslatableText("ping-wheel.settings.pingDistance", new TranslatableText("ping-wheel.settings.pingDistance.hidden"));
-					} else if (pingDistance == 2048) {
-						return new TranslatableText("ping-wheel.settings.pingDistance", new TranslatableText("ping-wheel.settings.pingDistance.unlimited"));
-					}
-
-					return new TranslatableText("ping-wheel.settings.pingDistance", String.format("%sm", pingDistance));
-				}
-		);
-
-		var correctionPeriodOption = new DoubleOption(
-			"ping-wheel.settings.correctionPeriod",
-			0.1f, 5.0f, 0.1f,
-			(gameOptions) -> (double)config.getCorrectionPeriod(),
-			(gameOptions, correctionPeriod) -> config.setCorrectionPeriod(correctionPeriod.floatValue()),
-			(gameOptions, option) -> new TranslatableText("ping-wheel.settings.correctionPeriod", String.format("%.1fs", config.getCorrectionPeriod()))
-		);
-
+		final var pingDistanceOption = getPingDistanceOption();
+		final var correctionPeriodOption = getCorrectionPeriodOption();
 		this.list.addOptionEntry(pingDistanceOption, correctionPeriodOption);
 
-		var itemIconsVisibleOption = CyclingOption.create(
-			"ping-wheel.settings.itemIconVisible",
-			(gameOptions) -> config.isItemIconVisible(),
-			(gameOptions, option, iconItemVisibility) -> config.setItemIconVisible(iconItemVisibility)
-		);
-
-		var pingSizeOption = new DoubleOption(
-				"ping-wheel.settings.pingSize",
-				40, 300, 10,
-				(gameOptions) -> (double)config.getPingSize(),
-				(gameOptions, pingSize) -> config.setPingSize(pingSize.intValue()),
-				(gameOptions, option) -> new TranslatableText("ping-wheel.settings.pingSize", String.format("%s%%", config.getPingSize()))
-		);
-
+		final var itemIconsVisibleOption = getItemIconsVisibleOption();
+		final var pingSizeOption = getPingSizeOption();
 		this.list.addOptionEntry(itemIconsVisibleOption, pingSizeOption);
 
 		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 140, 200, 20, Text.of(""));
@@ -125,6 +69,7 @@ public class PingWheelSettingsScreen extends Screen {
 		this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height - 27, 200, 20, ScreenTexts.DONE, (button) -> close()));
 	}
 
+	@Override
 	public void close() {
 		ConfigHandler.save();
 
@@ -135,6 +80,7 @@ public class PingWheelSettingsScreen extends Screen {
 		}
 	}
 
+	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		this.renderBackground(matrices);
 		this.list.render(matrices, mouseX, mouseY, delta);
@@ -155,7 +101,96 @@ public class PingWheelSettingsScreen extends Screen {
 	}
 
 	private static List<OrderedText> getHoveredButtonTooltip(ButtonListWidget buttonList, int mouseX, int mouseY) {
-		Optional<ClickableWidget> optional = buttonList.getHoveredButton(mouseX, mouseY);
-		return optional.isPresent() && optional.get() instanceof OrderableTooltip ? ((OrderableTooltip) optional.get()).getOrderedTooltip() : ImmutableList.of();
+		final var orderableTooltip = (OrderableTooltip)buttonList.getHoveredButton(mouseX, mouseY).orElse(null);
+
+		if (orderableTooltip != null) {
+			return orderableTooltip.getOrderedTooltip();
+		}
+
+		return Collections.emptyList();
+	}
+
+	private DoubleOption getPingVolumeOption() {
+		final var pingVolumeText = "ping-wheel.settings.pingVolume";
+
+		return new DoubleOption(
+			pingVolumeText,
+			0, 100, 1,
+			(gameOptions) -> (double)config.getPingVolume(),
+			(gameOptions, pingVolume) -> config.setPingVolume(pingVolume.intValue()),
+			(gameOptions, option) -> {
+				if (config.getPingVolume() == 0) {
+					return new TranslatableText(pingVolumeText, ScreenTexts.OFF);
+				}
+
+				return new TranslatableText(pingVolumeText, String.format("%s%%", config.getPingVolume()));
+			}
+		);
+	}
+
+	private DoubleOption getPingDurationOption() {
+		final var pingDurationKey = "ping-wheel.settings.pingDuration";
+
+		return new DoubleOption(
+			pingDurationKey,
+			1, 60, 1,
+			(gameOptions) -> (double)config.getPingDuration(),
+			(gameOptions, pingDuration) -> config.setPingDuration(pingDuration.intValue()),
+			(gameOptions, option) -> new TranslatableText(pingDurationKey, String.format("%ss", config.getPingDuration()))
+		);
+	}
+
+	private DoubleOption getPingDistanceOption() {
+		final var pingDistanceKey = "ping-wheel.settings.pingDistance";
+
+		return new DoubleOption(
+			pingDistanceKey,
+			0, 2048, 16,
+			(gameOptions) -> (double)config.getPingDistance(),
+			(gameOptions, pingDistance) -> config.setPingDistance(pingDistance.intValue()),
+			(gameOptions, option) -> {
+				var pingDistance = config.getPingDistance();
+
+				if (pingDistance == 0) {
+					return new TranslatableText(pingDistanceKey, new TranslatableText(pingDistanceKey + ".hidden"));
+				} else if (pingDistance == 2048) {
+					return new TranslatableText(pingDistanceKey, new TranslatableText(pingDistanceKey + ".unlimited"));
+				}
+
+				return new TranslatableText(pingDistanceKey, String.format("%sm", pingDistance));
+			}
+		);
+	}
+
+	private DoubleOption getCorrectionPeriodOption() {
+		final var correctionPeriodKey = "ping-wheel.settings.correctionPeriod";
+
+		return new DoubleOption(
+			correctionPeriodKey,
+			0.1f, 5.0f, 0.1f,
+			(gameOptions) -> (double) config.getCorrectionPeriod(),
+			(gameOptions, correctionPeriod) -> config.setCorrectionPeriod(correctionPeriod.floatValue()),
+			(gameOptions, option) -> new TranslatableText(correctionPeriodKey, String.format("%.1fs", config.getCorrectionPeriod()))
+		);
+	}
+
+	private CyclingOption<Boolean> getItemIconsVisibleOption() {
+		return CyclingOption.create(
+			"ping-wheel.settings.itemIconVisible",
+			(gameOptions) -> config.isItemIconVisible(),
+			(gameOptions, option, iconItemVisibility) -> config.setItemIconVisible(iconItemVisibility)
+		);
+	}
+
+	private DoubleOption getPingSizeOption() {
+		final var pingSizeKey = "ping-wheel.settings.pingSize";
+
+		return new DoubleOption(
+			pingSizeKey,
+			40, 300, 10,
+			(gameOptions) -> (double)config.getPingSize(),
+			(gameOptions, pingSize) -> config.setPingSize(pingSize.intValue()),
+			(gameOptions, option) -> new TranslatableText(pingSizeKey, String.format("%s%%", config.getPingSize()))
+		);
 	}
 }

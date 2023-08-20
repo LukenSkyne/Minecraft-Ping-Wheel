@@ -32,7 +32,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.literal;
@@ -48,15 +48,12 @@ public class PingWheelClient implements ClientModInitializer {
 	public static final SoundEvent PING_SOUND_EVENT = new SoundEvent(PING_SOUND_ID);
 	public static final Identifier PING_TEXTURE_ID = new Identifier(MOD_ID, "textures/ping.png");
 
-	private static KeyBinding kbPing;
-	private static KeyBinding kbSettings;
-
 	@Override
 	public void onInitializeClient() {
 		ConfigHandler.load();
 
-		SetupKeyBindings();
-		SetupClientCommands();
+		setupKeyBindings();
+		setupClientCommands();
 
 		Registry.register(Registry.SOUND_EVENT, PING_SOUND_ID, PING_SOUND_EVENT);
 
@@ -97,9 +94,9 @@ public class PingWheelClient implements ClientModInitializer {
 			}, applyExecutor);
 	}
 
-	private void SetupKeyBindings() {
-		kbPing = KeyBindingHelper.registerKeyBinding(new KeyBinding("ping-wheel.key.mark-location", InputUtil.Type.MOUSE, GLFW.GLFW_MOUSE_BUTTON_5, "ping-wheel.name"));
-		kbSettings = KeyBindingHelper.registerKeyBinding(new KeyBinding("ping-wheel.key.open-settings", InputUtil.Type.KEYSYM, -1, "ping-wheel.name"));
+	private void setupKeyBindings() {
+		var kbPing = KeyBindingHelper.registerKeyBinding(new KeyBinding("ping-wheel.key.mark-location", InputUtil.Type.MOUSE, GLFW.GLFW_MOUSE_BUTTON_5, "ping-wheel.name"));
+		var kbSettings = KeyBindingHelper.registerKeyBinding(new KeyBinding("ping-wheel.key.open-settings", InputUtil.Type.KEYSYM, -1, "ping-wheel.name"));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (kbPing.wasPressed()) {
@@ -112,8 +109,8 @@ public class PingWheelClient implements ClientModInitializer {
 		});
 	}
 
-	private void SetupClientCommands() {
-		Function<String, String> formatChannel = (channel) -> "".equals(channel) ? "§eGlobal §7(default)" : String.format("\"§6%s§r\"", channel);
+	private void setupClientCommands() {
+		UnaryOperator<String> formatChannel = (channel) -> "".equals(channel) ? "§eGlobal §7(default)" : String.format("\"§6%s§r\"", channel);
 
 		var cmdChannel = literal("channel")
 				.executes((context) -> {
