@@ -29,9 +29,6 @@
 			"nx.pingwheel.client.integration.ModMenuIntegration"
 		]
 	},
-	"mixins": [
-		"ping-wheel.mixins.json"
-	],
 	"depends": {
 		"fabricloader": ">=0.14.21",
 		"fabric": "*",
