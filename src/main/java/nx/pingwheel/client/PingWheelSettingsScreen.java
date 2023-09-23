@@ -84,7 +84,7 @@ public class PingWheelSettingsScreen extends Screen {
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		this.renderBackground(matrices);
 		this.list.render(matrices, mouseX, mouseY, delta);
-		drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 5, 16777215);
+		drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 20, 16777215);
 
 		drawTextWithShadow(matrices, this.textRenderer, new TranslatableText("ping-wheel.settings.channel"), this.width / 2 - 100, 128, 10526880);
 		this.channelTextField.render(matrices, mouseX, mouseY, delta);
