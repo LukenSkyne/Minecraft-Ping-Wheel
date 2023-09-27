@@ -1,0 +1,49 @@
+name: Bug Report
+description: Report a bug with Ping Wheel
+title: "[Bug]: "
+labels: "bug :bug:"
+body:
+- type: checkboxes
+  attributes:
+    label: Preflight Checklist
+    description: Please ensure you've completed all of the following.
+    options:
+      - label: I am using the [latest version](https://github.com/LukenSkyne/Minecraft-Ping-Wheel/releases) of Ping Wheel.
+        required: true
+      - label: The server I am playing on has Ping Wheel installed.
+        required: true
+      - label: I have searched the [issue tracker](https://github.com/LukenSkyne/Minecraft-Ping-Wheel/issues?q=is%3Aissue) for a bug report that matches the one I want to file, without success.
+        required: true
+
+- type: dropdown
+  attributes:
+    label: What versions of Minecraft have you experienced the issue in?
+    multiple: true
+    options:
+      - 1.20.2
+      - 1.20–1.20.1
+      - 1.19.4
+      - 1.19.3
+      - 1.19.2
+      - 1.18–1.18.2
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Expected Behavior
+    description: A clear and concise description of what you expected to happen.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Actual Behavior
+    description: A clear description of what actually happens.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Additional Information
+    description: If your problem needs further explanation, or if you can give instructions to reproduce the issue, please add more information here.
