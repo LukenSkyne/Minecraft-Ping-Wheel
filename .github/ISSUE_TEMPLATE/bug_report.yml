@@ -43,6 +43,14 @@ body:
   validations:
     required: true
 
+- type: input
+  attributes:
+    label: Logs URL
+    description: Please upload your latest log file to [mclo.gs](https://mclo.gs/) and put the URL here. You can find the log file in your instance folder at `.minecraft/logs/latest.log`.
+    placeholder: https://mclo.gs/...
+  validations:
+    required: true
+
 - type: textarea
   attributes:
     label: Additional Information
