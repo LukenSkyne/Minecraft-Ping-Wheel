@@ -1,6 +1,6 @@
 <p align="center" style="text-align: center">
   <a href="https://github.com/LukenSkyne/Minecraft-Ping-Wheel">
-    <img alt="Ping Wheel Logo" src="./src/main/resources/assets/ping-wheel/icon.png" width="128" height="128" />
+    <img alt="Ping Wheel Logo" src="common/src/main/resources/assets/ping-wheel/icon.png" width="128" height="128" />
   </a>
 </p>
 
