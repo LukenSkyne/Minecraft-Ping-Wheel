@@ -16,7 +16,7 @@
 		"issues": "https://github.com/LukenSkyne/Minecraft-Ping-Wheel/issues"
 	},
 	"license": "MIT",
-	"icon": "assets/ping-wheel/icon.png",
+	"icon": "icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"client": [
@@ -30,7 +30,7 @@
 		]
 	},
 	"depends": {
-		"fabricloader": ">=0.14.21",
+		"fabricloader": ">=${fabric_loader_version}",
 		"fabric": "*",
 		"minecraft": "1.18.x"
 	}
