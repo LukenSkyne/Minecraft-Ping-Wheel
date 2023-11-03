@@ -1,0 +1,27 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+license = "MIT"
+issueTrackerURL = "https://github.com/LukenSkyne/Minecraft-Ping-Wheel/issues"
+
+[[mods]]
+modId = "pingwheel"
+version = "${version}"
+displayName = "Ping Wheel"
+logoFile = "icon.png"
+description = '''
+The ability to mark locations similar to the ping mechanism found in modern co-op multiplayer games.
+'''
+
+[[dependencies.pingwheel]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.pingwheel]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18,1.19)"
+ordering = "NONE"
+side = "BOTH"
