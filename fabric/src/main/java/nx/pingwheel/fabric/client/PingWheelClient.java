@@ -11,7 +11,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -28,6 +27,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.Registry;
 import nx.pingwheel.fabric.client.config.ConfigHandler;
+import nx.pingwheel.fabric.client.event.GameOverlayRenderCallback;
 import nx.pingwheel.fabric.shared.network.PingLocationPacketS2C;
 import nx.pingwheel.fabric.shared.network.UpdateChannelPacketC2S;
 import org.lwjgl.glfw.GLFW;
@@ -59,7 +59,7 @@ public class PingWheelClient implements ClientModInitializer {
 
 		Registry.register(Registry.SOUND_EVENT, PING_SOUND_ID, PING_SOUND_EVENT);
 
-		HudRenderCallback.EVENT.register(ClientCore::onRenderGUI);
+		GameOverlayRenderCallback.START.register(ClientCore::onRenderGUI);
 		WorldRenderEvents.END.register(ctx -> ClientCore.onRenderWorld(ctx.matrixStack(), ctx.projectionMatrix(), ctx.tickDelta()));
 
 		ClientPlayNetworking.registerGlobalReceiver(PingLocationPacketS2C.ID, (a, b, packet, c) -> ClientCore.onPingLocation(packet));
