@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import static nx.pingwheel.common.ClientGlobal.Game;
 import static nx.pingwheel.common.Global.MOD_ID;
+import static nx.pingwheel.common.config.Config.MAX_CHANNEL_LENGTH;
 
 @AllArgsConstructor
 @Getter
@@ -36,7 +37,7 @@ public class PingLocationPacketC2S {
 
 		var packet = new PacketByteBuf(Unpooled.buffer());
 
-		packet.writeString(channel);
+		packet.writeString(channel, MAX_CHANNEL_LENGTH);
 		packet.writeDouble(pos.x);
 		packet.writeDouble(pos.y);
 		packet.writeDouble(pos.z);
@@ -53,7 +54,7 @@ public class PingLocationPacketC2S {
 
 	public static Optional<PingLocationPacketC2S> parse(PacketByteBuf buf) {
 		try {
-			var channel = buf.readString(128);
+			var channel = buf.readString(MAX_CHANNEL_LENGTH);
 			var pos = new Vec3d(
 				buf.readDouble(),
 				buf.readDouble(),

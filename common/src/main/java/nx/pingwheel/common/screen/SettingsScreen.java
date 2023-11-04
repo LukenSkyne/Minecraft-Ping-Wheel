@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static nx.pingwheel.common.ClientGlobal.ConfigHandler;
+import static nx.pingwheel.common.config.Config.MAX_CHANNEL_LENGTH;
 
 public class SettingsScreen extends Screen {
 
@@ -59,7 +60,7 @@ public class SettingsScreen extends Screen {
 		this.list.addOptionEntry(itemIconsVisibleOption, pingSizeOption);
 
 		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 140, 200, 20, Text.of(""));
-		this.channelTextField.setMaxLength(128);
+		this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
 		this.channelTextField.setText(config.getChannel());
 		this.channelTextField.setChangedListener(config::setChannel);
 		this.addSelectableChild(this.channelTextField);

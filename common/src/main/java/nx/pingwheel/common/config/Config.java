@@ -18,4 +18,12 @@ public class Config {
 	boolean itemIconVisible = true;
 	int pingSize = 100;
 	String channel = "";
+
+	public static final Integer MAX_CHANNEL_LENGTH = 128;
+
+	public void validate() {
+		if (channel.length() > MAX_CHANNEL_LENGTH) {
+			channel = channel.substring(0, MAX_CHANNEL_LENGTH);
+		}
+	}
 }

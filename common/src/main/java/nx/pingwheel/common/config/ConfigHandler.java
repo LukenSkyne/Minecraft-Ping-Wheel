@@ -80,6 +80,7 @@ public class ConfigHandler {
 			return;
 		}
 
+		config.validate();
 		configHash = config.hashCode();
 		LOGGER.info("Loaded " + config);
 	}

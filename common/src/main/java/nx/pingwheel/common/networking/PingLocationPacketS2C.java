@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static nx.pingwheel.common.Global.MOD_ID;
+import static nx.pingwheel.common.config.Config.MAX_CHANNEL_LENGTH;
 
 @AllArgsConstructor
 @Getter
@@ -27,7 +28,7 @@ public class PingLocationPacketS2C {
 
 	public static Optional<PingLocationPacketS2C> parse(PacketByteBuf buf) {
 		try {
-			var channel = buf.readString(128);
+			var channel = buf.readString(MAX_CHANNEL_LENGTH);
 			var pos = new Vec3d(
 				buf.readDouble(),
 				buf.readDouble(),
