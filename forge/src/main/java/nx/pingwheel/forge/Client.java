@@ -3,10 +3,12 @@ package nx.pingwheel.forge;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import nx.pingwheel.common.config.ConfigHandler;
@@ -34,6 +36,11 @@ public class Client {
 		registerNetworkPackets();
 		registerReloadListener();
 		registerKeyBindings();
+
+		ModLoadingContext.get().registerExtensionPoint(
+			ConfigGuiHandler.ConfigGuiFactory.class,
+			() -> new ConfigGuiHandler.ConfigGuiFactory((client, parent) -> new SettingsScreen(parent))
+		);
 	}
 
 	private void registerNetworkPackets() {
