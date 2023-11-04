@@ -20,13 +20,13 @@
 	"environment": "*",
 	"entrypoints": {
 		"client": [
-			"nx.pingwheel.fabric.client.PingWheelClient"
+			"nx.pingwheel.fabric.Client"
 		],
 		"main": [
-			"nx.pingwheel.fabric.shared.PingWheel"
+			"nx.pingwheel.fabric.Main"
 		],
 		"modmenu": [
-			"nx.pingwheel.fabric.client.integration.ModMenuIntegration"
+			"nx.pingwheel.fabric.integration.ModMenuIntegration"
 		]
 	},
 	"mixins": [
