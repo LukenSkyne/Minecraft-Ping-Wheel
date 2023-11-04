@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.util.math.MatrixStack;
 
 public interface GameOverlayRenderCallback {
+
 	Event<GameOverlayRenderCallback> START = EventFactory.createArrayBacked(GameOverlayRenderCallback.class, (listeners) -> (matrixStack, delta) -> {
 		for (GameOverlayRenderCallback event : listeners) {
 			event.onGameOverlayRender(matrixStack, delta);
