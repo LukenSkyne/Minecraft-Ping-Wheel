@@ -1,17 +1,17 @@
 package nx.pingwheel.common.screen;
 
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.option.Option;
+import net.minecraft.client.option.SimpleOption;
 import net.minecraft.client.util.OrderableTooltip;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.OrderedText;
+import net.minecraft.text.Text;
 import nx.pingwheel.common.config.Config;
 import nx.pingwheel.common.helper.OptionUtils;
-import nx.pingwheel.common.compat.Text;
 
 import java.util.Collections;
 import java.util.List;
@@ -113,7 +113,7 @@ public class SettingsScreen extends Screen {
 		return Collections.emptyList();
 	}
 
-	private Option getPingVolumeOption() {
+	private SimpleOption<Integer> getPingVolumeOption() {
 		final var pingVolumeKey = "ping-wheel.settings.pingVolume";
 
 		return OptionUtils.ofInt(
@@ -131,7 +131,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getPingDurationOption() {
+	private SimpleOption<Integer> getPingDurationOption() {
 		final var pingDurationKey = "ping-wheel.settings.pingDuration";
 
 		return OptionUtils.ofInt(
@@ -143,7 +143,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getPingDistanceOption() {
+	private SimpleOption<Integer> getPingDistanceOption() {
 		final var pingDistanceKey = "ping-wheel.settings.pingDistance";
 
 		return OptionUtils.ofInt(
@@ -163,7 +163,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getCorrectionPeriodOption() {
+	private SimpleOption<Float> getCorrectionPeriodOption() {
 		final var correctionPeriodKey = "ping-wheel.settings.correctionPeriod";
 
 		return OptionUtils.ofFloat(
@@ -175,7 +175,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getItemIconsVisibleOption() {
+	private SimpleOption<Boolean> getItemIconsVisibleOption() {
 		return OptionUtils.ofBool(
 			"ping-wheel.settings.itemIconVisible",
 			config::isItemIconVisible,
@@ -183,7 +183,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getDirectionIndicatorVisibleOption() {
+	private SimpleOption<Boolean> getDirectionIndicatorVisibleOption() {
 		return OptionUtils.ofBool(
 			"ping-wheel.settings.directionIndicatorVisible",
 			config::isDirectionIndicatorVisible,
@@ -191,7 +191,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getPingSizeOption() {
+	private SimpleOption<Integer> getPingSizeOption() {
 		final var pingSizeKey = "ping-wheel.settings.pingSize";
 
 		return OptionUtils.ofInt(
