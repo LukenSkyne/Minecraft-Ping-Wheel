@@ -58,7 +58,13 @@ public class Client implements ClientModInitializer {
 		GameOverlayRenderCallback.START.register(ClientCore::onRenderGUI);
 
 		// register commands
-		ClientCommandManager.DISPATCHER.register(ClientCommandBuilder.build((context, response) -> context.getSource().sendFeedback(response)));
+		ClientCommandManager.DISPATCHER.register(ClientCommandBuilder.build((context, success, response) -> {
+			if (success) {
+				context.getSource().sendFeedback(response);
+			} else {
+				context.getSource().sendError(response);
+			}
+		}));
 	}
 
 	private void registerNetworkPackets() {

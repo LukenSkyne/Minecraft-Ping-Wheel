@@ -7,34 +7,40 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.text.Text;
 import nx.pingwheel.common.screen.SettingsScreen;
-import org.apache.logging.log4j.util.BiConsumer;
+import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.function.UnaryOperator;
 
 import static nx.pingwheel.common.ClientGlobal.ConfigHandler;
 import static nx.pingwheel.common.ClientGlobal.Game;
+import static nx.pingwheel.common.config.Config.MAX_CHANNEL_LENGTH;
 
 public class ClientCommandBuilder {
 	private ClientCommandBuilder() {}
 
-	public static <S> LiteralArgumentBuilder<S> build(BiConsumer<CommandContext<S>, Text> responseHandler) {
-		UnaryOperator<String> formatChannel = (channel) -> channel.isEmpty() ? "§eGlobal §7(default)" : String.format("\"§6%s§r\"", channel);
+	public static <S> LiteralArgumentBuilder<S> build(TriConsumer<CommandContext<S>, Boolean, Text> responseHandler) {
+		UnaryOperator<String> formatChannel = (channel) -> channel.isEmpty() ? "§eGlobal §7(default)" : String.format("\"§6%s§f\"", channel);
 
 		var cmdChannel = LiteralArgumentBuilder.<S>literal("channel")
 			.executes((context) -> {
 				var currentChannel = ConfigHandler.getConfig().getChannel();
 
-				responseHandler.accept(context, Text.of(String.format("Current Ping-Wheel channel: %s", formatChannel.apply(currentChannel))));
+				responseHandler.accept(context, true, Text.of(String.format("§fCurrent Ping-Wheel channel: %s", formatChannel.apply(currentChannel))));
 
 				return 1;
 			})
 			.then(RequiredArgumentBuilder.<S, String>argument("channel_name", StringArgumentType.string()).executes((context) -> {
 				var newChannel = context.getArgument("channel_name", String.class);
 
+				if (newChannel.length() > MAX_CHANNEL_LENGTH) {
+					responseHandler.accept(context, false, Text.of(String.format("Channel names are limited to a length of %s characters", MAX_CHANNEL_LENGTH)));
+					return 0;
+				}
+
 				ConfigHandler.getConfig().setChannel(newChannel);
 				ConfigHandler.save();
 
-				responseHandler.accept(context, Text.of(String.format("Set Ping-Wheel channel to: %s", formatChannel.apply(newChannel))));
+				responseHandler.accept(context, true, Text.of(String.format("§fSet Ping-Wheel channel to: %s", formatChannel.apply(newChannel))));
 
 				return 1;
 			}));
@@ -55,7 +61,7 @@ public class ClientCommandBuilder {
 				§f/pingwheel channel <channel_name>
 				§7(set your current channel, use "" for global channel)""";
 
-			responseHandler.accept(context, Text.of(output));
+			responseHandler.accept(context, true, Text.of(output));
 
 			return 1;
 		};

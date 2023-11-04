@@ -93,6 +93,12 @@ public class Client {
 
 	@SubscribeEvent
 	public void onCommandRegister(RegisterClientCommandsEvent event) {
-		event.getDispatcher().register(ClientCommandBuilder.build((context, response) -> context.getSource().sendFeedback(response, false)));
+		event.getDispatcher().register(ClientCommandBuilder.build((context, success, response) -> {
+			if (success) {
+				context.getSource().sendFeedback(response, false);
+			} else {
+				context.getSource().sendError(response);
+			}
+		}));
 	}
 }
