@@ -1,0 +1,93 @@
+name: "Platform Release"
+
+on:
+  workflow_call:
+    inputs:
+      loader:
+        required: true
+        description: the loader name, can be "fabric" or "forge"
+        type: string
+    secrets:
+      MODRINTH_API_TOKEN:
+        required: true
+      CURSEFORGE_API_TOKEN:
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@v4
+
+      - name: "Set up JDK 17"
+        uses: actions/setup-java@v3
+        with:
+          distribution: "adopt"
+          java-version: "17"
+
+      - name: "Build with Gradle"
+        id: build
+        run: chmod +x gradlew && ./gradlew :${{ inputs.loader }}:build
+
+      - name: "Archive build artifacts"
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: |
+            ./${{ inputs.loader }}/build/libs
+            CHANGELOG.md
+            gradle.properties
+
+  publish:
+    runs-on: ubuntu-latest
+    environment: "release"
+    needs: [build]
+    steps:
+      - name: "Download build artifacts"
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+
+      - name: "Extracting archive name"
+        run: echo "ARCHIVE_NAME=$(grep "archives_base_name=" gradle.properties | cut -d "=" -f 2)" >> $GITHUB_ENV
+
+      - name: "Extracting mod version"
+        run: echo "MOD_VERSION=$(grep "mod_version=" gradle.properties | cut -d "=" -f 2)" >> $GITHUB_ENV
+
+      - name: "Extracting minecraft version"
+        run: echo "MC_VERSION=$(grep "minecraft_version=" gradle.properties | cut -d "=" -f 2)" >> $GITHUB_ENV
+
+      - name: "Generate loader name"
+        run: echo "LOADER_NAME=$(echo ${{ inputs.loader }} | awk '{print toupper(substr($0,1,1)) substr($0,2)}')" >> $GITHUB_ENV
+
+      - name: "Move output to build directory"
+        run: |
+          mkdir -p ./build/libs
+          mv ./${{ inputs.loader }}/build/libs/${{ env.ARCHIVE_NAME }}-${{ env.MOD_VERSION }}.jar ./build/libs/${{ env.ARCHIVE_NAME }}-${{ env.MOD_VERSION }}-${{ inputs.loader }}-${{ env.MC_VERSION }}.jar
+
+      - name: "Publish to Platforms"
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: QQXAdCzh
+          modrinth-token: ${{ secrets.MODRINTH_API_TOKEN }}
+
+          curseforge-id: 734339
+          curseforge-token: ${{ secrets.CURSEFORGE_API_TOKEN }}
+
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-tag: v${{ env.MOD_VERSION }}-${{ inputs.loader }}-${{ env.MC_VERSION }}
+
+          name: v${{ env.MOD_VERSION }} for ${{ env.LOADER_NAME }} ${{ env.MC_VERSION }}
+          changelog-file: CHANGELOG.md
+
+          loaders: |
+            ${{ inputs.loader }}
+          game-versions: |
+            >=1.18 <=1.18.2
+          # Only needed for the 'fabric' loader, so we conditionally inject it
+          dependencies: ${{ inputs.loader == 'fabric' && 'fabric-api(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)' || '' }}
+
+          retry-attempts: 2
+          retry-delay: 10000
+          fail-mode: fail
