@@ -31,7 +31,7 @@ public class Draw {
 
 		var matrixStack = RenderSystem.getModelViewStack();
 		matrixStack.push();
-		matrixStack.translate(x, y, (100.f + Game.getItemRenderer().zOffset));
+		matrixStack.translate(x, y, -100);
 		matrixStack.scale(scale, scale, scale);
 		matrixStack.scale(1.f, -1.f, 1.f);
 		matrixStack.scale(16.f, 16.f, 16.f);
