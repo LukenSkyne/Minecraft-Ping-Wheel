@@ -21,7 +21,7 @@ public class ResourceReloadListener implements ResourceReloader {
 	public static CompletableFuture<Void> reloadTextures(Synchronizer helper, ResourceManager resourceManager, Executor loadExecutor, Executor applyExecutor) {
 		return CompletableFuture
 			.supplyAsync(() -> {
-				final var canLoadTexture = resourceManager.containsResource(PING_TEXTURE_ID);
+				final var canLoadTexture = resourceManager.getResource(PING_TEXTURE_ID).isPresent();
 
 				if (!canLoadTexture) {
 					// force texture manager to remove the entry from its index
