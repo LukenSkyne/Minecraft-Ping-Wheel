@@ -1,5 +1,6 @@
 package nx.pingwheel.forge;
 
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -58,7 +59,8 @@ public class Main {
 			var packet = event.getPayload();
 
 			if (packet != null) {
-				ctx.enqueueWork(() -> ServerCore.onPingLocation(ctx.getSender(), packet));
+				var packetCopy = new PacketByteBuf(packet.copy());
+				ctx.enqueueWork(() -> ServerCore.onPingLocation(ctx.getSender(), packetCopy));
 			}
 
 			ctx.setPacketHandled(true);
@@ -69,7 +71,8 @@ public class Main {
 			var packet = event.getPayload();
 
 			if (packet != null) {
-				ctx.enqueueWork(() -> ServerCore.onChannelUpdate(ctx.getSender(), packet));
+				var packetCopy = new PacketByteBuf(packet.copy());
+				ctx.enqueueWork(() -> ServerCore.onChannelUpdate(ctx.getSender(), packetCopy));
 			}
 
 			ctx.setPacketHandled(true);
@@ -78,6 +81,6 @@ public class Main {
 
 	@SubscribeEvent
 	public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-		ServerCore.onPlayerDisconnect((ServerPlayerEntity)event.getPlayer());
+		ServerCore.onPlayerDisconnect((ServerPlayerEntity)event.getEntity());
 	}
 }
