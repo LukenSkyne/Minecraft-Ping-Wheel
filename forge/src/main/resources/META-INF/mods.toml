@@ -9,7 +9,7 @@ version = "${version}"
 displayName = "Ping Wheel"
 logoFile = "icon.png"
 description = '''
-The ability to mark locations similar to the ping mechanism found in modern co-op multiplayer games.
+Mark locations similar to the ping mechanism found in modern co-op multiplayer games.
 '''
 
 [[dependencies.pingwheel]]

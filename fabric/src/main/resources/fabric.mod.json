@@ -3,7 +3,7 @@
 	"id": "ping-wheel",
 	"version": "${version}",
 	"name": "Ping Wheel",
-	"description": "The ability to mark locations similar to the ping mechanism found in modern co-op multiplayer games.",
+	"description": "Mark locations similar to the ping mechanism found in modern co-op multiplayer games.",
 	"authors": [
 		"Luken"
 	],
