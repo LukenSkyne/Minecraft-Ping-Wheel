@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vector4f;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector4f;
 
 import java.util.UUID;
 
