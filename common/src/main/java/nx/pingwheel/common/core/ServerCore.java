@@ -58,7 +58,7 @@ public class ServerCore {
 				continue;
 			}
 
-			p.networkHandler.connection.send(new CustomPayloadS2CPacket(PingLocationPacketS2C.ID, packetCopy));
+			p.networkHandler.sendPacket(new CustomPayloadS2CPacket(PingLocationPacketS2C.ID, packetCopy));
 		}
 	}
 

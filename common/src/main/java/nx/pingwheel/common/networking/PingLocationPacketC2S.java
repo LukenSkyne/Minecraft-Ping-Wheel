@@ -49,7 +49,7 @@ public class PingLocationPacketC2S {
 
 		packet.writeInt(sequence);
 
-		netHandler.getConnection().send(new CustomPayloadC2SPacket(ID, packet));
+		netHandler.sendPacket(new CustomPayloadC2SPacket(ID, packet));
 	}
 
 	public static Optional<PingLocationPacketC2S> parse(PacketByteBuf buf) {

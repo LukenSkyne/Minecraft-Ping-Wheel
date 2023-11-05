@@ -31,7 +31,7 @@ public class UpdateChannelPacketC2S {
 		var packet = new PacketByteBuf(Unpooled.buffer());
 		packet.writeString(channel, MAX_CHANNEL_LENGTH);
 
-		netHandler.getConnection().send(new CustomPayloadC2SPacket(ID, packet));
+		netHandler.sendPacket(new CustomPayloadC2SPacket(ID, packet));
 	}
 
 	public static Optional<UpdateChannelPacketC2S> parse(PacketByteBuf buf) {
