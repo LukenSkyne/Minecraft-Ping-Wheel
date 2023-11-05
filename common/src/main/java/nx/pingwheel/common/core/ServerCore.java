@@ -1,9 +1,14 @@
 package nx.pingwheel.common.core;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.s2c.play.ServerMetadataS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import nx.pingwheel.common.networking.PingLocationPacketC2S;
 import nx.pingwheel.common.networking.PingLocationPacketS2C;
 import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
@@ -51,14 +56,17 @@ public class ServerCore {
 			updatePlayerChannel(player, channel);
 		}
 
-		packetCopy.writeUuid(player.getUuid());
+		var packetOut = new PacketByteBuf(Unpooled.buffer())
+			.writeIdentifier(PingLocationPacketS2C.ID)
+			.writeBytes(packetCopy)
+			.writeUuid(player.getUuid());
 
-		for (ServerPlayerEntity p : player.getWorld().getPlayers()) {
+		for (ServerPlayerEntity p : player.getServerWorld().getPlayers()) {
 			if (!channel.equals(playerChannels.getOrDefault(p.getUuid(), ""))) {
 				continue;
 			}
 
-			p.networkHandler.sendPacket(new CustomPayloadS2CPacket(PingLocationPacketS2C.ID, packetCopy));
+			p.networkHandler.sendPacket(new CustomPayloadS2CPacket(packetOut));
 		}
 	}
 
