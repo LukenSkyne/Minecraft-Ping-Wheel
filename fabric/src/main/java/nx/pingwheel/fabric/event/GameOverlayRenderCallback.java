@@ -2,6 +2,7 @@ package nx.pingwheel.fabric.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 
 public interface GameOverlayRenderCallback {
@@ -15,8 +16,8 @@ public interface GameOverlayRenderCallback {
 	/**
 	 * Called before rendering the whole hud, which is displayed in game, in a world.
 	 *
-	 * @param matrixStack the matrixStack
+	 * @param drawContext the drawContext
 	 * @param tickDelta Progress for linearly interpolating between the previous and current game state
 	 */
-	void onGameOverlayRender(MatrixStack matrixStack, float tickDelta);
+	void onGameOverlayRender(DrawContext drawContext, float tickDelta);
 }

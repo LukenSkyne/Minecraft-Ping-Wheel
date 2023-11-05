@@ -84,7 +84,7 @@ jobs:
           loaders: |
             ${{ inputs.loader }}
           game-versions: |
-            >=1.18 <=1.18.2
+            1.20.2
           # Only needed for the 'fabric' loader, so we conditionally inject it
           dependencies: ${{ inputs.loader == 'fabric' && 'fabric-api(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)' || '' }}
 
