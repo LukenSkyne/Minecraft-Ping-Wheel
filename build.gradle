@@ -4,7 +4,7 @@ plugins {
 }
 
 architectury {
-	minecraft = rootProject.minecraft_version
+	minecraft = project.minecraft_version
 }
 
 subprojects {
@@ -15,12 +15,12 @@ subprojects {
 	}
 
 	dependencies {
-		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+		minecraft "com.mojang:minecraft:${project.minecraft_version}"
 
 		// The following line declares the mojmap mappings, you may use other mappings as well
 		//mappings loom.officialMojangMappings()
 		// The following line declares the yarn mappings you may select this one as well.
-		mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+		mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 
 		// Gson
 		implementation "com.google.code.gson:gson:2.10.1"
@@ -36,9 +36,9 @@ allprojects {
 	apply plugin: "architectury-plugin"
 	apply plugin: "maven-publish"
 
-	archivesBaseName = rootProject.archives_base_name
-	version = rootProject.mod_version
-	group = rootProject.maven_group
+	archivesBaseName = project.archives_base_name
+	version = project.mod_version
+	group = project.maven_group
 
 	repositories {
 		// Add repositories to retrieve artifacts from in here.
