@@ -8,12 +8,22 @@ body:
     label: Preflight Checklist
     description: Please ensure you've completed all of the following.
     options:
-      - label: I am using the [latest version](https://github.com/LukenSkyne/Minecraft-Ping-Wheel/releases) of Ping Wheel.
+      - label: I am using the [latest version](https://github.com/LukenSkyne/Minecraft-Ping-Wheel/releases) of Ping Wheel for the corresponding mod loader.
         required: true
       - label: The server I am playing on has Ping Wheel installed.
         required: true
       - label: I have searched the [issue tracker](https://github.com/LukenSkyne/Minecraft-Ping-Wheel/issues?q=is%3Aissue) for a bug report that matches the one I want to file, without success.
         required: true
+
+- type: dropdown
+  attributes:
+    label: Which mod loaders have you experienced the issue with?
+    multiple: true
+    options:
+      - Fabric
+      - Forge
+  validations:
+    required: true
 
 - type: dropdown
   attributes:
@@ -24,7 +34,7 @@ body:
       - 1.20–1.20.1
       - 1.19.4
       - 1.19.3
-      - 1.19.2
+      - 1.19-1.19.2
       - 1.18–1.18.2
   validations:
     required: true
