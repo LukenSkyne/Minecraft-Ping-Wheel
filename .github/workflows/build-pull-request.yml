@@ -1,0 +1,25 @@
+name: 'Build pull request'
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          loader: [forge, fabric]
+      steps:
+        - name: "Check out repository"
+          uses: actions/checkout@v4
+  
+        - name: "Set up JDK 17"
+          uses: actions/setup-java@v3
+          with:
+            distribution: "adopt"
+            java-version: "17"
+  
+        - name: "Build with Gradle"
+          id: build
+          run: chmod +x gradlew && ./gradlew :${{ inputs.loader }}:build
