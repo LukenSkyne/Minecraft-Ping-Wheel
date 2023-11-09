@@ -1,0 +1,146 @@
+name: "🚀 Deploy to Platforms"
+
+on:
+  workflow_dispatch:
+    inputs:
+      loaders:
+        description: 'Loaders'
+        required: true
+        type: string
+        default: 'forge, fabric'
+      versions:
+        description: 'Versions'
+        required: true
+        type: string
+        default: '1.18.2, 1.19.2, 1.19.3, 1.19.4, 1.20.1, 1.20.2'
+
+jobs:
+  prepare:
+    name: "Prepare Matrix"
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: "Set matrix for build job"
+        id: set-matrix
+        run: |
+          VERSIONS="${{ github.event.inputs.versions }}"
+          LOADERS="${{ github.event.inputs.loaders }}"
+          MATRIX_JSON="{\"include\": ["
+
+          # Create a list of version and loader combinations
+          for VERSION in $(echo $VERSIONS | sed "s/,/ /g")
+          do
+            for LOADER in $(echo $LOADERS | sed "s/,/ /g")
+            do
+              MATRIX_JSON+="{\"version\": \"$VERSION\", \"loader\": \"$LOADER\"},"
+            done
+          done
+
+          # Remove the last comma and close the JSON array
+          MATRIX_JSON="${MATRIX_JSON%,}]}"
+          echo "Matrix JSON: $MATRIX_JSON"
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+
+  build:
+    name: "Build"
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.version }}
+
+      - name: "Set up JDK 17"
+        uses: actions/setup-java@v3
+        with:
+          distribution: "adopt"
+          java-version: "17"
+
+      - name: "Build with Gradle"
+        id: build
+        run: chmod +x gradlew && ./gradlew :${{ matrix.loader }}:build
+
+      - name: "Archive build artifacts"
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.loader }}-${{ matrix.version }}
+          path: |
+            ./${{ matrix.loader }}/build/libs
+            CHANGELOG.md
+            gradle.properties
+
+  publish:
+    name: "Publish"
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.version }}
+
+      - name: "Download build artifacts"
+        uses: actions/download-artifact@v3
+        with:
+          name: build-${{ matrix.loader }}-${{ matrix.version }}
+
+      - name: "Extract gradle properties"
+        run: |
+          echo "ARCHIVE_NAME=$(awk -F'archives_base_name=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
+          echo "MOD_VERSION=$(awk -F'mod_version=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
+          echo "MC_VERSION=$(awk -F'minecraft_version=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
+          echo "VERSION_RANGE=$(awk -F'${{ matrix.loader }}_compatible_range=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
+
+      - name: "Set release info"
+        run: |
+          LOADER_NAME=$(echo ${{ matrix.loader }} | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
+          echo "RELEASE_NAME=v${{ env.MOD_VERSION }} for $LOADER_NAME ${{ env.MC_VERSION }}" >> $GITHUB_ENV
+          echo "TAG_NAME=v${{ env.MOD_VERSION }}-${{ matrix.loader }}-${{ env.MC_VERSION }}" >> $GITHUB_ENV
+
+      - name: "Move output to build directory"
+        run: |
+          mkdir -p ./build/libs
+          mv ./${{ matrix.loader }}/build/libs/${{ env.ARCHIVE_NAME }}-${{ env.MOD_VERSION }}.jar ./build/libs/${{ env.ARCHIVE_NAME }}-${{ env.MOD_VERSION }}-${{ matrix.loader }}-${{ env.MC_VERSION }}.jar
+
+      - name: "Create version tag"
+        run: |
+          git tag ${{ env.TAG_NAME }}
+          git push origin ${{ env.TAG_NAME }}
+
+      - name: "Publish to Platforms"
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: QQXAdCzh
+          modrinth-token: ${{ secrets.MODRINTH_API_TOKEN }}
+
+          curseforge-id: 734339
+          curseforge-token: ${{ secrets.CURSEFORGE_API_TOKEN }}
+
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-tag: ${{ env.TAG_NAME }}
+          github-prerelease: false
+
+          name: ${{ env.RELEASE_NAME }}
+          changelog-file: CHANGELOG.md
+
+          loaders: |
+            ${{ matrix.loader }}
+          game-versions: |
+            ${{ env.VERSION_RANGE }}
+
+          # only needed for the 'fabric' loader, so we conditionally inject it
+          dependencies: ${{ matrix.loader == 'fabric' && 'fabric-api(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)' || '' }}
+
+          # forge releases are marked as beta for easier visual distinction
+          version-type: ${{ matrix.loader == 'forge' && 'beta' || '' }}
+
+          retry-attempts: 2
+          retry-delay: 10000
+          fail-mode: fail
