@@ -35,6 +35,6 @@
 	"depends": {
 		"fabricloader": ">=${fabric_loader_version}",
 		"fabric": "*",
-		"minecraft": "1.18.x"
+		"minecraft": "${fabric_compatible_range}"
 	}
 }
