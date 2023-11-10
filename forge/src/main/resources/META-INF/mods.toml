@@ -7,7 +7,9 @@ issueTrackerURL = "https://github.com/LukenSkyne/Minecraft-Ping-Wheel/issues"
 modId = "pingwheel"
 version = "${version}"
 displayName = "Ping Wheel"
+displayURL = "https://github.com/LukenSkyne/Minecraft-Ping-Wheel"
 logoFile = "icon.png"
+authors = "Luken, RXJpaw"
 description = '''
 Mark locations similar to the ping mechanism found in modern co-op multiplayer games.
 '''
