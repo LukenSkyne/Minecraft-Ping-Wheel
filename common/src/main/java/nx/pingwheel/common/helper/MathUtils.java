@@ -35,4 +35,46 @@ public class MathUtils {
 	public static void rotateZ(MatrixStack matrixStack, float theta) {
 		matrixStack.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(theta));
 	}
+
+	public static Vec2f calculateAngleRectIntersection(float angle, Vec2f leftTop, Vec2f rightBottom) {
+		var direction = new Vec3d(Math.cos(angle), Math.sin(angle), 0f);
+		var width = rightBottom.x - leftTop.x;
+		var height = rightBottom.y - leftTop.y;
+		direction = direction.multiply(new Vec3d(1f / width, 1f / height, 0f));
+
+		var dx = Math.cos(angle);
+		var dy = Math.sin(angle);
+		var cx = width * 0.5f;
+		var cy = height * 0.5f;
+
+		if (Math.abs(direction.x) < Math.abs(direction.y)) {
+			if (direction.y < 0) {
+				// top
+				var t = -cy / dy;
+				var x = cx + t * dx;
+
+				return new Vec2f((float)x + leftTop.x, leftTop.y);
+			}
+
+			// bottom
+			var t = cy / dy;
+			var x = cx + t * dx;
+
+			return new Vec2f((float)x + leftTop.x, rightBottom.y);
+		}
+
+		if (direction.x < 0) {
+			// left
+			var t = -cx / dx;
+			var y = cy + t * dy;
+
+			return new Vec2f(leftTop.x, (float)y + leftTop.y);
+		}
+
+		// right
+		var t = cx / dx;
+		var y = cy + t * dy;
+
+		return new Vec2f(rightBottom.x, (float)y + leftTop.y);
+	}
 }

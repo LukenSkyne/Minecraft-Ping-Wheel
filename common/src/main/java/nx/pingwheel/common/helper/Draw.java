@@ -3,14 +3,14 @@ package nx.pingwheel.common.helper;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Vec2f;
+import org.lwjgl.opengl.GL11;
 
 import static nx.pingwheel.common.ClientGlobal.Game;
 import static nx.pingwheel.common.ClientGlobal.PING_TEXTURE_ID;
@@ -121,6 +121,30 @@ public class Draw {
 		matrices.translate(-2.5, -2.5, 0);
 		DrawableHelper.fill(matrices, 0, 0, 5, 5, WHITE);
 		matrices.pop();
+	}
+
+	public static void renderArrow(MatrixStack m, boolean antialias) {
+		if (antialias) {
+			GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
+		}
+
+		var bufferBuilder = Tessellator.getInstance().getBuffer();
+		RenderSystem.enableBlend();
+		RenderSystem.disableTexture();
+		RenderSystem.defaultBlendFunc();
+		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+
+		var mat = m.peek().getPositionMatrix();
+		bufferBuilder.vertex(mat, 5f, 0f, 0f).color(1f, 1f, 1f, 1f).next();
+		bufferBuilder.vertex(mat, -5f, -5f, 0f).color(1f, 1f, 1f, 1f).next();
+		bufferBuilder.vertex(mat, -3f, 0f, 0f).color(1f, 1f, 1f, 1f).next();
+		bufferBuilder.vertex(mat, -5f, 5f, 0f).color(1f, 1f, 1f, 1f).next();
+		bufferBuilder.end();
+		BufferRenderer.draw(bufferBuilder);
+		RenderSystem.enableTexture();
+		RenderSystem.disableBlend();
+		GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
 	}
 
 	private static boolean hasCustomTexture() {

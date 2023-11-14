@@ -56,10 +56,13 @@ public class SettingsScreen extends Screen {
 		this.list.addOptionEntry(pingDistanceOption, correctionPeriodOption);
 
 		final var itemIconsVisibleOption = getItemIconsVisibleOption();
-		final var pingSizeOption = getPingSizeOption();
-		this.list.addOptionEntry(itemIconsVisibleOption, pingSizeOption);
+		final var directionIndicatorVisibleOption = getDirectionIndicatorVisibleOption();
+		this.list.addOptionEntry(itemIconsVisibleOption, directionIndicatorVisibleOption);
 
-		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 140, 200, 20, Text.of(""));
+		final var pingSizeOption = getPingSizeOption();
+		this.list.addOptionEntry(pingSizeOption, null);
+
+		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 160, 200, 20, Text.of(""));
 		this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
 		this.channelTextField.setText(config.getChannel());
 		this.channelTextField.setChangedListener(config::setChannel);
@@ -87,7 +90,7 @@ public class SettingsScreen extends Screen {
 		this.list.render(matrices, mouseX, mouseY, delta);
 		drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 20, 16777215);
 
-		drawTextWithShadow(matrices, this.textRenderer, new TranslatableText("ping-wheel.settings.channel"), this.width / 2 - 100, 128, 10526880);
+		drawTextWithShadow(matrices, this.textRenderer, new TranslatableText("ping-wheel.settings.channel"), this.width / 2 - 100, 148, 10526880);
 		this.channelTextField.render(matrices, mouseX, mouseY, delta);
 
 		super.render(matrices, mouseX, mouseY, delta);
@@ -180,6 +183,14 @@ public class SettingsScreen extends Screen {
 			"ping-wheel.settings.itemIconVisible",
 			(gameOptions) -> config.isItemIconVisible(),
 			(gameOptions, option, iconItemVisibility) -> config.setItemIconVisible(iconItemVisibility)
+		);
+	}
+
+	private CyclingOption<Boolean> getDirectionIndicatorVisibleOption() {
+		return CyclingOption.create(
+			"ping-wheel.settings.directionIndicatorVisible",
+			(gameOptions) -> config.isDirectionIndicatorVisible(),
+			(gameOptions, option, directionIndicatorVisibility) -> config.setDirectionIndicatorVisible(directionIndicatorVisibility)
 		);
 	}
 

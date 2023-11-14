@@ -13,11 +13,18 @@ public class Config {
 	int pingVolume = 100;
 	int pingDuration = 7;
 	int pingDistance = 2048;
-	int raycastDistance = 1024; // hidden from settings screen
 	float correctionPeriod = 1f;
 	boolean itemIconVisible = true;
+	boolean directionIndicatorVisible = true;
 	int pingSize = 100;
 	String channel = "";
+
+	// hidden from settings screen
+	int raycastDistance = 1024;
+	int safeZoneLeft = 5;
+	int safeZoneRight = 5;
+	int safeZoneTop = 5;
+	int safeZoneBottom = 60;
 
 	public static final Integer MAX_CHANNEL_LENGTH = 128;
 

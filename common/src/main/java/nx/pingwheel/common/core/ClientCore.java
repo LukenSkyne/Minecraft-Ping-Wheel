@@ -12,6 +12,8 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.Vec3d;
 import nx.pingwheel.common.config.Config;
 import nx.pingwheel.common.helper.Draw;
 import nx.pingwheel.common.helper.MathUtils;
@@ -117,8 +119,15 @@ public class ClientCore {
 			return;
 		}
 
+		var wnd = Game.getWindow();
+		var screenBounds = new Vec3d(wnd.getScaledWidth(), wnd.getScaledHeight(), 0);
+		var safeZoneTopLeft = new Vec2f(Config.getSafeZoneLeft(), Config.getSafeZoneTop());
+		var safeZoneBottomRight = new Vec2f((float)screenBounds.x - Config.getSafeZoneRight(), (float)screenBounds.y - Config.getSafeZoneBottom());
+		var safeScreenCentre = new Vec2f((safeZoneBottomRight.x - safeZoneTopLeft.x) * 0.5f, (safeZoneBottomRight.y - safeZoneTopLeft.y) * 0.5f);
+		var directionIndicator = Config.isDirectionIndicatorVisible();
+
 		for (var ping : pingRepo) {
-			if (ping.screenPos == null || ping.screenPos.getW() <= 0) {
+			if (ping.screenPos == null || (ping.screenPos.getW() <= 0 && !directionIndicator)) {
 				continue;
 			}
 
@@ -128,16 +137,57 @@ public class ClientCore {
 			var pingSize = Config.getPingSize() / 100f;
 			var pingScale = getDistanceScale(distanceToPing) * pingSize * 0.4f;
 
-			m.push();
-			m.translate(pos.getX(), pos.getY(), 0);
-			m.scale(pingScale, pingScale, 1f);
+			var pingDirectionVec = new Vec2f(pos.getX() - safeZoneTopLeft.x - safeScreenCentre.x, pos.getY() - safeZoneTopLeft.y - safeScreenCentre.y);
+			var behindCamera = false;
 
-			var text = String.format("%.1fm", distanceToPing);
-			Draw.renderLabel(m, text);
+			if (pos.getW() <= 0) {
+				behindCamera = true;
+				pingDirectionVec = pingDirectionVec.multiply(-1);
+			}
 
-			Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
+			var pingAngle = (float)Math.atan2(pingDirectionVec.y, pingDirectionVec.x);
+			var isOffScreen = behindCamera || pos.getX() < 0 || pos.getX() > screenBounds.x || pos.getY() < 0 || pos.getY() > screenBounds.y;
+			isOffScreen &= directionIndicator;
 
-			m.pop();
+			if (isOffScreen) {
+				var indicator = MathUtils.calculateAngleRectIntersection(pingAngle, safeZoneTopLeft, safeZoneBottomRight);
+
+				m.push();
+				m.translate(indicator.x, indicator.y, 0f);
+
+				m.push();
+				m.scale(pingScale, pingScale, 1f);
+				var indicatorOffsetX = Math.cos(pingAngle + Math.PI) * 12;
+				var indicatorOffsetY = Math.sin(pingAngle + Math.PI) * 12;
+				m.translate(indicatorOffsetX, indicatorOffsetY, 0);
+				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
+				m.pop();
+
+				m.push();
+				MathUtils.rotateZ(m, pingAngle);
+				m.scale(pingSize, pingSize, 1f);
+
+				m.scale(0.25f, 0.25f, 1f);
+				m.translate(-5f, 0f, 0f);
+				Draw.renderArrow(m, true);
+				m.scale(0.9f, 0.9f, 1f);
+				Draw.renderArrow(m, false);
+				m.pop();
+
+				m.pop();
+			}
+
+			if (!behindCamera) {
+				m.push();
+				m.translate(pos.getX(), pos.getY(), 0);
+				m.scale(pingScale, pingScale, 1f);
+
+				var text = String.format("%.1fm", distanceToPing);
+				Draw.renderLabel(m, text);
+				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
+
+				m.pop();
+			}
 		}
 	}
 
