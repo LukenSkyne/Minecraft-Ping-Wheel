@@ -58,9 +58,13 @@ public class Draw {
 		RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
-		matrices.push();
-		matrices.scale(1f, -1f, 1f);
-		matrices.scale(16f, 16f, 16f);
+		var matrixStack = RenderSystem.getModelViewStack();
+		matrixStack.push();
+		matrixStack.multiplyPositionMatrix(matrices.peek().getPositionMatrix());
+		matrixStack.translate(0f, 0f, -0.5f);
+		matrixStack.scale(1f, -1f, 1f);
+		matrixStack.scale(10f, 10f, 0.5f);
+		RenderSystem.applyModelViewMatrix();
 
 		var immediate = Game.getBufferBuilders().getEntityVertexConsumers();
 		var bl = !model.isSideLit();
@@ -68,11 +72,12 @@ public class Draw {
 			DiffuseLighting.disableGuiDepthLighting();
 		}
 
+		var matrixStackDummy = new MatrixStack();
 		Game.getItemRenderer().renderItem(
 			itemStack,
 			ModelTransformation.Mode.GUI,
 			false,
-			matrices,
+			matrixStackDummy,
 			immediate,
 			LIGHT_VALUE_MAX,
 			OverlayTexture.DEFAULT_UV,
@@ -85,7 +90,8 @@ public class Draw {
 			DiffuseLighting.enableGuiDepthLighting();
 		}
 
-		matrices.pop();
+		matrixStack.pop();
+		RenderSystem.applyModelViewMatrix();
 	}
 
 	public static void renderCustomPingIcon(MatrixStack matrices) {
