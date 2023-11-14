@@ -87,9 +87,7 @@ public class ClientCore {
 		});
 	}
 
-	public static void onRenderWorld(MatrixStack matrixStack,
-									 Matrix4f projectionMatrix,
-									 float tickDelta) {
+	public static void onRenderWorld(MatrixStack matrixStack, Matrix4f projectionMatrix, float tickDelta) {
 		if (Game.world == null) {
 			return;
 		}
@@ -115,7 +113,7 @@ public class ClientCore {
 	}
 
 	public static void onRenderGUI(MatrixStack m, float tickDelta) {
-		if (Game.player == null) {
+		if (Game.player == null || pingRepo.isEmpty()) {
 			return;
 		}
 
@@ -126,16 +124,19 @@ public class ClientCore {
 		var safeScreenCentre = new Vec2f((safeZoneBottomRight.x - safeZoneTopLeft.x) * 0.5f, (safeZoneBottomRight.y - safeZoneTopLeft.y) * 0.5f);
 		var directionIndicator = Config.isDirectionIndicatorVisible();
 
+		m.push();
+		m.translate(0f, 0f, -pingRepo.size());
+
 		for (var ping : pingRepo) {
 			if (ping.screenPos == null || (ping.screenPos.getW() <= 0 && !directionIndicator)) {
 				continue;
 			}
 
+			m.translate(0f, 0f, 1f);
+
 			var pos = ping.screenPos;
-			var cameraPosVec = Game.player.getCameraPosVec(tickDelta);
-			var distanceToPing = (float)cameraPosVec.distanceTo(ping.getPos());
 			var pingSize = Config.getPingSize() / 100f;
-			var pingScale = getDistanceScale(distanceToPing) * pingSize * 0.4f;
+			var pingScale = getDistanceScale(ping.distance) * pingSize * 0.4f;
 
 			var pingDirectionVec = new Vec2f(pos.getX() - safeZoneTopLeft.x - safeScreenCentre.x, pos.getY() - safeZoneTopLeft.y - safeScreenCentre.y);
 			var behindCamera = false;
@@ -182,19 +183,24 @@ public class ClientCore {
 				m.translate(pos.getX(), pos.getY(), 0);
 				m.scale(pingScale, pingScale, 1f);
 
-				var text = String.format("%.1fm", distanceToPing);
+				var text = String.format("%.1fm", ping.distance);
 				Draw.renderLabel(m, text);
 				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
 
 				m.pop();
 			}
 		}
+
+		m.pop();
 	}
 
 	private static void processPings(MatrixStack matrixStack, Matrix4f projectionMatrix, float tickDelta, int time) {
-		var modelViewMatrix = matrixStack.peek().getPositionMatrix();
+		if (Game.player == null || pingRepo.isEmpty()) {
+			return;
+		}
 
-		pingRepo.removeIf(p -> p.aliveTime > Config.getPingDuration() * TPS);
+		var modelViewMatrix = matrixStack.peek().getPositionMatrix();
+		var cameraPos = Game.player.getCameraPosVec(tickDelta);
 
 		for (var ping : pingRepo) {
 			if (ping.getUuid() != null) {
@@ -209,9 +215,13 @@ public class ClientCore {
 				}
 			}
 
+			ping.distance = (float)cameraPos.distanceTo(ping.getPos());
 			ping.screenPos = MathUtils.project3Dto2D(ping.getPos(), modelViewMatrix, projectionMatrix);
 			ping.aliveTime = time - ping.getSpawnTime();
 		}
+
+		pingRepo.removeIf(p -> p.aliveTime > Config.getPingDuration() * TPS);
+		pingRepo.sort((a, b) -> Float.compare(b.distance, a.distance));
 	}
 
 	private static void executePing(float tickDelta) {
