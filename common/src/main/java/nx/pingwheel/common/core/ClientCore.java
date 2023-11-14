@@ -1,9 +1,7 @@
 package nx.pingwheel.common.core;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -13,9 +11,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec2f;
 import nx.pingwheel.common.config.Config;
 import nx.pingwheel.common.helper.Draw;
 import nx.pingwheel.common.helper.MathUtils;
@@ -135,60 +131,14 @@ public class ClientCore {
 			int pingSize = Config.getPingSize();
 			var pingScale = getDistanceScale(distanceToPing) * (pingSize / 100.0f) / uiScale * uiScaleAdjustment;
 
-			var white = ColorHelper.Argb.getArgb(255, 255, 255, 255);
-			var shadowBlack = ColorHelper.Argb.getArgb(64, 0, 0, 0);
-
 			m.push();
 			m.translate((pos.getX() / uiScale), (pos.getY() / uiScale), 0);
 			m.scale(pingScale, pingScale, 1f);
 
 			var text = String.format("%.1fm", distanceToPing);
-			var textMetrics = new Vec2f(
-				Game.textRenderer.getWidth(text),
-				Game.textRenderer.fontHeight
-			);
-			var textOffset = textMetrics.multiply(-0.5f).add(new Vec2f(0f, textMetrics.y * -1.5f));
+			Draw.renderLabel(m, text);
 
-			m.push();
-			m.translate(textOffset.x, textOffset.y, 0);
-			DrawableHelper.fill(m, -2, -2, (int)textMetrics.x + 1, (int)textMetrics.y, shadowBlack);
-			Game.textRenderer.draw(m, text, 0f, 0f, white);
-			m.pop();
-
-			if (ping.itemStack != null && Config.isItemIconVisible()) {
-				var model = Game.getItemRenderer().getModel(ping.itemStack, null, null, 0);
-
-				Draw.renderGuiItemModel(
-					ping.itemStack,
-					(pos.getX() / uiScale),
-					(pos.getY() / uiScale),
-					model,
-					pingScale * 2 / 3
-				);
-			} else if (hasCustomTexture()) {
-				final var size = 12;
-				final var offset = size / -2;
-
-				RenderSystem.setShaderTexture(0, PING_TEXTURE_ID);
-				RenderSystem.enableBlend();
-				DrawableHelper.drawTexture(
-					m,
-					offset,
-					offset,
-					0,
-					0,
-					0,
-					size,
-					size,
-					size,
-					size
-				);
-				RenderSystem.disableBlend();
-			} else {
-				MathUtils.rotateZ(m, (float)(Math.PI / 4f));
-				m.translate(-2.5, -2.5, 0);
-				DrawableHelper.fill(m, 0, 0, 5, 5, white);
-			}
+			Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
 
 			m.pop();
 		}
@@ -282,9 +232,5 @@ public class ClientCore {
 		var scale = 2f / Math.pow(distance, 0.3f);
 
 		return (float)Math.max(scaleMin, scale);
-	}
-
-	private static boolean hasCustomTexture() {
-		return Game.getTextureManager().getOrDefault(PING_TEXTURE_ID, null) != null;
 	}
 }
