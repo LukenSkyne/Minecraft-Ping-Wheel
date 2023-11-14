@@ -118,21 +118,18 @@ public class ClientCore {
 		}
 
 		for (var ping : pingRepo) {
-			var uiScale = (float)Game.getWindow().getScaleFactor();
-			var uiScaleAdjustment = uiScale * 2f / 5f;
-
-			if (ping.screenPos == null) {
+			if (ping.screenPos == null || ping.screenPos.getW() <= 0) {
 				continue;
 			}
 
 			var pos = ping.screenPos;
 			var cameraPosVec = Game.player.getCameraPosVec(tickDelta);
 			var distanceToPing = (float)cameraPosVec.distanceTo(ping.getPos());
-			int pingSize = Config.getPingSize();
-			var pingScale = getDistanceScale(distanceToPing) * (pingSize / 100.0f) / uiScale * uiScaleAdjustment;
+			var pingSize = Config.getPingSize() / 100f;
+			var pingScale = getDistanceScale(distanceToPing) * pingSize * 0.4f;
 
 			m.push();
-			m.translate((pos.getX() / uiScale), (pos.getY() / uiScale), 0);
+			m.translate(pos.getX(), pos.getY(), 0);
 			m.scale(pingScale, pingScale, 1f);
 
 			var text = String.format("%.1fm", distanceToPing);
