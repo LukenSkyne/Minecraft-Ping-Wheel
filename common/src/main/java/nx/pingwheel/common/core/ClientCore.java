@@ -122,13 +122,13 @@ public class ClientCore {
 		var safeZoneTopLeft = new Vec2f(Config.getSafeZoneLeft(), Config.getSafeZoneTop());
 		var safeZoneBottomRight = new Vec2f((float)screenBounds.x - Config.getSafeZoneRight(), (float)screenBounds.y - Config.getSafeZoneBottom());
 		var safeScreenCentre = new Vec2f((safeZoneBottomRight.x - safeZoneTopLeft.x) * 0.5f, (safeZoneBottomRight.y - safeZoneTopLeft.y) * 0.5f);
-		var directionIndicator = Config.isDirectionIndicatorVisible();
+		var showDirectionIndicator = Config.isDirectionIndicatorVisible();
 
 		m.push();
 		m.translate(0f, 0f, -pingRepo.size());
 
 		for (var ping : pingRepo) {
-			if (ping.screenPos == null || (ping.screenPos.getW() <= 0 && !directionIndicator)) {
+			if (ping.screenPos == null || (ping.screenPos.getW() <= 0 && !showDirectionIndicator)) {
 				continue;
 			}
 
@@ -148,9 +148,8 @@ public class ClientCore {
 
 			var pingAngle = (float)Math.atan2(pingDirectionVec.y, pingDirectionVec.x);
 			var isOffScreen = behindCamera || pos.getX() < 0 || pos.getX() > screenBounds.x || pos.getY() < 0 || pos.getY() > screenBounds.y;
-			isOffScreen &= directionIndicator;
 
-			if (isOffScreen) {
+			if (isOffScreen && showDirectionIndicator) {
 				var indicator = MathUtils.calculateAngleRectIntersection(pingAngle, safeZoneTopLeft, safeZoneBottomRight);
 
 				m.push();
