@@ -2,6 +2,8 @@ package nx.pingwheel.common.helper;
 
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.*;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import static nx.pingwheel.common.ClientGlobal.Game;
 
@@ -13,19 +15,19 @@ public class MathUtils {
 		var window = Game.getWindow();
 		var pos4d = new Vector4f((float)in3d.x, (float)in3d.y, (float)in3d.z, 1f);
 
-		pos4d.transform(modelViewMatrix);
-		pos4d.transform(projectionMatrix);
+		pos4d.mul(modelViewMatrix);
+		pos4d.mul(projectionMatrix);
 
-		var depth = pos4d.getW();
+		var depth = pos4d.w;
 
 		if (depth != 0) {
-			pos4d.normalizeProjectiveCoordinates();
+			pos4d.div(depth);
 		}
 
 		pos4d.set(
-			(pos4d.getX() * 0.5f + 0.5f) * window.getScaledWidth(),
-			(1f - (pos4d.getY() * 0.5f + 0.5f)) * window.getScaledHeight(),
-			pos4d.getZ(),
+			(pos4d.x * 0.5f + 0.5f) * window.getScaledWidth(),
+			(1f - (pos4d.y * 0.5f + 0.5f)) * window.getScaledHeight(),
+			pos4d.z,
 			depth
 		);
 
@@ -33,7 +35,7 @@ public class MathUtils {
 	}
 
 	public static void rotateZ(MatrixStack matrixStack, float theta) {
-		matrixStack.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(theta));
+		matrixStack.multiplyPositionMatrix(new Matrix4f().rotateZ(theta));
 	}
 
 	public static Vec2f calculateAngleRectIntersection(float angle, Vec2f leftTop, Vec2f rightBottom) {
