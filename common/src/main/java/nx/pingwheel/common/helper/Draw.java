@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
@@ -75,7 +75,7 @@ public class Draw {
 		var matrixStackDummy = new MatrixStack();
 		Game.getItemRenderer().renderItem(
 			itemStack,
-			ModelTransformation.Mode.GUI,
+			ModelTransformationMode.GUI,
 			false,
 			matrixStackDummy,
 			immediate,
@@ -130,9 +130,7 @@ public class Draw {
 
 		var bufferBuilder = Tessellator.getInstance().getBuffer();
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		RenderSystem.defaultBlendFunc();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
 		var mat = m.peek().getPositionMatrix();
@@ -140,9 +138,7 @@ public class Draw {
 		bufferBuilder.vertex(mat, -5f, -5f, 0f).color(1f, 1f, 1f, 1f).next();
 		bufferBuilder.vertex(mat, -3f, 0f, 0f).color(1f, 1f, 1f, 1f).next();
 		bufferBuilder.vertex(mat, -5f, 5f, 0f).color(1f, 1f, 1f, 1f).next();
-		bufferBuilder.end();
-		BufferRenderer.draw(bufferBuilder);
-		RenderSystem.enableTexture();
+		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 		RenderSystem.disableBlend();
 		GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
 	}
