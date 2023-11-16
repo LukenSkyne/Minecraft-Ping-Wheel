@@ -19,6 +19,7 @@ import static nx.pingwheel.common.Global.ModVersion;
 import static nx.pingwheel.forge.Main.FORGE_ID;
 
 @Mod(FORGE_ID)
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class Main {
 
 	public static final String FORGE_ID = "pingwheel";
@@ -51,7 +52,7 @@ public class Main {
 			.map(container -> container.getModInfo().getVersion().toString())
 			.orElse("Unknown");
 
-		DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> Client::new);
+		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> Client::new);
 
 		PING_LOCATION_CHANNEL_C2S.addListener((event) -> {
 			var ctx = event.getSource().get();
