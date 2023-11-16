@@ -1,5 +1,6 @@
 package nx.pingwheel.forge;
 
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -7,8 +8,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.event.EventNetworkChannel;
+import net.minecraftforge.network.ChannelBuilder;
+import net.minecraftforge.network.EventNetworkChannel;
 import nx.pingwheel.common.core.ServerCore;
 import nx.pingwheel.common.networking.PingLocationPacketC2S;
 import nx.pingwheel.common.networking.PingLocationPacketS2C;
@@ -24,25 +25,9 @@ public class Main {
 
 	public static final String FORGE_ID = "pingwheel";
 
-	private static final String PROTOCOL_VERSION = "1";
-	public static final EventNetworkChannel PING_LOCATION_CHANNEL_C2S = NetworkRegistry.newEventChannel(
-		PingLocationPacketC2S.ID,
-		() -> PROTOCOL_VERSION,
-		c -> true,
-		s -> true
-	);
-	public static final EventNetworkChannel PING_LOCATION_CHANNEL_S2C = NetworkRegistry.newEventChannel(
-		PingLocationPacketS2C.ID,
-		() -> PROTOCOL_VERSION,
-		c -> true,
-		s -> true
-	);
-	public static final EventNetworkChannel UPDATE_CHANNEL_C2S = NetworkRegistry.newEventChannel(
-		UpdateChannelPacketC2S.ID,
-		() -> PROTOCOL_VERSION,
-		c -> true,
-		s -> true
-	);
+	public static final EventNetworkChannel PING_LOCATION_CHANNEL_C2S = ChannelBuilder.named(PingLocationPacketC2S.ID).optional().eventNetworkChannel();
+	public static final EventNetworkChannel PING_LOCATION_CHANNEL_S2C = ChannelBuilder.named(PingLocationPacketS2C.ID).optional().eventNetworkChannel();
+	public static final EventNetworkChannel UPDATE_CHANNEL_C2S = ChannelBuilder.named(UpdateChannelPacketC2S.ID).optional().eventNetworkChannel();
 
 	@SuppressWarnings({"java:S1118", "the public constructor is required by forge"})
 	public Main() {
@@ -55,22 +40,24 @@ public class Main {
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> Client::new);
 
 		PING_LOCATION_CHANNEL_C2S.addListener((event) -> {
-			var ctx = event.getSource().get();
+			var ctx = event.getSource();
 			var packet = event.getPayload();
 
 			if (packet != null) {
-				ctx.enqueueWork(() -> ServerCore.onPingLocation(ctx.getSender(), packet));
+				var packetCopy = new PacketByteBuf(packet.copy());
+				ctx.enqueueWork(() -> ServerCore.onPingLocation(ctx.getSender(), packetCopy));
 			}
 
 			ctx.setPacketHandled(true);
 		});
 
 		UPDATE_CHANNEL_C2S.addListener((event) -> {
-			var ctx = event.getSource().get();
+			var ctx = event.getSource();
 			var packet = event.getPayload();
 
 			if (packet != null) {
-				ctx.enqueueWork(() -> ServerCore.onChannelUpdate(ctx.getSender(), packet));
+				var packetCopy = new PacketByteBuf(packet.copy());
+				ctx.enqueueWork(() -> ServerCore.onChannelUpdate(ctx.getSender(), packetCopy));
 			}
 
 			ctx.setPacketHandled(true);
@@ -79,6 +66,6 @@ public class Main {
 
 	@SubscribeEvent
 	public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-		ServerCore.onPlayerDisconnect((ServerPlayerEntity)event.getPlayer());
+		ServerCore.onPlayerDisconnect((ServerPlayerEntity)event.getEntity());
 	}
 }
