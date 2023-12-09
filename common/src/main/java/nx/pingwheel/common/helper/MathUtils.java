@@ -8,28 +8,24 @@ import static nx.pingwheel.common.ClientGlobal.Game;
 public class MathUtils {
 	private MathUtils() {}
 
-	public static Vector4f project3Dto2D(Vec3d pos3d, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
-		var in3d = Game.gameRenderer.getCamera().getPos().negate().add(pos3d);
+	public static Vec3f worldToScreen(Vec3d worldPos, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 		var window = Game.getWindow();
-		var pos4d = new Vector4f((float)in3d.x, (float)in3d.y, (float)in3d.z, 1f);
+		var camera = Game.gameRenderer.getCamera();
+		var worldPosRel = new Vector4f(new Vec3f(camera.getPos().negate().add(worldPos)));
+		worldPosRel.transform(modelViewMatrix);
+		worldPosRel.transform(projectionMatrix);
 
-		pos4d.transform(modelViewMatrix);
-		pos4d.transform(projectionMatrix);
-
-		var depth = pos4d.getW();
+		var depth = worldPosRel.getW();
 
 		if (depth != 0) {
-			pos4d.normalizeProjectiveCoordinates();
+			worldPosRel.normalizeProjectiveCoordinates();
 		}
 
-		pos4d.set(
-			(pos4d.getX() * 0.5f + 0.5f) * window.getScaledWidth(),
-			(1f - (pos4d.getY() * 0.5f + 0.5f)) * window.getScaledHeight(),
-			pos4d.getZ(),
+		return new Vec3f(
+			window.getScaledWidth() * (0.5f + worldPosRel.getX() * 0.5f),
+			window.getScaledHeight() * (0.5f - worldPosRel.getY() * 0.5f),
 			depth
 		);
-
-		return pos4d;
 	}
 
 	public static void rotateZ(MatrixStack matrixStack, float theta) {

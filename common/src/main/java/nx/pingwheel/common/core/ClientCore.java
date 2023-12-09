@@ -128,7 +128,7 @@ public class ClientCore {
 		m.translate(0f, 0f, -pingRepo.size());
 
 		for (var ping : pingRepo) {
-			if (ping.screenPos == null || (ping.screenPos.getW() <= 0 && !showDirectionIndicator)) {
+			if (ping.screenPos == null || (ping.screenPos.getZ() <= 0 && !showDirectionIndicator)) {
 				continue;
 			}
 
@@ -141,7 +141,7 @@ public class ClientCore {
 			var pingDirectionVec = new Vec2f(pos.getX() - safeZoneTopLeft.x - safeScreenCentre.x, pos.getY() - safeZoneTopLeft.y - safeScreenCentre.y);
 			var behindCamera = false;
 
-			if (pos.getW() <= 0) {
+			if (pos.getZ() <= 0) {
 				behindCamera = true;
 				pingDirectionVec = pingDirectionVec.multiply(-1);
 			}
@@ -215,7 +215,7 @@ public class ClientCore {
 			}
 
 			ping.distance = (float)cameraPos.distanceTo(ping.getPos());
-			ping.screenPos = MathUtils.project3Dto2D(ping.getPos(), modelViewMatrix, projectionMatrix);
+			ping.screenPos = MathUtils.worldToScreen(ping.getPos(), modelViewMatrix, projectionMatrix);
 			ping.aliveTime = time - ping.getSpawnTime();
 		}
 
