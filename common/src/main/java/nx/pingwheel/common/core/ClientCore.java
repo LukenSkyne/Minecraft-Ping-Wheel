@@ -2,6 +2,7 @@ package nx.pingwheel.common.core;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -11,7 +12,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import nx.pingwheel.common.config.ClientConfig;
@@ -22,6 +22,7 @@ import nx.pingwheel.common.helper.Raycast;
 import nx.pingwheel.common.networking.PingLocationPacketC2S;
 import nx.pingwheel.common.networking.PingLocationPacketS2C;
 import nx.pingwheel.common.sound.DirectionalSoundInstance;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -120,10 +121,12 @@ public class ClientCore {
 		processPings(matrixStack, projectionMatrix, tickDelta, time);
 	}
 
-	public static void onRenderGUI(MatrixStack m, float tickDelta) {
+	public static void onRenderGUI(DrawContext ctx, float tickDelta) {
 		if (Game.player == null || pingRepo.isEmpty()) {
 			return;
 		}
+
+		var m = ctx.getMatrices();
 
 		var wnd = Game.getWindow();
 		var screenBounds = new Vec3d(wnd.getScaledWidth(), wnd.getScaledHeight(), 0);
@@ -169,7 +172,7 @@ public class ClientCore {
 				var indicatorOffsetX = Math.cos(pingAngle + Math.PI) * 12;
 				var indicatorOffsetY = Math.sin(pingAngle + Math.PI) * 12;
 				m.translate(indicatorOffsetX, indicatorOffsetY, 0);
-				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
+				Draw.renderPing(ctx, ping.itemStack, Config.isItemIconVisible());
 				m.pop();
 
 				m.push();
@@ -192,11 +195,11 @@ public class ClientCore {
 				m.scale(pingScale, pingScale, 1f);
 
 				var text = String.format("%,.1fm", ping.distance);
-				Draw.renderLabel(m, text, -1.5f);
-				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
+				Draw.renderLabel(ctx, text, -1.5f);
+				Draw.renderPing(ctx, ping.itemStack, Config.isItemIconVisible());
 
 				if (showNameLabels && !ping.getAuthor().equals(Game.player.getUuid())) {
-					Draw.renderLabel(m, ping.getAuthorName(), 1.75f);
+					Draw.renderLabel(ctx, ping.getAuthorName(), 1.75f);
 				}
 
 				m.pop();
