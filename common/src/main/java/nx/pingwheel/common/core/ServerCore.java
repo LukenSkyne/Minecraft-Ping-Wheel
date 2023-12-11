@@ -1,7 +1,8 @@
 package nx.pingwheel.common.core;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -73,14 +74,18 @@ public class ServerCore {
 			updatePlayerChannel(player, channel);
 		}
 
-		packetCopy.writeUuid(player.getUuid());
+		var packetOut = new PacketByteBuf(Unpooled.buffer())
+			.writeIdentifier(PingLocationPacketS2C.ID)
+			.writeBytes(packetCopy)
+			.writeUuid(player.getUuid());
 
 		for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
 			if (!channel.equals(playerChannels.getOrDefault(p.getUuid(), ""))) {
 				continue;
 			}
 
-			p.networkHandler.sendPacket(new CustomPayloadS2CPacket(PingLocationPacketS2C.ID, packetCopy));
+			p.networkHandler.sendPacket(new CustomPayloadS2CPacket(packetOut));
+			packetOut.resetReaderIndex();
 		}
 	}
 

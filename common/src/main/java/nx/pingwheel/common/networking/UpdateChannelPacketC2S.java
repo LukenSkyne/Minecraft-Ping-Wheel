@@ -4,7 +4,7 @@ import io.netty.buffer.Unpooled;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 
 import java.util.Optional;
@@ -29,9 +29,11 @@ public class UpdateChannelPacketC2S {
 		}
 
 		var packet = new PacketByteBuf(Unpooled.buffer());
+		packet.writeIdentifier(UpdateChannelPacketC2S.ID);
+
 		packet.writeString(channel, MAX_CHANNEL_LENGTH);
 
-		netHandler.sendPacket(new CustomPayloadC2SPacket(ID, packet));
+		netHandler.sendPacket(new CustomPayloadC2SPacket(packet));
 	}
 
 	public static Optional<UpdateChannelPacketC2S> parse(PacketByteBuf buf) {

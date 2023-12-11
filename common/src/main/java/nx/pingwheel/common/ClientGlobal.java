@@ -21,7 +21,7 @@ public class ClientGlobal {
 	public static final MinecraftClient Game = MinecraftClient.getInstance();
 
 	public static final Identifier PING_SOUND_ID = new Identifier(MOD_ID, "ping");
-	public static final SoundEvent PING_SOUND_EVENT = new SoundEvent(PING_SOUND_ID);
+	public static final SoundEvent PING_SOUND_EVENT = SoundEvent.of(PING_SOUND_ID);
 	public static final Identifier PING_TEXTURE_ID = new Identifier(MOD_ID, "textures/ping.png");
 
 	private static final String SETTINGS_CATEGORY = "ping-wheel.name";

@@ -4,7 +4,7 @@ import io.netty.buffer.Unpooled;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +37,7 @@ public class PingLocationPacketC2S {
 		}
 
 		var packet = new PacketByteBuf(Unpooled.buffer());
+		packet.writeIdentifier(PingLocationPacketC2S.ID);
 
 		packet.writeString(channel, MAX_CHANNEL_LENGTH);
 		packet.writeDouble(pos.x);
@@ -51,7 +52,7 @@ public class PingLocationPacketC2S {
 		packet.writeInt(sequence);
 		packet.writeInt(dimension);
 
-		netHandler.sendPacket(new CustomPayloadC2SPacket(ID, packet));
+		netHandler.sendPacket(new CustomPayloadC2SPacket(packet));
 	}
 
 	public static Optional<PingLocationPacketC2S> parse(PacketByteBuf buf) {
