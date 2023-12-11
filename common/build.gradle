@@ -3,6 +3,8 @@ architectury {
 }
 
 dependencies {
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
     // Do NOT use other classes from fabric loader
     // NOTE: during building the transformer still warns about unknown enum constant

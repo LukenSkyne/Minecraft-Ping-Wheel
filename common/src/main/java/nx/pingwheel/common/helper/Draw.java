@@ -2,9 +2,9 @@ package nx.pingwheel.common.helper;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
@@ -23,7 +23,9 @@ public class Draw {
 	private static final int SHADOW_BLACK = ColorHelper.Argb.getArgb(64, 0, 0, 0);
 	private static final int LIGHT_VALUE_MAX = 15728880;
 
-	public static void renderLabel(MatrixStack matrices, String text) {
+	public static void renderLabel(DrawContext ctx, String text) {
+		var matrices = ctx.getMatrices();
+
 		var textMetrics = new Vec2f(
 			Game.textRenderer.getWidth(text),
 			Game.textRenderer.fontHeight
@@ -32,18 +34,18 @@ public class Draw {
 
 		matrices.push();
 		matrices.translate(textOffset.x, textOffset.y, 0);
-		DrawableHelper.fill(matrices, -2, -2, (int)textMetrics.x + 1, (int)textMetrics.y, SHADOW_BLACK);
-		Game.textRenderer.draw(matrices, text, 0f, 0f, WHITE);
+		ctx.fill(-2, -2, (int)textMetrics.x + 1, (int)textMetrics.y, SHADOW_BLACK);
+		ctx.drawText(Game.textRenderer, text, 0, 0, WHITE, false);
 		matrices.pop();
 	}
 
-	public static void renderPing(MatrixStack matrices, ItemStack itemStack, boolean drawItemIcon) {
+	public static void renderPing(DrawContext ctx, ItemStack itemStack, boolean drawItemIcon) {
 		if (itemStack != null && drawItemIcon) {
-			Draw.renderGuiItemModel(matrices, itemStack);
+			Draw.renderGuiItemModel(ctx.getMatrices(), itemStack);
 		} else if (hasCustomTexture()) {
-			renderCustomPingIcon(matrices);
+			renderCustomPingIcon(ctx);
 		} else {
-			renderDefaultPingIcon(matrices);
+			renderDefaultPingIcon(ctx);
 		}
 	}
 
@@ -76,7 +78,7 @@ public class Draw {
 		var matrixStackDummy = new MatrixStack();
 		Game.getItemRenderer().renderItem(
 			itemStack,
-			ModelTransformation.Mode.GUI,
+			ModelTransformationMode.GUI,
 			false,
 			matrixStackDummy,
 			immediate,
@@ -95,14 +97,13 @@ public class Draw {
 		RenderSystem.applyModelViewMatrix();
 	}
 
-	public static void renderCustomPingIcon(MatrixStack matrices) {
+	public static void renderCustomPingIcon(DrawContext ctx) {
 		final var size = 12;
 		final var offset = size / -2;
 
-		RenderSystem.setShaderTexture(0, PING_TEXTURE_ID);
 		RenderSystem.enableBlend();
-		DrawableHelper.drawTexture(
-			matrices,
+		ctx.drawTexture(
+			PING_TEXTURE_ID,
 			offset,
 			offset,
 			0,
@@ -116,11 +117,13 @@ public class Draw {
 		RenderSystem.disableBlend();
 	}
 
-	public static void renderDefaultPingIcon(MatrixStack matrices) {
+	public static void renderDefaultPingIcon(DrawContext ctx) {
+		var matrices = ctx.getMatrices();
+
 		matrices.push();
 		MathUtils.rotateZ(matrices, (float)(Math.PI / 4f));
 		matrices.translate(-2.5, -2.5, 0);
-		DrawableHelper.fill(matrices, 0, 0, 5, 5, WHITE);
+		ctx.fill(0, 0, 5, 5, WHITE);
 		matrices.pop();
 	}
 
@@ -131,9 +134,7 @@ public class Draw {
 
 		var bufferBuilder = Tessellator.getInstance().getBuffer();
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		RenderSystem.defaultBlendFunc();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
 		var mat = m.peek().getPositionMatrix();
@@ -141,9 +142,7 @@ public class Draw {
 		bufferBuilder.vertex(mat, -5f, -5f, 0f).color(1f, 1f, 1f, 1f).next();
 		bufferBuilder.vertex(mat, -3f, 0f, 0f).color(1f, 1f, 1f, 1f).next();
 		bufferBuilder.vertex(mat, -5f, 5f, 0f).color(1f, 1f, 1f, 1f).next();
-		bufferBuilder.end();
-		BufferRenderer.draw(bufferBuilder);
-		RenderSystem.enableTexture();
+		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 		RenderSystem.disableBlend();
 		GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
 	}
