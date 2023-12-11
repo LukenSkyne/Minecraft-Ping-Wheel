@@ -9,10 +9,9 @@ import net.minecraft.client.option.Option;
 import net.minecraft.client.util.OrderableTooltip;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import nx.pingwheel.common.config.Config;
 import nx.pingwheel.common.helper.OptionUtils;
+import nx.pingwheel.common.helper.Text;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +28,7 @@ public class SettingsScreen extends Screen {
 	private TextFieldWidget channelTextField;
 
 	public SettingsScreen() {
-		super(new TranslatableText("ping-wheel.settings.title"));
+		super(Text.translatable("ping-wheel.settings.title"));
 		this.config = ConfigHandler.getConfig();
 	}
 
@@ -62,7 +61,7 @@ public class SettingsScreen extends Screen {
 		final var pingSizeOption = getPingSizeOption();
 		this.list.addOptionEntry(pingSizeOption, null);
 
-		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 160, 200, 20, Text.of(""));
+		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 160, 200, 20, Text.empty());
 		this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
 		this.channelTextField.setText(config.getChannel());
 		this.channelTextField.setChangedListener(config::setChannel);
@@ -90,7 +89,7 @@ public class SettingsScreen extends Screen {
 		this.list.render(matrices, mouseX, mouseY, delta);
 		drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 20, 16777215);
 
-		drawTextWithShadow(matrices, this.textRenderer, new TranslatableText("ping-wheel.settings.channel"), this.width / 2 - 100, 148, 10526880);
+		drawTextWithShadow(matrices, this.textRenderer, Text.translatable("ping-wheel.settings.channel"), this.width / 2 - 100, 148, 10526880);
 		this.channelTextField.render(matrices, mouseX, mouseY, delta);
 
 		super.render(matrices, mouseX, mouseY, delta);
@@ -98,7 +97,7 @@ public class SettingsScreen extends Screen {
 		var tooltipLines = getHoveredButtonTooltip(this.list, mouseX, mouseY);
 
 		if (tooltipLines.isEmpty() && (this.channelTextField.isHovered() && !this.channelTextField.isFocused())) {
-			tooltipLines = this.textRenderer.wrapLines(new TranslatableText("ping-wheel.settings.channel.tooltip"), 140);
+			tooltipLines = this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140);
 		}
 
 		this.renderOrderedTooltip(matrices, tooltipLines, mouseX, mouseY);
@@ -122,10 +121,10 @@ public class SettingsScreen extends Screen {
 			0, 100, 1,
 			(value) -> {
 				if (value == 0) {
-					return new TranslatableText(pingVolumeKey, ScreenTexts.OFF);
+					return Text.translatable(pingVolumeKey, ScreenTexts.OFF);
 				}
 
-				return new TranslatableText(pingVolumeKey, String.format("%s%%", value));
+				return Text.translatable(pingVolumeKey, String.format("%s%%", value));
 			},
 			config::getPingVolume,
 			config::setPingVolume
@@ -138,7 +137,7 @@ public class SettingsScreen extends Screen {
 		return OptionUtils.ofInt(
 			pingDurationKey,
 			1, 60, 1,
-			(value) -> new TranslatableText(pingDurationKey, String.format("%ss", config.getPingDuration())),
+			(value) -> Text.translatable(pingDurationKey, String.format("%ss", config.getPingDuration())),
 			config::getPingDuration,
 			config::setPingDuration
 		);
@@ -152,12 +151,12 @@ public class SettingsScreen extends Screen {
 			0, 2048, 16,
 			(value) -> {
 				if (value == 0) {
-					return new TranslatableText(pingDistanceKey, new TranslatableText(pingDistanceKey + ".hidden"));
+					return Text.translatable(pingDistanceKey, Text.translatable(pingDistanceKey + ".hidden"));
 				} else if (value == 2048) {
-					return new TranslatableText(pingDistanceKey, new TranslatableText(pingDistanceKey + ".unlimited"));
+					return Text.translatable(pingDistanceKey, Text.translatable(pingDistanceKey + ".unlimited"));
 				}
 
-				return new TranslatableText(pingDistanceKey, String.format("%sm", value));
+				return Text.translatable(pingDistanceKey, String.format("%sm", value));
 			},
 			config::getPingDistance,
 			config::setPingDistance
@@ -170,7 +169,7 @@ public class SettingsScreen extends Screen {
 		return OptionUtils.ofFloat(
 			correctionPeriodKey,
 			0.1f, 5.0f, 0.1f,
-			(value) -> new TranslatableText(correctionPeriodKey, String.format("%.1fs", value)),
+			(value) -> Text.translatable(correctionPeriodKey, String.format("%.1fs", value)),
 			config::getCorrectionPeriod,
 			config::setCorrectionPeriod
 		);
@@ -198,7 +197,7 @@ public class SettingsScreen extends Screen {
 		return OptionUtils.ofInt(
 			pingSizeKey,
 			40, 300, 10,
-			(value) -> new TranslatableText(pingSizeKey, String.format("%s%%", value)),
+			(value) -> Text.translatable(pingSizeKey, String.format("%s%%", value)),
 			config::getPingSize,
 			config::setPingSize
 		);
