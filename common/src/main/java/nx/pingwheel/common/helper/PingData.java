@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
-import nx.pingwheel.common.compat.Vector3f;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.UUID;
 

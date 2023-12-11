@@ -1,20 +1,15 @@
 package nx.pingwheel.common.screen;
 
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.option.Option;
-import net.minecraft.client.util.OrderableTooltip;
+import net.minecraft.client.option.SimpleOption;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.OrderedText;
+import net.minecraft.screen.ScreenTexts;
+import net.minecraft.text.Text;
 import nx.pingwheel.common.config.Config;
 import nx.pingwheel.common.helper.OptionUtils;
-import nx.pingwheel.common.compat.Text;
-
-import java.util.Collections;
-import java.util.List;
 
 import static nx.pingwheel.common.ClientGlobal.ConfigHandler;
 import static nx.pingwheel.common.config.Config.MAX_CHANNEL_LENGTH;
@@ -40,6 +35,10 @@ public class SettingsScreen extends Screen {
 	@Override
 	public void tick() {
 		this.channelTextField.tick();
+
+		if (this.channelTextField.isFocused() && this.getFocused() != this.channelTextField) {
+			this.setFocused(this.channelTextField);
+		}
 	}
 
 	@Override
@@ -69,7 +68,10 @@ public class SettingsScreen extends Screen {
 
 		this.addSelectableChild(this.list);
 
-		this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height - 27, 200, 20, ScreenTexts.DONE, (button) -> close()));
+		this.addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, (button) -> close())
+			.position(this.width / 2 - 100, this.height - 27)
+			.size(200, 20)
+			.build());
 	}
 
 	@Override
@@ -94,26 +96,12 @@ public class SettingsScreen extends Screen {
 
 		super.render(matrices, mouseX, mouseY, delta);
 
-		var tooltipLines = getHoveredButtonTooltip(this.list, mouseX, mouseY);
-
-		if (tooltipLines.isEmpty() && (this.channelTextField.isHovered() && !this.channelTextField.isFocused())) {
-			tooltipLines = this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140);
+		if (this.channelTextField.isHovered() && !this.channelTextField.isFocused()) {
+			this.renderOrderedTooltip(matrices, this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140), mouseX, mouseY);
 		}
-
-		this.renderOrderedTooltip(matrices, tooltipLines, mouseX, mouseY);
 	}
 
-	private static List<OrderedText> getHoveredButtonTooltip(ButtonListWidget buttonList, int mouseX, int mouseY) {
-		final var orderableTooltip = (OrderableTooltip)buttonList.getHoveredButton(mouseX, mouseY).orElse(null);
-
-		if (orderableTooltip != null) {
-			return orderableTooltip.getOrderedTooltip();
-		}
-
-		return Collections.emptyList();
-	}
-
-	private Option getPingVolumeOption() {
+	private SimpleOption<Integer> getPingVolumeOption() {
 		final var pingVolumeKey = "ping-wheel.settings.pingVolume";
 
 		return OptionUtils.ofInt(
@@ -131,7 +119,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getPingDurationOption() {
+	private SimpleOption<Integer> getPingDurationOption() {
 		final var pingDurationKey = "ping-wheel.settings.pingDuration";
 
 		return OptionUtils.ofInt(
@@ -143,7 +131,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getPingDistanceOption() {
+	private SimpleOption<Integer> getPingDistanceOption() {
 		final var pingDistanceKey = "ping-wheel.settings.pingDistance";
 
 		return OptionUtils.ofInt(
@@ -163,7 +151,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getCorrectionPeriodOption() {
+	private SimpleOption<Float> getCorrectionPeriodOption() {
 		final var correctionPeriodKey = "ping-wheel.settings.correctionPeriod";
 
 		return OptionUtils.ofFloat(
@@ -175,7 +163,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getItemIconsVisibleOption() {
+	private SimpleOption<Boolean> getItemIconsVisibleOption() {
 		return OptionUtils.ofBool(
 			"ping-wheel.settings.itemIconVisible",
 			config::isItemIconVisible,
@@ -183,7 +171,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getDirectionIndicatorVisibleOption() {
+	private SimpleOption<Boolean> getDirectionIndicatorVisibleOption() {
 		return OptionUtils.ofBool(
 			"ping-wheel.settings.directionIndicatorVisible",
 			config::isDirectionIndicatorVisible,
@@ -191,7 +179,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getPingSizeOption() {
+	private SimpleOption<Integer> getPingSizeOption() {
 		final var pingSizeKey = "ping-wheel.settings.pingSize";
 
 		return OptionUtils.ofInt(
