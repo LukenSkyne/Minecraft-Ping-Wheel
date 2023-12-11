@@ -3,9 +3,7 @@ package nx.pingwheel.common.resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceReloader;
 import net.minecraft.util.profiler.Profiler;
-import nx.pingwheel.common.Global;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -27,11 +25,7 @@ public class ResourceReloadListener implements ResourceReloader {
 	public static CompletableFuture<Void> reloadTextures(Synchronizer helper, ResourceManager resourceManager, Executor loadExecutor, Executor applyExecutor) {
 		return CompletableFuture
 			.supplyAsync(() -> {
-				try {
-					numCustomTextures = resourceManager.getAllResources(PING_TEXTURE_ID).size();
-				} catch (IOException e) {
-					Global.LOGGER.error("failed to gather resources: " + e.getMessage());
-				}
+				numCustomTextures = resourceManager.getAllResources(PING_TEXTURE_ID).size();
 
 				return true;
 			}, loadExecutor)
