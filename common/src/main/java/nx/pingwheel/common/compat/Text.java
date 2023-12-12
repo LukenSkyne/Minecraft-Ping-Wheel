@@ -1,4 +1,4 @@
-package nx.pingwheel.common.helper;
+package nx.pingwheel.common.compat;
 
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;

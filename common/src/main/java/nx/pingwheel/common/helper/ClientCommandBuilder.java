@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.text.MutableText;
+import nx.pingwheel.common.compat.Text;
 import nx.pingwheel.common.screen.SettingsScreen;
 import org.apache.logging.log4j.util.TriConsumer;
 

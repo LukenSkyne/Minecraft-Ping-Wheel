@@ -11,7 +11,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import nx.pingwheel.common.config.Config;
 import nx.pingwheel.common.helper.OptionUtils;
-import nx.pingwheel.common.helper.Text;
+import nx.pingwheel.common.compat.Text;
 
 import java.util.Collections;
 import java.util.List;
