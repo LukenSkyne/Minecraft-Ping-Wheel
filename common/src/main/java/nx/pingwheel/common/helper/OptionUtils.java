@@ -7,9 +7,10 @@ import net.minecraft.text.Text;
 
 import java.util.function.*;
 
-public interface OptionUtils {
+public class OptionUtils {
+	private OptionUtils() {}
 
-	static Option ofInt(String key, int min, int max, int step, Function<Integer, Text> formatter, Supplier<Integer> getter, Consumer<Integer> setter) {
+	public static Option ofInt(String key, int min, int max, int step, Function<Integer, Text> formatter, Supplier<Integer> getter, Consumer<Integer> setter) {
 		return new DoubleOption(
 			key, min, max, step,
 			(gameOptions) -> (double)getter.get(),
@@ -18,7 +19,7 @@ public interface OptionUtils {
 		);
 	}
 
-	static Option ofFloat(String key, float min, float max, float step, Function<Float, Text> formatter, Supplier<Float> getter, Consumer<Float> setter) {
+	public static Option ofFloat(String key, float min, float max, float step, Function<Float, Text> formatter, Supplier<Float> getter, Consumer<Float> setter) {
 		return new DoubleOption(
 			key, min, max, step,
 			(gameOptions) -> (double)getter.get(),
@@ -27,7 +28,7 @@ public interface OptionUtils {
 		);
 	}
 
-	static Option ofBool(String key, Supplier<Boolean> getter, Consumer<Boolean> setter) {
+	public static Option ofBool(String key, Supplier<Boolean> getter, Consumer<Boolean> setter) {
 		return CyclingOption.create(
 			key,
 			(gameOptions) -> getter.get(),
