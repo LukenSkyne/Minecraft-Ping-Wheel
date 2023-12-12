@@ -128,7 +128,7 @@ public class ClientCore {
 		m.translate(0f, 0f, -pingRepo.size());
 
 		for (var ping : pingRepo) {
-			if (ping.screenPos == null || (ping.screenPos.getZ() <= 0 && !showDirectionIndicator)) {
+			if (ping.screenPos == null || (ping.screenPos.z <= 0 && !showDirectionIndicator)) {
 				continue;
 			}
 
@@ -138,16 +138,16 @@ public class ClientCore {
 			var pingSize = Config.getPingSize() / 100f;
 			var pingScale = getDistanceScale(ping.distance) * pingSize * 0.4f;
 
-			var pingDirectionVec = new Vec2f(pos.getX() - safeZoneTopLeft.x - safeScreenCentre.x, pos.getY() - safeZoneTopLeft.y - safeScreenCentre.y);
+			var pingDirectionVec = new Vec2f(pos.x - safeZoneTopLeft.x - safeScreenCentre.x, pos.y - safeZoneTopLeft.y - safeScreenCentre.y);
 			var behindCamera = false;
 
-			if (pos.getZ() <= 0) {
+			if (pos.z <= 0) {
 				behindCamera = true;
 				pingDirectionVec = pingDirectionVec.multiply(-1);
 			}
 
 			var pingAngle = (float)Math.atan2(pingDirectionVec.y, pingDirectionVec.x);
-			var isOffScreen = behindCamera || pos.getX() < 0 || pos.getX() > screenBounds.x || pos.getY() < 0 || pos.getY() > screenBounds.y;
+			var isOffScreen = behindCamera || pos.x < 0 || pos.x > screenBounds.x || pos.y < 0 || pos.y > screenBounds.y;
 
 			if (isOffScreen && showDirectionIndicator) {
 				var indicator = MathUtils.calculateAngleRectIntersection(pingAngle, safeZoneTopLeft, safeZoneBottomRight);
@@ -179,7 +179,7 @@ public class ClientCore {
 
 			if (!behindCamera) {
 				m.push();
-				m.translate(pos.getX(), pos.getY(), 0);
+				m.translate(pos.x, pos.y, 0);
 				m.scale(pingScale, pingScale, 1f);
 
 				var text = String.format("%.1fm", ping.distance);

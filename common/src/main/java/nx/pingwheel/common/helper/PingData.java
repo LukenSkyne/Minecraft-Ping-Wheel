@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
+import nx.pingwheel.common.compat.Vector3f;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -23,7 +23,7 @@ public class PingData {
 	public int aliveTime;
 	public float distance;
 	@Nullable
-	public Vec3f screenPos;
+	public Vector3f screenPos;
 	@Nullable
 	public ItemStack itemStack;
 

@@ -1,29 +1,34 @@
 package nx.pingwheel.common.helper;
 
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3f;
+import nx.pingwheel.common.compat.Vector3f;
+import nx.pingwheel.common.compat.Vector4f;
 
 import static nx.pingwheel.common.ClientGlobal.Game;
 
 public class MathUtils {
 	private MathUtils() {}
 
-	public static Vec3f worldToScreen(Vec3d worldPos, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
+	public static Vector3f worldToScreen(Vec3d worldPos, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 		var window = Game.getWindow();
 		var camera = Game.gameRenderer.getCamera();
-		var worldPosRel = new Vector4f(new Vec3f(camera.getPos().negate().add(worldPos)));
-		worldPosRel.transform(modelViewMatrix);
-		worldPosRel.transform(projectionMatrix);
+		var worldPosRel = new Vector4f(camera.getPos().negate().add(worldPos), 1f);
+		worldPosRel.mul(modelViewMatrix);
+		worldPosRel.mul(projectionMatrix);
 
-		var depth = worldPosRel.getW();
+		var depth = worldPosRel.w;
 
 		if (depth != 0) {
-			worldPosRel.normalizeProjectiveCoordinates();
+			worldPosRel.div(depth);
 		}
 
-		return new Vec3f(
-			window.getScaledWidth() * (0.5f + worldPosRel.getX() * 0.5f),
-			window.getScaledHeight() * (0.5f - worldPosRel.getY() * 0.5f),
+		return new Vector3f(
+			window.getScaledWidth() * (0.5f + worldPosRel.x * 0.5f),
+			window.getScaledHeight() * (0.5f - worldPosRel.y * 0.5f),
 			depth
 		);
 	}
