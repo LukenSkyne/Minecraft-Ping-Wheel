@@ -214,13 +214,13 @@ public class ClientCore {
 				}
 			}
 
-			ping.distance = (float)cameraPos.distanceTo(ping.getPos());
+			ping.distance = cameraPos.distanceTo(ping.getPos());
 			ping.screenPos = MathUtils.worldToScreen(ping.getPos(), modelViewMatrix, projectionMatrix);
 			ping.aliveTime = time - ping.getSpawnTime();
 		}
 
 		pingRepo.removeIf(p -> p.aliveTime > Config.getPingDuration() * TPS);
-		pingRepo.sort((a, b) -> Float.compare(b.distance, a.distance));
+		pingRepo.sort((a, b) -> Double.compare(b.distance, a.distance));
 	}
 
 	private static void executePing(float tickDelta) {
@@ -283,10 +283,9 @@ public class ClientCore {
 		return null;
 	}
 
-	private static float getDistanceScale(float distance) {
-		var scaleMin = 1f;
-		var scale = 2f / Math.pow(distance, 0.3f);
+	private static float getDistanceScale(double distance) {
+		var scale = 2.0 / Math.pow(distance, 0.3);
 
-		return (float)Math.max(scaleMin, scale);
+		return (float)Math.max(1.0, scale);
 	}
 }
