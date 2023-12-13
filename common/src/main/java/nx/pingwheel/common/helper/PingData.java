@@ -21,7 +21,7 @@ public class PingData {
 	private final int spawnTime;
 
 	public int aliveTime;
-	public float distance;
+	public double distance;
 	@Nullable
 	public Vector3f screenPos;
 	@Nullable
