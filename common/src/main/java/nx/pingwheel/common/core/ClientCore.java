@@ -182,7 +182,7 @@ public class ClientCore {
 				m.translate(pos.x, pos.y, 0);
 				m.scale(pingScale, pingScale, 1f);
 
-				var text = String.format("%.1fm", ping.distance);
+				var text = String.format("%,.1fm", ping.distance);
 				Draw.renderLabel(m, text);
 				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
 
