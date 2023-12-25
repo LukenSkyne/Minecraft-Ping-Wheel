@@ -1,3 +1,2 @@
-* Added direction indicator to show off-screen pings
-* Fixed misaligned ping markers on MacOS
-* Improved render order of pings to reflect their distance
+* Fixed distance precision when far away from ping
+* Fixed incompatibility with OptiFine (related to resource loading)
