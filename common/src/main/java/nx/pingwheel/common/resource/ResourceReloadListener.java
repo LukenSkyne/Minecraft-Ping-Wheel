@@ -1,14 +1,14 @@
 package nx.pingwheel.common.resource;
 
-import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceReloader;
 import net.minecraft.util.profiler.Profiler;
+import nx.pingwheel.common.Global;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import static nx.pingwheel.common.ClientGlobal.Game;
 import static nx.pingwheel.common.ClientGlobal.PING_TEXTURE_ID;
 
 public class ResourceReloadListener implements ResourceReloader {
@@ -18,23 +18,24 @@ public class ResourceReloadListener implements ResourceReloader {
 		return reloadTextures(helper, resourceManager, loadExecutor, applyExecutor);
 	}
 
+	private static int numCustomTextures;
+
+	public static boolean hasCustomTexture() {
+		return numCustomTextures > 1;
+	}
+
 	public static CompletableFuture<Void> reloadTextures(Synchronizer helper, ResourceManager resourceManager, Executor loadExecutor, Executor applyExecutor) {
 		return CompletableFuture
 			.supplyAsync(() -> {
-				final var canLoadTexture = resourceManager.containsResource(PING_TEXTURE_ID);
-
-				if (!canLoadTexture) {
-					// force texture manager to remove the entry from its index
-					Game.getTextureManager().registerTexture(PING_TEXTURE_ID, MissingSprite.getMissingSpriteTexture());
+				try {
+					numCustomTextures = resourceManager.getAllResources(PING_TEXTURE_ID).size();
+				} catch (IOException e) {
+					Global.LOGGER.error("failed to gather resources: " + e.getMessage());
 				}
 
-				return canLoadTexture;
+				return true;
 			}, loadExecutor)
 			.thenCompose(helper::whenPrepared)
-			.thenAcceptAsync(canLoadTexture -> {
-				if (canLoadTexture) {
-					Game.getTextureManager().bindTexture(PING_TEXTURE_ID);
-				}
-			}, applyExecutor);
+			.thenAcceptAsync((ignored) -> {}, applyExecutor);
 	}
 }

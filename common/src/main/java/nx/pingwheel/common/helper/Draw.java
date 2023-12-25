@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL11;
 
 import static nx.pingwheel.common.ClientGlobal.Game;
 import static nx.pingwheel.common.ClientGlobal.PING_TEXTURE_ID;
+import static nx.pingwheel.common.resource.ResourceReloadListener.hasCustomTexture;
 
 public class Draw {
 	private Draw() {}
@@ -145,9 +146,5 @@ public class Draw {
 		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
 		GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
-	}
-
-	private static boolean hasCustomTexture() {
-		return Game.getTextureManager().getOrDefault(PING_TEXTURE_ID, null) != null;
 	}
 }
