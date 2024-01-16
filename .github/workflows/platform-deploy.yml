@@ -115,7 +115,7 @@ jobs:
           git push origin ${{ env.TAG_NAME }}
 
       - name: "Publish to Platforms"
-        uses: LukenSkyne/mc-publish@v3.4
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-id: QQXAdCzh
           modrinth-token: ${{ secrets.MODRINTH_API_TOKEN }}
