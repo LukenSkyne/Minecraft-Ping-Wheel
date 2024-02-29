@@ -16,7 +16,7 @@ public class RateLimiter {
 	private Instant startTime;
 
 	public RateLimiter() {
-		this.startTime = Instant.now().minus(timeWindow);
+		this.startTime = Instant.now().minus(timeWindow).plus(timeToRegenerate);
 	}
 
 	public boolean checkAndBlock() {
