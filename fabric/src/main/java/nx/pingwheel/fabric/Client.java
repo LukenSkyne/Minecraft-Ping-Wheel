@@ -17,6 +17,7 @@ import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.Registry;
+import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.core.ClientCore;
 import nx.pingwheel.common.helper.ClientCommandBuilder;
@@ -39,7 +40,7 @@ public class Client implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		ConfigHandler = new ConfigHandler(MOD_ID + ".json", FabricLoader.getInstance().getConfigDir());
+		ConfigHandler = new ConfigHandler<>(ClientConfig.class, FabricLoader.getInstance().getConfigDir().resolve(MOD_ID + ".json"));
 		ConfigHandler.load();
 
 		Registry.register(Registry.SOUND_EVENT, PING_SOUND_ID, PING_SOUND_EVENT);

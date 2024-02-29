@@ -7,15 +7,17 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.event.EventNetworkChannel;
+import nx.pingwheel.common.config.ConfigHandler;
+import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.core.ServerCore;
 import nx.pingwheel.common.networking.PingLocationPacketC2S;
 import nx.pingwheel.common.networking.PingLocationPacketS2C;
 import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
 
-import static nx.pingwheel.common.Global.LOGGER;
-import static nx.pingwheel.common.Global.ModVersion;
+import static nx.pingwheel.common.Global.*;
 import static nx.pingwheel.forge.Main.FORGE_ID;
 
 @Mod(FORGE_ID)
@@ -48,6 +50,9 @@ public class Main {
 	public Main() {
 		LOGGER.info("Init");
 
+		ServerConfigHandler = new ConfigHandler<>(ServerConfig.class, FMLPaths.CONFIGDIR.get().resolve(MOD_ID + ".server.json"));
+		ServerConfigHandler.load();
+
 		ModVersion = ModList.get().getModContainerById(FORGE_ID)
 			.map(container -> container.getModInfo().getVersion().toString())
 			.orElse("Unknown");
@@ -75,6 +80,8 @@ public class Main {
 
 			ctx.setPacketHandled(true);
 		});
+
+		ServerCore.init();
 	}
 
 	@SubscribeEvent

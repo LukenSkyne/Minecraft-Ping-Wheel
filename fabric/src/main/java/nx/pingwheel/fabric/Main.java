@@ -4,6 +4,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import nx.pingwheel.common.config.ConfigHandler;
+import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.core.ServerCore;
 import nx.pingwheel.common.networking.PingLocationPacketC2S;
 import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
@@ -16,6 +18,9 @@ public class Main implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Init");
 
+		ServerConfigHandler = new ConfigHandler<>(ServerConfig.class, FabricLoader.getInstance().getConfigDir().resolve(MOD_ID + ".server.json"));
+		ServerConfigHandler.load();
+
 		ModVersion = FabricLoader.getInstance().getModContainer(MOD_ID)
 			.map(container -> container.getMetadata().getVersion().getFriendlyString())
 			.orElse("Unknown");
@@ -23,5 +28,7 @@ public class Main implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(PingLocationPacketC2S.ID, (a, player, b, packet, c) -> ServerCore.onPingLocation(player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(UpdateChannelPacketC2S.ID, (a, player, b, packet, c) -> ServerCore.onChannelUpdate(player, packet));
 		ServerPlayConnectionEvents.DISCONNECT.register((networkHandler, a) -> ServerCore.onPlayerDisconnect(networkHandler.player));
+
+		ServerCore.init();
 	}
 }

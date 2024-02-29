@@ -11,6 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
+import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.core.ClientCore;
 import nx.pingwheel.common.helper.ClientCommandBuilder;
@@ -28,7 +29,7 @@ import static nx.pingwheel.forge.Main.PING_LOCATION_CHANNEL_S2C;
 public class Client {
 
 	public Client() {
-		ConfigHandler = new ConfigHandler(MOD_ID + ".json", FMLPaths.CONFIGDIR.get());
+		ConfigHandler = new ConfigHandler<>(ClientConfig.class, FMLPaths.CONFIGDIR.get().resolve(MOD_ID + ".json"));
 		ConfigHandler.load();
 
 		MinecraftForge.EVENT_BUS.register(this);
