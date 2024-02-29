@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static nx.pingwheel.common.Global.MOD_ID;
-import static nx.pingwheel.common.config.Config.MAX_CHANNEL_LENGTH;
+import static nx.pingwheel.common.config.ClientConfig.MAX_CHANNEL_LENGTH;
 
 @AllArgsConstructor
 @Getter

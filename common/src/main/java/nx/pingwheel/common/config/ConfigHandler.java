@@ -3,7 +3,7 @@ package nx.pingwheel.common.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.Getter;
-import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
+import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,21 +11,24 @@ import java.nio.file.Path;
 
 import static nx.pingwheel.common.Global.LOGGER;
 
-public class ConfigHandler {
+public class ConfigHandler <T extends IConfig> {
 
 	private final Gson gson;
+	private final Class<T> configType;
 	private final Path configPath;
 
 	@Getter
-	private Config config;
+	private T config;
 	private int configHash;
 
-	public ConfigHandler(String configName, Path configDir) {
+	@SneakyThrows
+	public ConfigHandler(Class<T> configType, Path configPath) {
 		this.gson = new GsonBuilder().setPrettyPrinting().create();
-		this.configPath = configDir.resolve(configName);
+		this.configType = configType;
+		this.configPath = configPath;
 
 		this.configHash = 0;
-		this.config = new Config();
+		this.config = configType.getDeclaredConstructor().newInstance();
 	}
 
 	public void save() {
@@ -33,7 +36,7 @@ public class ConfigHandler {
 			return;
 		}
 
-		new UpdateChannelPacketC2S(config.getChannel()).send();
+		config.onUpdate();
 
 		if (!Files.exists(configPath)) {
 			try {
@@ -58,6 +61,7 @@ public class ConfigHandler {
 		LOGGER.info("Saved " + config);
 	}
 
+	@SneakyThrows
 	public void load() {
 		if (!Files.exists(configPath)) {
 			save();
@@ -66,14 +70,14 @@ public class ConfigHandler {
 
 		try {
 			var reader = Files.newBufferedReader(configPath);
-			config = gson.fromJson(reader, Config.class);
+			config = gson.fromJson(reader, configType);
 			reader.close();
 		} catch (Exception e) {
 			config = null;
 		}
 
 		if (config == null) {
-			config = new Config();
+			config = configType.getDeclaredConstructor().newInstance();
 			LOGGER.error("Config is broken -> reset to defaults");
 
 			save();

@@ -14,7 +14,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import nx.pingwheel.common.config.Config;
+import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.Draw;
 import nx.pingwheel.common.helper.MathUtils;
 import nx.pingwheel.common.helper.PingData;
@@ -34,7 +34,7 @@ public class ClientCore {
 
 	private static final int TPS = 20;
 
-	private static final Config Config = ConfigHandler.getConfig();
+	private static final ClientConfig Config = ConfigHandler.getConfig();
 	private static final ArrayList<PingData> pingRepo = new ArrayList<>();
 	private static boolean queuePing = false;
 	private static ClientWorld lastWorld = null;

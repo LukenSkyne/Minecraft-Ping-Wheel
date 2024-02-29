@@ -15,7 +15,7 @@ import java.util.function.UnaryOperator;
 
 import static nx.pingwheel.common.ClientGlobal.ConfigHandler;
 import static nx.pingwheel.common.ClientGlobal.Game;
-import static nx.pingwheel.common.config.Config.MAX_CHANNEL_LENGTH;
+import static nx.pingwheel.common.config.ClientConfig.MAX_CHANNEL_LENGTH;
 
 public class ClientCommandBuilder {
 	private ClientCommandBuilder() {}

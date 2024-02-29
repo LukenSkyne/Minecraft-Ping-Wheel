@@ -9,7 +9,7 @@ import net.minecraft.client.option.Option;
 import net.minecraft.client.util.OrderableTooltip;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
-import nx.pingwheel.common.config.Config;
+import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.OptionUtils;
 import nx.pingwheel.common.compat.Text;
 
@@ -17,11 +17,11 @@ import java.util.Collections;
 import java.util.List;
 
 import static nx.pingwheel.common.ClientGlobal.ConfigHandler;
-import static nx.pingwheel.common.config.Config.MAX_CHANNEL_LENGTH;
+import static nx.pingwheel.common.config.ClientConfig.MAX_CHANNEL_LENGTH;
 
 public class SettingsScreen extends Screen {
 
-	private final Config config;
+	private final ClientConfig config;
 
 	private Screen parent;
 	private ButtonListWidget list;

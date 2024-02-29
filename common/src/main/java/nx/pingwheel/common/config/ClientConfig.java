@@ -4,12 +4,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
 
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
-public class Config {
+public class ClientConfig implements IConfig {
 	int pingVolume = 100;
 	int pingDuration = 7;
 	int pingDistance = 2048;
@@ -32,5 +33,9 @@ public class Config {
 		if (channel.length() > MAX_CHANNEL_LENGTH) {
 			channel = channel.substring(0, MAX_CHANNEL_LENGTH);
 		}
+	}
+
+	public void onUpdate() {
+		new UpdateChannelPacketC2S(channel).send();
 	}
 }

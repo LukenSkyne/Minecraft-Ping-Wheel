@@ -7,6 +7,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
+import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.config.ConfigHandler;
 import org.lwjgl.glfw.GLFW;
 
@@ -16,7 +17,7 @@ import static nx.pingwheel.common.Global.MOD_ID;
 public class ClientGlobal {
 	private ClientGlobal() {}
 
-	public static ConfigHandler ConfigHandler = null;
+	public static ConfigHandler<ClientConfig> ConfigHandler = null;
 	public static final MinecraftClient Game = MinecraftClient.getInstance();
 
 	public static final Identifier PING_SOUND_ID = new Identifier(MOD_ID, "ping");
