@@ -8,9 +8,9 @@ public class RateLimiter {
 	private static Duration timeToRegenerate;
 	private static Duration timeWindow;
 
-	public static void setRates(long timeToRegenerate, long limit) {
-		RateLimiter.timeToRegenerate = Duration.ofSeconds(timeToRegenerate);
-		RateLimiter.timeWindow = Duration.ofSeconds(timeToRegenerate * limit);
+	public static void setRates(long msToRegenerate, long limit) {
+		RateLimiter.timeToRegenerate = Duration.ofMillis(msToRegenerate);
+		RateLimiter.timeWindow = Duration.ofMillis(msToRegenerate * limit);
 	}
 
 	private Instant startTime;
