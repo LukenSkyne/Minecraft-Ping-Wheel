@@ -62,9 +62,10 @@ public class Main {
 		PING_LOCATION_CHANNEL_C2S.addListener((event) -> {
 			var ctx = event.getSource().get();
 			var packet = event.getPayload();
+			var sender = ctx.getSender();
 
-			if (packet != null) {
-				ctx.enqueueWork(() -> ServerCore.onPingLocation(ctx.getSender(), packet));
+			if (packet != null && sender != null) {
+				ctx.enqueueWork(() -> ServerCore.onPingLocation(sender.getServer(), sender, packet));
 			}
 
 			ctx.setPacketHandled(true);

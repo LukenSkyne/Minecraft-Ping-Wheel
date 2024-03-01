@@ -25,6 +25,7 @@ public class PingLocationPacketC2S {
 	@Nullable
 	private UUID entity;
 	private int sequence;
+	private int dimension;
 
 	public static final Identifier ID = new Identifier(MOD_ID + "-c2s", "ping-location");
 
@@ -48,6 +49,7 @@ public class PingLocationPacketC2S {
 		}
 
 		packet.writeInt(sequence);
+		packet.writeInt(dimension);
 
 		netHandler.sendPacket(new CustomPayloadC2SPacket(ID, packet));
 	}
@@ -61,12 +63,13 @@ public class PingLocationPacketC2S {
 				buf.readDouble());
 			var uuid = buf.readBoolean() ? buf.readUuid() : null;
 			var sequence = buf.readInt();
+			var dimension = buf.readInt();
 
 			if (buf.readableBytes() > 0) {
 				return Optional.empty();
 			}
 
-			return Optional.of(new PingLocationPacketC2S(channel, pos, uuid, sequence));
+			return Optional.of(new PingLocationPacketC2S(channel, pos, uuid, sequence, dimension));
 		} catch (Exception e) {
 			return Optional.empty();
 		}

@@ -22,6 +22,7 @@ public class PingLocationPacketS2C {
 	@Nullable
 	private UUID entity;
 	private int sequence;
+	private int dimension;
 	private UUID author;
 
 	public static final Identifier ID = new Identifier(MOD_ID + "-s2c", "ping-location");
@@ -35,13 +36,14 @@ public class PingLocationPacketS2C {
 				buf.readDouble());
 			var uuid = buf.readBoolean() ? buf.readUuid() : null;
 			var sequence = buf.readInt();
+			var dimension = buf.readInt();
 			var author = buf.readUuid();
 
 			if (buf.readableBytes() > 0) {
 				return Optional.empty();
 			}
 
-			return Optional.of(new PingLocationPacketS2C(channel, pos, uuid, sequence, author));
+			return Optional.of(new PingLocationPacketS2C(channel, pos, uuid, sequence, dimension, author));
 		} catch (Exception e) {
 			return Optional.empty();
 		}

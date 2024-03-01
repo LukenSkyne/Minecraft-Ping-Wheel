@@ -38,6 +38,7 @@ public class ClientCore {
 	private static final ArrayList<PingData> pingRepo = new ArrayList<>();
 	private static boolean queuePing = false;
 	private static ClientWorld lastWorld = null;
+	private static int dimension = 0;
 	private static int lastPing = 0;
 	private static int pingSequence = 0;
 
@@ -72,18 +73,21 @@ public class ClientCore {
 				pingLocation.getEntity(),
 				pingLocation.getAuthor(),
 				pingLocation.getSequence(),
+				pingLocation.getDimension(),
 				(int)Game.world.getTime()
 			));
 
-			Game.getSoundManager().play(
-				new DirectionalSoundInstance(
-					PING_SOUND_EVENT,
-					SoundCategory.MASTER,
-					Config.getPingVolume() / 100f,
-					1f,
-					pingLocation.getPos()
-				)
-			);
+			if (pingLocation.getDimension() == dimension) {
+				Game.getSoundManager().play(
+					new DirectionalSoundInstance(
+						PING_SOUND_EVENT,
+						SoundCategory.MASTER,
+						Config.getPingVolume() / 100f,
+						1f,
+						pingLocation.getPos()
+					)
+				);
+			}
 		});
 	}
 
@@ -94,7 +98,7 @@ public class ClientCore {
 
 		if (lastWorld != Game.world) {
 			lastWorld = Game.world;
-			pingRepo.clear();
+			dimension = lastWorld.getRegistryKey().getValue().hashCode();
 		}
 
 		var time = (int)Game.world.getTime();
@@ -128,7 +132,7 @@ public class ClientCore {
 		m.translate(0f, 0f, -pingRepo.size());
 
 		for (var ping : pingRepo) {
-			if (ping.screenPos == null || (ping.screenPos.z <= 0 && !showDirectionIndicator)) {
+			if (ping.screenPos == null || (ping.screenPos.z <= 0 && !showDirectionIndicator) || ping.getDimension() != dimension) {
 				continue;
 			}
 
@@ -226,7 +230,7 @@ public class ClientCore {
 	private static void executePing(float tickDelta) {
 		var cameraEntity = Game.cameraEntity;
 
-		if (cameraEntity == null) {
+		if (cameraEntity == null || Game.world == null) {
 			return;
 		}
 
@@ -247,7 +251,7 @@ public class ClientCore {
 			uuid = ((EntityHitResult)hitResult).getEntity().getUuid();
 		}
 
-		new PingLocationPacketC2S(Config.getChannel(), hitResult.getPos(), uuid, pingSequence).send();
+		new PingLocationPacketC2S(Config.getChannel(), hitResult.getPos(), uuid, pingSequence, dimension).send();
 	}
 
 	private static void addOrReplacePing(PingData newPing) {

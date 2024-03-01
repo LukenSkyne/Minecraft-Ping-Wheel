@@ -25,7 +25,7 @@ public class Main implements ModInitializer {
 			.map(container -> container.getMetadata().getVersion().getFriendlyString())
 			.orElse("Unknown");
 
-		ServerPlayNetworking.registerGlobalReceiver(PingLocationPacketC2S.ID, (a, player, b, packet, c) -> ServerCore.onPingLocation(player, packet));
+		ServerPlayNetworking.registerGlobalReceiver(PingLocationPacketC2S.ID, (server, player, b, packet, c) -> ServerCore.onPingLocation(server, player, packet));
 		ServerPlayNetworking.registerGlobalReceiver(UpdateChannelPacketC2S.ID, (a, player, b, packet, c) -> ServerCore.onChannelUpdate(player, packet));
 		ServerPlayConnectionEvents.DISCONNECT.register((networkHandler, a) -> ServerCore.onPlayerDisconnect(networkHandler.player));
 

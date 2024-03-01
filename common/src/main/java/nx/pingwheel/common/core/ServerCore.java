@@ -2,6 +2,7 @@ package nx.pingwheel.common.core;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import nx.pingwheel.common.config.ServerConfig;
@@ -43,7 +44,7 @@ public class ServerCore {
 		updatePlayerChannel(player, channelUpdatePacket.get().getChannel());
 	}
 
-	public static void onPingLocation(ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void onPingLocation(MinecraftServer server, ServerPlayerEntity player, PacketByteBuf packet) {
 		var rateLimiter = playerRates.get(player.getUuid());
 
 		if (rateLimiter == null) {
@@ -69,7 +70,7 @@ public class ServerCore {
 
 		packetCopy.writeUuid(player.getUuid());
 
-		for (ServerPlayerEntity p : player.getWorld().getPlayers()) {
+		for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
 			if (!channel.equals(playerChannels.getOrDefault(p.getUuid(), ""))) {
 				continue;
 			}
