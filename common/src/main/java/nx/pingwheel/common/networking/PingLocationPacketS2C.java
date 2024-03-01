@@ -34,8 +34,8 @@ public class PingLocationPacketS2C {
 				buf.readDouble(),
 				buf.readDouble());
 			var uuid = buf.readBoolean() ? buf.readUuid() : null;
-			var sequence = (buf.readableBytes() > 0) ? buf.readInt() : -1;
-			var author = (buf.readableBytes() > 0) ? buf.readUuid() : UUID.randomUUID();
+			var sequence = buf.readInt();
+			var author = buf.readUuid();
 
 			if (buf.readableBytes() > 0) {
 				return Optional.empty();
