@@ -130,7 +130,8 @@ public class ClientCore {
 		var safeZoneTopLeft = new Vec2f(Config.getSafeZoneLeft(), Config.getSafeZoneTop());
 		var safeZoneBottomRight = new Vec2f((float)screenBounds.x - Config.getSafeZoneRight(), (float)screenBounds.y - Config.getSafeZoneBottom());
 		var safeScreenCentre = new Vec2f((safeZoneBottomRight.x - safeZoneTopLeft.x) * 0.5f, (safeZoneBottomRight.y - safeZoneTopLeft.y) * 0.5f);
-		var showDirectionIndicator = Config.isDirectionIndicatorVisible();
+		final var showDirectionIndicator = Config.isDirectionIndicatorVisible();
+		final var showNameLabels = Config.isNameLabelForced() || KEY_BINDING_NAME_LABELS.isPressed();
 
 		m.push();
 		m.translate(0f, 0f, -pingRepo.size());
@@ -194,7 +195,7 @@ public class ClientCore {
 				Draw.renderLabel(m, text, -1.5f);
 				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
 
-				if (KEY_BINDING_NAME_LABELS.isPressed()) {
+				if (showNameLabels && !ping.getAuthor().equals(Game.player.getUuid())) {
 					Draw.renderLabel(m, ping.getAuthorName(), 1.75f);
 				}
 

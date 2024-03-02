@@ -58,8 +58,9 @@ public class SettingsScreen extends Screen {
 		final var directionIndicatorVisibleOption = getDirectionIndicatorVisibleOption();
 		this.list.addOptionEntry(itemIconsVisibleOption, directionIndicatorVisibleOption);
 
+		final var nameLabelForcedOption = getNameLabelForcedOption();
 		final var pingSizeOption = getPingSizeOption();
-		this.list.addOptionEntry(pingSizeOption, null);
+		this.list.addOptionEntry(nameLabelForcedOption, pingSizeOption);
 
 		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 160, 200, 20, Text.empty());
 		this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
@@ -188,6 +189,14 @@ public class SettingsScreen extends Screen {
 			"ping-wheel.settings.directionIndicatorVisible",
 			config::isDirectionIndicatorVisible,
 			config::setDirectionIndicatorVisible
+		);
+	}
+
+	private Option getNameLabelForcedOption() {
+		return OptionUtils.ofBool(
+			"ping-wheel.settings.nameLabelForced",
+			config::isNameLabelForced,
+			config::setNameLabelForced
 		);
 	}
 
