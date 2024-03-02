@@ -64,6 +64,11 @@ public class ServerCore {
 
 		var channel = pingLocationPacket.get().getChannel();
 
+		if (channel.isEmpty() && Config.isGlobalChannelDisabled()) {
+			player.sendMessage(Text.of("[Ping-Wheel] §eThe global channel is disabled on this server\n§7Use §a/pingwheel channel§7 to switch"), false);
+			return;
+		}
+
 		if (!channel.equals(playerChannels.getOrDefault(player.getUuid(), ""))) {
 			updatePlayerChannel(player, channel);
 		}

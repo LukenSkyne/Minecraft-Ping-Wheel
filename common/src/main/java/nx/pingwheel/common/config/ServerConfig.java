@@ -11,6 +11,7 @@ import nx.pingwheel.common.core.ServerCore;
 @ToString
 @EqualsAndHashCode
 public class ServerConfig implements IConfig {
+	boolean globalChannelDisabled = false;
 	int msToRegenerate = 1000;
 	int rateLimit = 5;
 
