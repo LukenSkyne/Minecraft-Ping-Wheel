@@ -65,6 +65,7 @@ public class Client {
 	private void registerKeyBindings() {
 		ClientRegistry.registerKeyBinding(KEY_BINDING_PING);
 		ClientRegistry.registerKeyBinding(KEY_BINDING_SETTINGS);
+		ClientRegistry.registerKeyBinding(KEY_BINDING_NAME_LABELS);
 	}
 
 	@SubscribeEvent

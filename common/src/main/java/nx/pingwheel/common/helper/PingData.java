@@ -17,6 +17,7 @@ public class PingData {
 	@Nullable
 	private final UUID uuid;
 	private final UUID author;
+	private final String authorName;
 	private final int sequence;
 	private final int dimension;
 	private final int spawnTime;
@@ -28,10 +29,11 @@ public class PingData {
 	@Nullable
 	public ItemStack itemStack;
 
-	public PingData(Vec3d pos, @Nullable UUID uuid, UUID author, int sequence, int dimension, int spawnTime) {
+	public PingData(Vec3d pos, @Nullable UUID uuid, UUID author, String authorName, int sequence, int dimension, int spawnTime) {
 		this.pos = pos;
 		this.uuid = uuid;
 		this.author = author;
+		this.authorName = authorName;
 		this.sequence = sequence;
 		this.dimension = dimension;
 		this.spawnTime = spawnTime;

@@ -90,6 +90,7 @@ public class Client implements ClientModInitializer {
 	private void registerKeyBindings() {
 		KeyBindingHelper.registerKeyBinding(KEY_BINDING_PING);
 		KeyBindingHelper.registerKeyBinding(KEY_BINDING_SETTINGS);
+		KeyBindingHelper.registerKeyBinding(KEY_BINDING_NAME_LABELS);
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (KEY_BINDING_PING.wasPressed()) {

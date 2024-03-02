@@ -1,6 +1,7 @@
 {
 	"ping-wheel.key.ping-location": "Ping Location",
 	"ping-wheel.key.open-settings": "Open Settings",
+	"ping-wheel.key.name-labels": "Show Name Labels",
 	"ping-wheel.subtitles.ping": "Location Ping Alert",
 
 	"ping-wheel.settings.pingVolume": "Ping Volume: %s",

@@ -23,12 +23,12 @@ public class Draw {
 	private static final int SHADOW_BLACK = ColorHelper.Argb.getArgb(64, 0, 0, 0);
 	private static final int LIGHT_VALUE_MAX = 15728880;
 
-	public static void renderLabel(MatrixStack matrices, String text) {
+	public static void renderLabel(MatrixStack matrices, String text, float yOffset) {
 		var textMetrics = new Vec2f(
 			Game.textRenderer.getWidth(text),
 			Game.textRenderer.fontHeight
 		);
-		var textOffset = textMetrics.multiply(-0.5f).add(new Vec2f(0f, textMetrics.y * -1.5f));
+		var textOffset = textMetrics.multiply(-0.5f).add(new Vec2f(0f, textMetrics.y * yOffset));
 
 		matrices.push();
 		matrices.translate(textOffset.x, textOffset.y, 0);

@@ -67,11 +67,15 @@ public class ClientCore {
 			}
 		}
 
+		final var authorPlayer = Game.player.networkHandler.getPlayerListEntry(pingLocation.getAuthor());
+		final var authorName = authorPlayer != null ? authorPlayer.getProfile().getName() : "";
+
 		Game.execute(() -> {
 			addOrReplacePing(new PingData(
 				pingLocation.getPos(),
 				pingLocation.getEntity(),
 				pingLocation.getAuthor(),
+				authorName,
 				pingLocation.getSequence(),
 				pingLocation.getDimension(),
 				(int)Game.world.getTime()
@@ -187,8 +191,12 @@ public class ClientCore {
 				m.scale(pingScale, pingScale, 1f);
 
 				var text = String.format("%,.1fm", ping.distance);
-				Draw.renderLabel(m, text);
+				Draw.renderLabel(m, text, -1.5f);
 				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
+
+				if (KEY_BINDING_NAME_LABELS.isPressed()) {
+					Draw.renderLabel(m, ping.getAuthorName(), 1.75f);
+				}
 
 				m.pop();
 			}
