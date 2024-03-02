@@ -24,6 +24,6 @@ public class ClientGlobal {
 	public static final SoundEvent PING_SOUND_EVENT = new SoundEvent(PING_SOUND_ID);
 	public static final Identifier PING_TEXTURE_ID = new Identifier(MOD_ID, "textures/ping.png");
 
-	public static final KeyBinding KEY_BINDING_PING = new KeyBinding("ping-wheel.key.mark-location", InputUtil.Type.MOUSE, GLFW.GLFW_MOUSE_BUTTON_5, "ping-wheel.name");
+	public static final KeyBinding KEY_BINDING_PING = new KeyBinding("ping-wheel.key.ping-location", InputUtil.Type.MOUSE, GLFW.GLFW_MOUSE_BUTTON_5, "ping-wheel.name");
 	public static final KeyBinding KEY_BINDING_SETTINGS = new KeyBinding("ping-wheel.key.open-settings", InputUtil.Type.KEYSYM, -1, "ping-wheel.name");
 }
