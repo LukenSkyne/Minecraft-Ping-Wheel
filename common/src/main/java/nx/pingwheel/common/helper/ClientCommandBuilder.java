@@ -60,7 +60,7 @@ public class ClientCommandBuilder {
 		Command<S> helpCallback = (context) -> {
 			BinaryOperator<String> form = (command, key) -> Text.translatable("ping-wheel.command.help.format", command, Text.translatable(key)).getString();
 
-			var output = Text.empty();
+			var output = Text.empty().copy();
 			output.append(form.apply("/pingwheel config", "ping-wheel.command.config.description"));
 			output.append("\n");
 			output.append(form.apply("/pingwheel channel", "ping-wheel.command.channel.get.description"));
