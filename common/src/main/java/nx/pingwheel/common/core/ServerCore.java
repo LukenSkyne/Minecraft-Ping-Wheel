@@ -58,7 +58,7 @@ public class ServerCore {
 
 		if (pingLocationPacket.isEmpty()) {
 			LOGGER.warn("invalid ping location from " + String.format("%s (%s)", player.getGameProfile().getName(), player.getUuid()));
-			player.sendMessage(Text.of("§c[Ping-Wheel] Ping couldn't be sent. Make sure your version matches the server's version: " + ModVersion), false);
+			player.sendMessage(Text.of("[Ping-Wheel] §cUnable to send ping\n§7Make sure your version matches the server's version: §d" + ModVersion), false);
 			return;
 		}
 
