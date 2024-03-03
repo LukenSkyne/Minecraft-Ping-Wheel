@@ -23,8 +23,9 @@
 Modern co-op games often allow players to communicate via "pings" to mark in-game locations.  
 This simple mod provides such pinging mechanism for the fabric and forge mod loaders.
 
-Default keybind is "Mouse5" aka "Forward" to ping.  
-The settings can be changed via `/pingwheel config` or [Mod Menu](https://github.com/TerraformersMC/ModMenu).
+Default keybind is "Mouse5" aka "Forward" to ping. Hold "Left Alt" to see names on others' pings.  
+The settings can be changed via `/pingwheel config` or [Mod Menu](https://github.com/TerraformersMC/ModMenu).  
+Read the [Wiki](https://github.com/LukenSkyne/Minecraft-Ping-Wheel/wiki) for additional information.
 
 If you are looking to use the mod on Bukkit servers, you can install our [official Plugin](https://github.com/RXJpaw/Minecraft-Ping-Wheel-Plugin/).
 
