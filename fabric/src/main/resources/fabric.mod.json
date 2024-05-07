@@ -1,21 +1,21 @@
 {
 	"schemaVersion": 1,
-	"id": "ping-wheel",
+	"id": "${mod_id}",
 	"version": "${version}",
-	"name": "Ping Wheel",
-	"description": "Mark locations similar to the ping mechanism found in modern co-op multiplayer games.",
+	"name": "${mod_name}",
+	"description": "${description}",
 	"authors": [
-		"Luken"
+		"${mod_author}"
 	],
 	"contributors": [
-		"RXJpaw"
+		"${contributors}"
 	],
 	"contact": {
-		"homepage": "https://www.curseforge.com/minecraft/mc-mods/ping-wheel",
-		"sources": "https://github.com/LukenSkyne/Minecraft-Ping-Wheel",
-		"issues": "https://github.com/LukenSkyne/Minecraft-Ping-Wheel/issues"
+		"homepage": "${link_home}",
+		"sources": "${link_src}",
+		"issues": "${link_issues}"
 	},
-	"license": "MIT",
+	"license": "${license}",
 	"icon": "icon.png",
 	"environment": "*",
 	"entrypoints": {

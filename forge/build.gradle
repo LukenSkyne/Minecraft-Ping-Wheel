@@ -1,62 +1,61 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "idea"
+    id "multiloader-loader"
+    id "net.minecraftforge.gradle" version "[6.0.24,6.2)"
 }
 
-architectury {
-    platformSetupLoomIde()
-    forge()
+minecraft {
+    mappings channel: "official", version: minecraft_version
+
+    // reobf = false
+    copyIdeResources = true
+
+    runs {
+        client {
+            workingDirectory file("runs/client")
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Client"
+            mods {
+                modClientRun {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory file("runs/server")
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Server"
+            mods {
+                modServerRun {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory file("runs/data")
+            ideaModule "${rootProject.name}.${project.name}.main"
+            args "--mod", mod_id, "--all", "--output", file("src/generated/resources/"), "--existing", file("src/main/resources/")
+            taskName "Data"
+            mods {
+                modDataRun {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
 }
 
-configurations {
-    common
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
-}
+sourceSets.main.resources.srcDir "src/generated/resources"
 
 dependencies {
-    forge "net.minecraftforge:forge:${project.forge_version}"
-    // Remove the next line if you don't want to depend on the API
-    //modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
-
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    implementation("net.sf.jopt-simple:jopt-simple:5.0.4") { version { strictly "5.0.4" } }
 }
 
-processResources {
-    inputs.property "version", project.version
-    inputs.property "forge_loader_version", project.forge_loader_version
-    inputs.property "forge_compatible_range", project.forge_compatible_range
-
-    filesMatching("META-INF/mods.toml") {
-        expand "version": project.version,
-                "forge_loader_version": project.forge_loader_version,
-                "forge_compatible_range": project.forge_compatible_range
-    }
-}
-
-shadowJar {
-    exclude "fabric.mod.json"
-    exclude "architectury.common.json"
-
-    configurations = [project.configurations.shadowCommon]
-    archiveClassifier = "dev-shadow"
-}
-
-remapJar {
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-}
-
-sourcesJar {
-    def commonSources = project(":common").sourcesJar
-    dependsOn commonSources
-    from commonSources.archiveFile.map { zipTree(it) }
-}
-
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
-    }
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
 }

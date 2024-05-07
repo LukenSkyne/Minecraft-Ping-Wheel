@@ -1,18 +1,6 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
-}
-
-architectury {
-    platformSetupLoomIde()
-    fabric()
-}
-
-configurations {
-    common
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentFabric.extendsFrom common
+    id "multiloader-loader"
+    id "fabric-loom" version "${loom_version}"
 }
 
 repositories {
@@ -20,53 +8,30 @@ repositories {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
-    modApi "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-    // Remove the next line if you don't want to depend on the API
-    //modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
-
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
     // ModMenu
-    modCompileOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
+    modCompileOnly("com.terraformersmc:modmenu:4.1.2") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 }
 
-processResources {
-    inputs.property "version", project.version
-    inputs.property "fabric_loader_version", project.fabric_loader_version
-    inputs.property "fabric_compatible_range", project.fabric_compatible_range
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "fabric_loader_version": project.fabric_loader_version,
-                "fabric_compatible_range": project.fabric_compatible_range
-    }
-}
-
-shadowJar {
-    exclude "architectury.common.json"
-
-    configurations = [project.configurations.shadowCommon]
-    archiveClassifier = "dev-shadow"
-}
-
-remapJar {
-    injectAccessWidener = true
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-}
-
-sourcesJar {
-    def commonSources = project(":common").sourcesJar
-    dependsOn commonSources
-    from commonSources.archiveFile.map { zipTree(it) }
-}
-
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
+loom {
+    runs {
+        client {
+            client()
+            setConfigName("Fabric Client")
+            ideConfigGenerated(true)
+            runDir("runs/client")
+        }
+        server {
+            server()
+            setConfigName("Fabric Server")
+            ideConfigGenerated(true)
+            runDir("runs/server")
+        }
     }
 }
