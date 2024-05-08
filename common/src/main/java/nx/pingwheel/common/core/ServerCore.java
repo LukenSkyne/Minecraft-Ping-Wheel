@@ -33,7 +33,7 @@ public class ServerCore {
 	public static void onChannelUpdate(ServerPlayer player, UpdateChannelC2SPacket packet) {
 		if (packet.isCorrupt()) {
 			LOGGER.warn("invalid channel update from " + String.format("%s (%s)", player.getGameProfile().getName(), player.getUUID()));
-			player.displayClientMessage(Component.nullToEmpty("§c[Ping-Wheel] Channel couldn't be updated. Make sure your version matches the server's version: " + ModVersion), false);
+			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §cChannel couldn't be updated\n§7Make sure your version matches the server's version: §d" + ModVersion), false);
 			return;
 		}
 
