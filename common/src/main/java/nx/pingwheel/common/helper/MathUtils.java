@@ -2,9 +2,9 @@ package nx.pingwheel.common.helper;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
+import nx.pingwheel.common.compat.Vector3f;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import nx.pingwheel.common.compat.Vector3f;
 import nx.pingwheel.common.compat.Vector4f;
 
 import static nx.pingwheel.common.ClientGlobal.Game;

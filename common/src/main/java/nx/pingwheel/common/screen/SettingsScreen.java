@@ -9,9 +9,9 @@ import net.minecraft.client.gui.components.TooltipAccessor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.util.FormattedCharSequence;
+import nx.pingwheel.common.compat.Component;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.OptionUtils;
-import nx.pingwheel.common.compat.Component;
 
 import java.util.Collections;
 import java.util.List;

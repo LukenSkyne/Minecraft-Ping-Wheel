@@ -5,7 +5,9 @@ import net.minecraft.client.Option;
 import net.minecraft.client.ProgressOption;
 import net.minecraft.network.chat.Component;
 
-import java.util.function.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class OptionUtils {
 	private OptionUtils() {}
