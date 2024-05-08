@@ -89,7 +89,7 @@ public class Client {
 	@SubscribeEvent
 	public void onRenderWorld(RenderLevelStageEvent event) {
 		if (event.getStage().equals(RenderLevelStageEvent.Stage.AFTER_WEATHER)) {
-			ClientCore.onRenderWorld(event.getPoseStack(), event.getProjectionMatrix(), event.getPartialTick());
+			ClientCore.onRenderWorld(event.getPoseStack().last().pose(), event.getProjectionMatrix(), event.getPartialTick());
 		}
 	}
 

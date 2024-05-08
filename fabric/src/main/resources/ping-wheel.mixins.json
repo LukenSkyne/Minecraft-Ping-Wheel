@@ -3,10 +3,9 @@
 	"minVersion": "0.8",
 	"package": "nx.pingwheel.fabric.mixin",
 	"compatibilityLevel": "JAVA_17",
-	"mixins": [
-	],
 	"client": [
-		"InGameHudMixin"
+		"GuiMixin",
+		"LevelRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

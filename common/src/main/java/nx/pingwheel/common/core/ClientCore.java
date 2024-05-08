@@ -92,7 +92,7 @@ public class ClientCore {
 		});
 	}
 
-	public static void onRenderWorld(PoseStack matrixStack, Matrix4f projectionMatrix, float tickDelta) {
+	public static void onRenderWorld(Matrix4f modelViewMatrix, Matrix4f projectionMatrix, float tickDelta) {
 		if (Game.level == null) {
 			return;
 		}
@@ -114,7 +114,7 @@ public class ClientCore {
 			executePing(tickDelta);
 		}
 
-		processPings(matrixStack, projectionMatrix, tickDelta, time);
+		processPings(modelViewMatrix, projectionMatrix, tickDelta, time);
 	}
 
 	public static void onRenderGUI(PoseStack m, float tickDelta) {
@@ -203,12 +203,11 @@ public class ClientCore {
 		m.popPose();
 	}
 
-	private static void processPings(PoseStack matrixStack, Matrix4f projectionMatrix, float tickDelta, int time) {
+	private static void processPings(Matrix4f modelViewMatrix, Matrix4f projectionMatrix, float tickDelta, int time) {
 		if (Game.player == null || pingRepo.isEmpty()) {
 			return;
 		}
 
-		var modelViewMatrix = matrixStack.last().pose();
 		var cameraPos = Game.player.getEyePosition(tickDelta);
 
 		for (var ping : pingRepo) {

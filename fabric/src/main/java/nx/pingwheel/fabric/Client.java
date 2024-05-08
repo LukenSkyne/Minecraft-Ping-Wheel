@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
@@ -25,7 +24,8 @@ import nx.pingwheel.common.networking.PingLocationPacketS2C;
 import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
 import nx.pingwheel.common.resource.ResourceReloadListener;
 import nx.pingwheel.common.screen.SettingsScreen;
-import nx.pingwheel.fabric.event.GameOverlayRenderCallback;
+import nx.pingwheel.fabric.event.GuiRenderCallback;
+import nx.pingwheel.fabric.event.WorldRenderCallback;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -52,11 +52,9 @@ public class Client implements ClientModInitializer {
 		// register client connection callback
 		ClientPlayConnectionEvents.JOIN.register((a, b, c) -> new UpdateChannelPacketC2S(ConfigHandler.getConfig().getChannel()).send());
 
-		// register world render callback
-		WorldRenderEvents.END.register(ctx -> ClientCore.onRenderWorld(ctx.matrixStack(), ctx.projectionMatrix(), ctx.tickDelta()));
-
-		// register gui render callback
-		GameOverlayRenderCallback.START.register(ClientCore::onRenderGUI);
+		// register rendering callbacks
+		GuiRenderCallback.START.register(ClientCore::onRenderGUI);
+		WorldRenderCallback.START.register(ClientCore::onRenderWorld);
 
 		// register commands
 		ClientCommandManager.DISPATCHER.register(ClientCommandBuilder.build((context, success, response) -> {
