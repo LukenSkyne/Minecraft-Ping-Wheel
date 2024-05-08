@@ -3,9 +3,9 @@ package nx.pingwheel.common.networking;
 import io.netty.buffer.Unpooled;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Optional;
 
@@ -19,24 +19,24 @@ public class UpdateChannelPacketC2S {
 
 	private String channel;
 
-	public static final Identifier ID = new Identifier(MOD_ID + "-c2s", "update-channel");
+	public static final ResourceLocation ID = new ResourceLocation(MOD_ID + "-c2s", "update-channel");
 
 	public void send() {
-		var netHandler = Game.getNetworkHandler();
+		var netHandler = Game.getConnection();
 
 		if (netHandler == null) {
 			return;
 		}
 
-		var packet = new PacketByteBuf(Unpooled.buffer());
-		packet.writeString(channel, MAX_CHANNEL_LENGTH);
+		var packet = new FriendlyByteBuf(Unpooled.buffer());
+		packet.writeUtf(channel, MAX_CHANNEL_LENGTH);
 
-		netHandler.sendPacket(new CustomPayloadC2SPacket(ID, packet));
+		netHandler.send(new ServerboundCustomPayloadPacket(ID, packet));
 	}
 
-	public static Optional<UpdateChannelPacketC2S> parse(PacketByteBuf buf) {
+	public static Optional<UpdateChannelPacketC2S> parse(FriendlyByteBuf buf) {
 		try {
-			var channel = buf.readString(MAX_CHANNEL_LENGTH);
+			var channel = buf.readUtf(MAX_CHANNEL_LENGTH);
 
 			if (buf.readableBytes() > 0) {
 				return Optional.empty();

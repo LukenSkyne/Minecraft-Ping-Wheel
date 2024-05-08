@@ -12,11 +12,11 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.core.ClientCore;
@@ -36,7 +36,7 @@ import static nx.pingwheel.common.Global.MOD_ID;
 @Environment(EnvType.CLIENT)
 public class Client implements ClientModInitializer {
 
-	public static final Identifier RELOAD_LISTENER_ID = new Identifier(MOD_ID, "reload-listener");
+	public static final ResourceLocation RELOAD_LISTENER_ID = new ResourceLocation(MOD_ID, "reload-listener");
 
 	@Override
 	public void onInitializeClient() {
@@ -73,15 +73,15 @@ public class Client implements ClientModInitializer {
 	}
 
 	private void registerReloadListener() {
-		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
+		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES)
 			.registerReloadListener(new IdentifiableResourceReloadListener() {
 				@Override
-				public Identifier getFabricId() {
+				public ResourceLocation getFabricId() {
 					return RELOAD_LISTENER_ID;
 				}
 
 				@Override
-				public CompletableFuture<Void> reload(Synchronizer helper, ResourceManager resourceManager, Profiler loadProfiler, Profiler applyProfiler, Executor loadExecutor, Executor applyExecutor) {
+				public CompletableFuture<Void> reload(PreparationBarrier helper, ResourceManager resourceManager, ProfilerFiller loadProfiler, ProfilerFiller applyProfiler, Executor loadExecutor, Executor applyExecutor) {
 					return ResourceReloadListener.reloadTextures(helper, resourceManager, loadExecutor, applyExecutor);
 				}
 			});
@@ -93,11 +93,11 @@ public class Client implements ClientModInitializer {
 		KeyBindingHelper.registerKeyBinding(KEY_BINDING_NAME_LABELS);
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if (KEY_BINDING_PING.wasPressed()) {
+			if (KEY_BINDING_PING.consumeClick()) {
 				ClientCore.markLocation();
 			}
 
-			if (KEY_BINDING_SETTINGS.wasPressed()) {
+			if (KEY_BINDING_SETTINGS.consumeClick()) {
 				Game.setScreen(new SettingsScreen());
 			}
 		});

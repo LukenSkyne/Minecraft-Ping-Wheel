@@ -1,6 +1,6 @@
 package nx.pingwheel.forge;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -87,6 +87,6 @@ public class Main {
 
 	@SubscribeEvent
 	public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-		ServerCore.onPlayerDisconnect((ServerPlayerEntity)event.getPlayer());
+		ServerCore.onPlayerDisconnect((ServerPlayer)event.getPlayer());
 	}
 }

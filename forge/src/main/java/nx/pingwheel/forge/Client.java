@@ -71,11 +71,11 @@ public class Client {
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event) {
 		if (event.phase.equals(TickEvent.Phase.END)) {
-			if (KEY_BINDING_PING.wasPressed()) {
+			if (KEY_BINDING_PING.consumeClick()) {
 				ClientCore.markLocation();
 			}
 
-			if (KEY_BINDING_SETTINGS.wasPressed()) {
+			if (KEY_BINDING_SETTINGS.consumeClick()) {
 				Game.setScreen(new SettingsScreen());
 			}
 		}
@@ -104,9 +104,9 @@ public class Client {
 	public void onCommandRegister(RegisterClientCommandsEvent event) {
 		event.getDispatcher().register(ClientCommandBuilder.build((context, success, response) -> {
 			if (success) {
-				context.getSource().sendFeedback(response, false);
+				context.getSource().sendSuccess(response, false);
 			} else {
-				context.getSource().sendError(response);
+				context.getSource().sendFailure(response);
 			}
 		}));
 	}

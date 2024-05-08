@@ -1,7 +1,7 @@
 package nx.pingwheel.common.compat;
 
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.math.Matrix4f;
+import net.minecraft.world.phys.Vec3;
 
 public class Vector4f {
 
@@ -10,7 +10,7 @@ public class Vector4f {
 	public float z;
 	public float w;
 
-	public Vector4f(Vec3d vec3d, float w) {
+	public Vector4f(Vec3 vec3d, float w) {
 		this.x = (float)vec3d.x;
 		this.y = (float)vec3d.y;
 		this.z = (float)vec3d.z;
@@ -18,13 +18,13 @@ public class Vector4f {
 	}
 
 	public Vector4f mul(Matrix4f mat) {
-		var v = new net.minecraft.util.math.Vector4f(this.x, this.y, this.z, this.w);
+		var v = new com.mojang.math.Vector4f(this.x, this.y, this.z, this.w);
 		v.transform(mat);
 
-		this.x = v.getX();
-		this.y = v.getY();
-		this.z = v.getZ();
-		this.w = v.getW();
+		this.x = v.x();
+		this.y = v.y();
+		this.z = v.z();
+		this.w = v.w();
 
 		return this;
 	}

@@ -1,11 +1,12 @@
 package nx.pingwheel.common.helper;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
+
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.function.Predicate;
 
@@ -14,29 +15,29 @@ import static nx.pingwheel.common.ClientGlobal.Game;
 public class Raycast {
 	private Raycast() {}
 
-	public static HitResult traceDirectional(Vec3d direction,
+	public static HitResult traceDirectional(Vec3 direction,
 											 float tickDelta,
 											 double maxDistance,
 											 boolean hitFluids) {
 		var cameraEntity = Game.cameraEntity;
 
-		if (cameraEntity == null || cameraEntity.world == null) {
+		if (cameraEntity == null || cameraEntity.level == null) {
 			return null;
 		}
 
-		var rayStartVec = cameraEntity.getCameraPosVec(tickDelta);
-		var rayEndVec = rayStartVec.add(direction.multiply(maxDistance));
+		var rayStartVec = cameraEntity.getEyePosition(tickDelta);
+		var rayEndVec = rayStartVec.add(direction.scale(maxDistance));
 		var boundingBox = cameraEntity
 			.getBoundingBox()
-			.stretch(cameraEntity.getRotationVec(1.f).multiply(maxDistance))
-			.expand(1.0, 1.0, 1.0);
+			.expandTowards(cameraEntity.getViewVector(1.f).scale(maxDistance))
+			.inflate(1.0, 1.0, 1.0);
 
-		var blockHitResult = cameraEntity.world.raycast(
-			new RaycastContext(
+		var blockHitResult = cameraEntity.level.clip(
+			new ClipContext(
 				rayStartVec,
 				rayEndVec,
-				RaycastContext.ShapeType.OUTLINE,
-				hitFluids ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE,
+				ClipContext.Block.OUTLINE,
+				hitFluids ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE,
 				cameraEntity)
 		);
 
@@ -51,7 +52,7 @@ public class Raycast {
 			return blockHitResult;
 		}
 
-		if (rayStartVec.squaredDistanceTo(blockHitResult.getPos()) < rayStartVec.squaredDistanceTo(entityHitResult.getPos())) {
+		if (rayStartVec.distanceToSqr(blockHitResult.getLocation()) < rayStartVec.distanceToSqr(entityHitResult.getLocation())) {
 			return blockHitResult;
 		}
 
@@ -59,25 +60,25 @@ public class Raycast {
 	}
 
 	private static EntityHitResult traceEntity(Entity entity,
-											   Vec3d min,
-											   Vec3d max,
-											   Box box,
+											   Vec3 min,
+											   Vec3 max,
+											   AABB box,
 											   Predicate<Entity> predicate) {
-		var minDist = min.squaredDistanceTo(max);
+		var minDist = min.distanceToSqr(max);
 		EntityHitResult minHitResult = null;
 
-		for (var ent : entity.world.getOtherEntities(entity, box, predicate)) {
+		for (var ent : entity.level.getEntities(entity, box, predicate)) {
 			var targetBoundingBox = ent.getBoundingBox()
-				.expand(ent.getTargetingMargin())
-				.expand(0.25);
-			var hitPos = targetBoundingBox.raycast(min, max);
+				.inflate(ent.getPickRadius())
+				.inflate(0.25);
+			var hitPos = targetBoundingBox.clip(min, max);
 
 			if (hitPos.isEmpty()) {
 				continue;
 			}
 
 			var hitResult = new EntityHitResult(ent, hitPos.get());
-			var hitDist = min.squaredDistanceTo(hitResult.getPos());
+			var hitDist = min.distanceToSqr(hitResult.getLocation());
 
 			if (minDist > hitDist) {
 				minDist = hitDist;

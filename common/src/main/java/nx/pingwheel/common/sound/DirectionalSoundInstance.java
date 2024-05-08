@@ -1,24 +1,21 @@
 package nx.pingwheel.common.sound;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.sound.MovingSoundInstance;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 
 import static nx.pingwheel.common.ClientGlobal.Game;
 
-@Environment(EnvType.CLIENT)
-public class DirectionalSoundInstance extends MovingSoundInstance {
+public class DirectionalSoundInstance extends AbstractTickableSoundInstance {
 
-	private final Vec3d pos;
+	private final Vec3 pos;
 
 	public DirectionalSoundInstance(SoundEvent sound,
-									SoundCategory category,
+									SoundSource category,
 									float volume,
 									float pitch,
-									Vec3d pos) {
+									Vec3 pos) {
 		super(sound, category);
 
 		this.volume = volume;
@@ -30,14 +27,14 @@ public class DirectionalSoundInstance extends MovingSoundInstance {
 	@Override
 	public void tick() {
 		if (Game.player == null) {
-			this.setDone();
+			this.stop();
 			return;
 		}
 
-		var playerPos = Game.player.getPos();
-		var vecBetween = playerPos.relativize(this.pos);
+		var playerPos = Game.player.position();
+		var vecBetween = playerPos.vectorTo(this.pos);
 		var mappedDistance = Math.min(vecBetween.length(), 64.0) / 64.0 * 14.0;
-		var soundDirection = vecBetween.normalize().multiply(mappedDistance);
+		var soundDirection = vecBetween.normalize().scale(mappedDistance);
 		var soundPos = playerPos.add(soundDirection);
 
 		this.x = soundPos.x;

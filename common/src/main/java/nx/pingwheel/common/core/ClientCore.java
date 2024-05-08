@@ -1,19 +1,17 @@
 package nx.pingwheel.common.core;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.Draw;
 import nx.pingwheel.common.helper.MathUtils;
@@ -28,7 +26,6 @@ import java.util.UUID;
 
 import static nx.pingwheel.common.ClientGlobal.*;
 
-@Environment(EnvType.CLIENT)
 public class ClientCore {
 	private ClientCore() {}
 
@@ -37,7 +34,7 @@ public class ClientCore {
 	private static final ClientConfig Config = ConfigHandler.getConfig();
 	private static final ArrayList<PingData> pingRepo = new ArrayList<>();
 	private static boolean queuePing = false;
-	private static ClientWorld lastWorld = null;
+	private static ClientLevel lastWorld = null;
 	private static int dimension = 0;
 	private static int lastPing = 0;
 	private static int pingSequence = 0;
@@ -46,10 +43,10 @@ public class ClientCore {
 		queuePing = true;
 	}
 
-	public static void onPingLocation(PacketByteBuf packet) {
+	public static void onPingLocation(FriendlyByteBuf packet) {
 		var pingLocationPacket = PingLocationPacketS2C.parse(packet);
 
-		if (pingLocationPacket.isEmpty() || Game.player == null || Game.world == null) {
+		if (pingLocationPacket.isEmpty() || Game.player == null || Game.level == null) {
 			return;
 		}
 
@@ -60,14 +57,14 @@ public class ClientCore {
 		}
 
 		if (Config.getPingDistance() < 2048) {
-			var vecToPing = Game.player.getPos().relativize(pingLocation.getPos());
+			var vecToPing = Game.player.position().vectorTo(pingLocation.getPos());
 
 			if (vecToPing.length() > Config.getPingDistance()) {
 				return;
 			}
 		}
 
-		final var authorPlayer = Game.player.networkHandler.getPlayerListEntry(pingLocation.getAuthor());
+		final var authorPlayer = Game.player.connection.getPlayerInfo(pingLocation.getAuthor());
 		final var authorName = authorPlayer != null ? authorPlayer.getProfile().getName() : "";
 
 		Game.execute(() -> {
@@ -78,14 +75,14 @@ public class ClientCore {
 				authorName,
 				pingLocation.getSequence(),
 				pingLocation.getDimension(),
-				(int)Game.world.getTime()
+				(int)Game.level.getGameTime()
 			));
 
 			if (pingLocation.getDimension() == dimension) {
 				Game.getSoundManager().play(
 					new DirectionalSoundInstance(
 						PING_SOUND_EVENT,
-						SoundCategory.MASTER,
+						SoundSource.MASTER,
 						Config.getPingVolume() / 100f,
 						1f,
 						pingLocation.getPos()
@@ -95,17 +92,17 @@ public class ClientCore {
 		});
 	}
 
-	public static void onRenderWorld(MatrixStack matrixStack, Matrix4f projectionMatrix, float tickDelta) {
-		if (Game.world == null) {
+	public static void onRenderWorld(PoseStack matrixStack, Matrix4f projectionMatrix, float tickDelta) {
+		if (Game.level == null) {
 			return;
 		}
 
-		if (lastWorld != Game.world) {
-			lastWorld = Game.world;
-			dimension = lastWorld.getRegistryKey().getValue().hashCode();
+		if (lastWorld != Game.level) {
+			lastWorld = Game.level;
+			dimension = lastWorld.dimension().location().hashCode();
 		}
 
-		var time = (int)Game.world.getTime();
+		var time = (int)Game.level.getGameTime();
 
 		if (queuePing) {
 			if (time - lastPing > Config.getCorrectionPeriod() * TPS) {
@@ -120,20 +117,20 @@ public class ClientCore {
 		processPings(matrixStack, projectionMatrix, tickDelta, time);
 	}
 
-	public static void onRenderGUI(MatrixStack m, float tickDelta) {
+	public static void onRenderGUI(PoseStack m, float tickDelta) {
 		if (Game.player == null || pingRepo.isEmpty()) {
 			return;
 		}
 
 		var wnd = Game.getWindow();
-		var screenBounds = new Vec3d(wnd.getScaledWidth(), wnd.getScaledHeight(), 0);
-		var safeZoneTopLeft = new Vec2f(Config.getSafeZoneLeft(), Config.getSafeZoneTop());
-		var safeZoneBottomRight = new Vec2f((float)screenBounds.x - Config.getSafeZoneRight(), (float)screenBounds.y - Config.getSafeZoneBottom());
-		var safeScreenCentre = new Vec2f((safeZoneBottomRight.x - safeZoneTopLeft.x) * 0.5f, (safeZoneBottomRight.y - safeZoneTopLeft.y) * 0.5f);
+		var screenBounds = new Vec3(wnd.getGuiScaledWidth(), wnd.getGuiScaledHeight(), 0);
+		var safeZoneTopLeft = new Vec2(Config.getSafeZoneLeft(), Config.getSafeZoneTop());
+		var safeZoneBottomRight = new Vec2((float)screenBounds.x - Config.getSafeZoneRight(), (float)screenBounds.y - Config.getSafeZoneBottom());
+		var safeScreenCentre = new Vec2((safeZoneBottomRight.x - safeZoneTopLeft.x) * 0.5f, (safeZoneBottomRight.y - safeZoneTopLeft.y) * 0.5f);
 		final var showDirectionIndicator = Config.isDirectionIndicatorVisible();
-		final var showNameLabels = Config.isNameLabelForced() || KEY_BINDING_NAME_LABELS.isPressed();
+		final var showNameLabels = Config.isNameLabelForced() || KEY_BINDING_NAME_LABELS.isDown();
 
-		m.push();
+		m.pushPose();
 		m.translate(0f, 0f, -pingRepo.size());
 
 		for (var ping : pingRepo) {
@@ -147,12 +144,12 @@ public class ClientCore {
 			var pingSize = Config.getPingSize() / 100f;
 			var pingScale = getDistanceScale(ping.distance) * pingSize * 0.4f;
 
-			var pingDirectionVec = new Vec2f(pos.x - safeZoneTopLeft.x - safeScreenCentre.x, pos.y - safeZoneTopLeft.y - safeScreenCentre.y);
+			var pingDirectionVec = new Vec2(pos.x - safeZoneTopLeft.x - safeScreenCentre.x, pos.y - safeZoneTopLeft.y - safeScreenCentre.y);
 			var behindCamera = false;
 
 			if (pos.z <= 0) {
 				behindCamera = true;
-				pingDirectionVec = pingDirectionVec.multiply(-1);
+				pingDirectionVec = pingDirectionVec.scale(-1);
 			}
 
 			var pingAngle = (float)Math.atan2(pingDirectionVec.y, pingDirectionVec.x);
@@ -161,18 +158,18 @@ public class ClientCore {
 			if (isOffScreen && showDirectionIndicator) {
 				var indicator = MathUtils.calculateAngleRectIntersection(pingAngle, safeZoneTopLeft, safeZoneBottomRight);
 
-				m.push();
+				m.pushPose();
 				m.translate(indicator.x, indicator.y, 0f);
 
-				m.push();
+				m.pushPose();
 				m.scale(pingScale, pingScale, 1f);
 				var indicatorOffsetX = Math.cos(pingAngle + Math.PI) * 12;
 				var indicatorOffsetY = Math.sin(pingAngle + Math.PI) * 12;
 				m.translate(indicatorOffsetX, indicatorOffsetY, 0);
 				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
-				m.pop();
+				m.popPose();
 
-				m.push();
+				m.pushPose();
 				MathUtils.rotateZ(m, pingAngle);
 				m.scale(pingSize, pingSize, 1f);
 
@@ -181,13 +178,13 @@ public class ClientCore {
 				Draw.renderArrow(m, true);
 				m.scale(0.9f, 0.9f, 1f);
 				Draw.renderArrow(m, false);
-				m.pop();
+				m.popPose();
 
-				m.pop();
+				m.popPose();
 			}
 
 			if (!behindCamera) {
-				m.push();
+				m.pushPose();
 				m.translate(pos.x, pos.y, 0);
 				m.scale(pingScale, pingScale, 1f);
 
@@ -195,24 +192,24 @@ public class ClientCore {
 				Draw.renderLabel(m, text, -1.5f);
 				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
 
-				if (showNameLabels && !ping.getAuthor().equals(Game.player.getUuid())) {
+				if (showNameLabels && !ping.getAuthor().equals(Game.player.getUUID())) {
 					Draw.renderLabel(m, ping.getAuthorName(), 1.75f);
 				}
 
-				m.pop();
+				m.popPose();
 			}
 		}
 
-		m.pop();
+		m.popPose();
 	}
 
-	private static void processPings(MatrixStack matrixStack, Matrix4f projectionMatrix, float tickDelta, int time) {
+	private static void processPings(PoseStack matrixStack, Matrix4f projectionMatrix, float tickDelta, int time) {
 		if (Game.player == null || pingRepo.isEmpty()) {
 			return;
 		}
 
-		var modelViewMatrix = matrixStack.peek().getPositionMatrix();
-		var cameraPos = Game.player.getCameraPosVec(tickDelta);
+		var modelViewMatrix = matrixStack.last().pose();
+		var cameraPos = Game.player.getEyePosition(tickDelta);
 
 		for (var ping : pingRepo) {
 			if (ping.getUuid() != null) {
@@ -220,10 +217,10 @@ public class ClientCore {
 
 				if (ent != null) {
 					if (ent.getType() == EntityType.ITEM && Config.isItemIconVisible()) {
-						ping.itemStack = ((ItemEntity)ent).getStack().copy();
+						ping.itemStack = ((ItemEntity)ent).getItem().copy();
 					}
 
-					ping.setPos(ent.getLerpedPos(tickDelta).add(0, ent.getBoundingBox().getYLength(), 0));
+					ping.setPos(ent.getPosition(tickDelta).add(0, ent.getBoundingBox().getYsize(), 0));
 				}
 			}
 
@@ -239,16 +236,16 @@ public class ClientCore {
 	private static void executePing(float tickDelta) {
 		var cameraEntity = Game.cameraEntity;
 
-		if (cameraEntity == null || Game.world == null) {
+		if (cameraEntity == null || Game.level == null) {
 			return;
 		}
 
-		var cameraDirection = cameraEntity.getRotationVec(tickDelta);
+		var cameraDirection = cameraEntity.getViewVector(tickDelta);
 		var hitResult = Raycast.traceDirectional(
 			cameraDirection,
 			tickDelta,
 			Math.min(Config.getRaycastDistance(), Config.getPingDistance()),
-			cameraEntity.isSneaking());
+			cameraEntity.isCrouching());
 
 		if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {
 			return;
@@ -257,10 +254,10 @@ public class ClientCore {
 		UUID uuid = null;
 
 		if (hitResult.getType() == HitResult.Type.ENTITY) {
-			uuid = ((EntityHitResult)hitResult).getEntity().getUuid();
+			uuid = ((EntityHitResult)hitResult).getEntity().getUUID();
 		}
 
-		new PingLocationPacketC2S(Config.getChannel(), hitResult.getPos(), uuid, pingSequence, dimension).send();
+		new PingLocationPacketC2S(Config.getChannel(), hitResult.getLocation(), uuid, pingSequence, dimension).send();
 	}
 
 	private static void addOrReplacePing(PingData newPing) {
@@ -283,12 +280,12 @@ public class ClientCore {
 	}
 
 	private static Entity getEntity(UUID uuid) {
-		if (Game.world == null) {
+		if (Game.level == null) {
 			return null;
 		}
 
-		for (var entity : Game.world.getEntities()) {
-			if (entity.getUuid().equals(uuid)) {
+		for (var entity : Game.level.entitiesForRendering()) {
+			if (entity.getUUID().equals(uuid)) {
 				return entity;
 			}
 		}

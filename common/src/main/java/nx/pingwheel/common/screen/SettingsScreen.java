@@ -1,17 +1,17 @@
 package nx.pingwheel.common.screen;
 
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ScreenTexts;
-import net.minecraft.client.gui.widget.ButtonListWidget;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.option.Option;
-import net.minecraft.client.util.OrderableTooltip;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.OrderedText;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Option;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.OptionsList;
+import net.minecraft.client.gui.components.TooltipAccessor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.util.FormattedCharSequence;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.OptionUtils;
-import nx.pingwheel.common.compat.Text;
+import nx.pingwheel.common.compat.Component;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,11 +24,11 @@ public class SettingsScreen extends Screen {
 	private final ClientConfig config;
 
 	private Screen parent;
-	private ButtonListWidget list;
-	private TextFieldWidget channelTextField;
+	private OptionsList list;
+	private EditBox channelTextField;
 
 	public SettingsScreen() {
-		super(Text.translatable("ping-wheel.settings.title"));
+		super(Component.translatable("ping-wheel.settings.title"));
 		this.config = ConfigHandler.getConfig();
 	}
 
@@ -44,71 +44,71 @@ public class SettingsScreen extends Screen {
 
 	@Override
 	protected void init() {
-		this.list = new ButtonListWidget(this.client, this.width, this.height, 32, this.height - 32, 25);
+		this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
 
 		final var pingVolumeOption = getPingVolumeOption();
 		final var pingDurationOption = getPingDurationOption();
-		this.list.addOptionEntry(pingVolumeOption, pingDurationOption);
+		this.list.addSmall(pingVolumeOption, pingDurationOption);
 
 		final var pingDistanceOption = getPingDistanceOption();
 		final var correctionPeriodOption = getCorrectionPeriodOption();
-		this.list.addOptionEntry(pingDistanceOption, correctionPeriodOption);
+		this.list.addSmall(pingDistanceOption, correctionPeriodOption);
 
 		final var itemIconsVisibleOption = getItemIconsVisibleOption();
 		final var directionIndicatorVisibleOption = getDirectionIndicatorVisibleOption();
-		this.list.addOptionEntry(itemIconsVisibleOption, directionIndicatorVisibleOption);
+		this.list.addSmall(itemIconsVisibleOption, directionIndicatorVisibleOption);
 
 		final var nameLabelForcedOption = getNameLabelForcedOption();
 		final var pingSizeOption = getPingSizeOption();
-		this.list.addOptionEntry(nameLabelForcedOption, pingSizeOption);
+		this.list.addSmall(nameLabelForcedOption, pingSizeOption);
 
-		this.channelTextField = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 160, 200, 20, Text.empty());
+		this.channelTextField = new EditBox(this.font, this.width / 2 - 100, 160, 200, 20, Component.empty());
 		this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
-		this.channelTextField.setText(config.getChannel());
-		this.channelTextField.setChangedListener(config::setChannel);
-		this.addSelectableChild(this.channelTextField);
+		this.channelTextField.setValue(config.getChannel());
+		this.channelTextField.setResponder(config::setChannel);
+		this.addWidget(this.channelTextField);
 
-		this.addSelectableChild(this.list);
+		this.addWidget(this.list);
 
-		this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height - 27, 200, 20, ScreenTexts.DONE, (button) -> close()));
+		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, (button) -> onClose()));
 	}
 
 	@Override
-	public void close() {
+	public void onClose() {
 		ConfigHandler.save();
 
-		if (parent != null && this.client != null) {
-			this.client.setScreen(parent);
+		if (parent != null && this.minecraft != null) {
+			this.minecraft.setScreen(parent);
 		} else {
-			super.close();
+			super.onClose();
 		}
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
 		this.renderBackground(matrices);
 		this.list.render(matrices, mouseX, mouseY, delta);
-		drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 20, 16777215);
+		drawCenteredString(matrices, this.font, this.title, this.width / 2, 20, 16777215);
 
-		drawTextWithShadow(matrices, this.textRenderer, Text.translatable("ping-wheel.settings.channel"), this.width / 2 - 100, 148, 10526880);
+		drawString(matrices, this.font, Component.translatable("ping-wheel.settings.channel"), this.width / 2 - 100, 148, 10526880);
 		this.channelTextField.render(matrices, mouseX, mouseY, delta);
 
 		super.render(matrices, mouseX, mouseY, delta);
 
 		var tooltipLines = getHoveredButtonTooltip(this.list, mouseX, mouseY);
 
-		if (tooltipLines.isEmpty() && (this.channelTextField.isHovered() && !this.channelTextField.isFocused())) {
-			tooltipLines = this.textRenderer.wrapLines(Text.translatable("ping-wheel.settings.channel.tooltip"), 140);
+		if (tooltipLines.isEmpty() && (this.channelTextField.isHoveredOrFocused() && !this.channelTextField.isFocused())) {
+			tooltipLines = this.font.split(Component.translatable("ping-wheel.settings.channel.tooltip"), 140);
 		}
 
-		this.renderOrderedTooltip(matrices, tooltipLines, mouseX, mouseY);
+		this.renderTooltip(matrices, tooltipLines, mouseX, mouseY);
 	}
 
-	private static List<OrderedText> getHoveredButtonTooltip(ButtonListWidget buttonList, int mouseX, int mouseY) {
-		final var orderableTooltip = (OrderableTooltip)buttonList.getHoveredButton(mouseX, mouseY).orElse(null);
+	private static List<FormattedCharSequence> getHoveredButtonTooltip(OptionsList buttonList, int mouseX, int mouseY) {
+		final var orderableTooltip = (TooltipAccessor)buttonList.getMouseOver(mouseX, mouseY).orElse(null);
 
 		if (orderableTooltip != null) {
-			return orderableTooltip.getOrderedTooltip();
+			return orderableTooltip.getTooltip();
 		}
 
 		return Collections.emptyList();
@@ -122,10 +122,10 @@ public class SettingsScreen extends Screen {
 			0, 100, 1,
 			(value) -> {
 				if (value == 0) {
-					return Text.translatable(pingVolumeKey, ScreenTexts.OFF);
+					return Component.translatable(pingVolumeKey, CommonComponents.OPTION_OFF);
 				}
 
-				return Text.translatable(pingVolumeKey, String.format("%s%%", value));
+				return Component.translatable(pingVolumeKey, String.format("%s%%", value));
 			},
 			config::getPingVolume,
 			config::setPingVolume
@@ -138,7 +138,7 @@ public class SettingsScreen extends Screen {
 		return OptionUtils.ofInt(
 			pingDurationKey,
 			1, 60, 1,
-			(value) -> Text.translatable(pingDurationKey, String.format("%ss", config.getPingDuration())),
+			(value) -> Component.translatable(pingDurationKey, String.format("%ss", config.getPingDuration())),
 			config::getPingDuration,
 			config::setPingDuration
 		);
@@ -152,12 +152,12 @@ public class SettingsScreen extends Screen {
 			0, 2048, 16,
 			(value) -> {
 				if (value == 0) {
-					return Text.translatable(pingDistanceKey, Text.translatable(pingDistanceKey + ".hidden"));
+					return Component.translatable(pingDistanceKey, Component.translatable(pingDistanceKey + ".hidden"));
 				} else if (value == 2048) {
-					return Text.translatable(pingDistanceKey, Text.translatable(pingDistanceKey + ".unlimited"));
+					return Component.translatable(pingDistanceKey, Component.translatable(pingDistanceKey + ".unlimited"));
 				}
 
-				return Text.translatable(pingDistanceKey, String.format("%sm", value));
+				return Component.translatable(pingDistanceKey, String.format("%sm", value));
 			},
 			config::getPingDistance,
 			config::setPingDistance
@@ -170,7 +170,7 @@ public class SettingsScreen extends Screen {
 		return OptionUtils.ofFloat(
 			correctionPeriodKey,
 			0.1f, 5.0f, 0.1f,
-			(value) -> Text.translatable(correctionPeriodKey, String.format("%.1fs", value)),
+			(value) -> Component.translatable(correctionPeriodKey, String.format("%.1fs", value)),
 			config::getCorrectionPeriod,
 			config::setCorrectionPeriod
 		);
@@ -206,7 +206,7 @@ public class SettingsScreen extends Screen {
 		return OptionUtils.ofInt(
 			pingSizeKey,
 			40, 300, 10,
-			(value) -> Text.translatable(pingSizeKey, String.format("%s%%", value)),
+			(value) -> Component.translatable(pingSizeKey, String.format("%s%%", value)),
 			config::getPingSize,
 			config::setPingSize
 		);

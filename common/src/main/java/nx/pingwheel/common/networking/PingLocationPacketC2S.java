@@ -3,10 +3,10 @@ package nx.pingwheel.common.networking;
 import io.netty.buffer.Unpooled;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -21,47 +21,47 @@ import static nx.pingwheel.common.config.ClientConfig.MAX_CHANNEL_LENGTH;
 public class PingLocationPacketC2S {
 
 	private String channel;
-	private Vec3d pos;
+	private Vec3 pos;
 	@Nullable
 	private UUID entity;
 	private int sequence;
 	private int dimension;
 
-	public static final Identifier ID = new Identifier(MOD_ID + "-c2s", "ping-location");
+	public static final ResourceLocation ID = new ResourceLocation(MOD_ID + "-c2s", "ping-location");
 
 	public void send() {
-		var netHandler = Game.getNetworkHandler();
+		var netHandler = Game.getConnection();
 
 		if (netHandler == null) {
 			return;
 		}
 
-		var packet = new PacketByteBuf(Unpooled.buffer());
+		var packet = new FriendlyByteBuf(Unpooled.buffer());
 
-		packet.writeString(channel, MAX_CHANNEL_LENGTH);
+		packet.writeUtf(channel, MAX_CHANNEL_LENGTH);
 		packet.writeDouble(pos.x);
 		packet.writeDouble(pos.y);
 		packet.writeDouble(pos.z);
 		packet.writeBoolean(entity != null);
 
 		if (entity != null) {
-			packet.writeUuid(entity);
+			packet.writeUUID(entity);
 		}
 
 		packet.writeInt(sequence);
 		packet.writeInt(dimension);
 
-		netHandler.sendPacket(new CustomPayloadC2SPacket(ID, packet));
+		netHandler.send(new ServerboundCustomPayloadPacket(ID, packet));
 	}
 
-	public static Optional<PingLocationPacketC2S> parse(PacketByteBuf buf) {
+	public static Optional<PingLocationPacketC2S> parse(FriendlyByteBuf buf) {
 		try {
-			var channel = buf.readString(MAX_CHANNEL_LENGTH);
-			var pos = new Vec3d(
+			var channel = buf.readUtf(MAX_CHANNEL_LENGTH);
+			var pos = new Vec3(
 				buf.readDouble(),
 				buf.readDouble(),
 				buf.readDouble());
-			var uuid = buf.readBoolean() ? buf.readUuid() : null;
+			var uuid = buf.readBoolean() ? buf.readUUID() : null;
 			var sequence = buf.readInt();
 			var dimension = buf.readInt();
 

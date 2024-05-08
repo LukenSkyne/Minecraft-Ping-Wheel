@@ -1,10 +1,9 @@
 package nx.pingwheel.common.helper;
 
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3f;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import nx.pingwheel.common.compat.Vector3f;
 import nx.pingwheel.common.compat.Vector4f;
 
@@ -13,10 +12,10 @@ import static nx.pingwheel.common.ClientGlobal.Game;
 public class MathUtils {
 	private MathUtils() {}
 
-	public static Vector3f worldToScreen(Vec3d worldPos, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
+	public static Vector3f worldToScreen(Vec3 worldPos, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 		var window = Game.getWindow();
-		var camera = Game.gameRenderer.getCamera();
-		var worldPosRel = new Vector4f(camera.getPos().negate().add(worldPos), 1f);
+		var camera = Game.gameRenderer.getMainCamera();
+		var worldPosRel = new Vector4f(camera.getPosition().reverse().add(worldPos), 1f);
 		worldPosRel.mul(modelViewMatrix);
 		worldPosRel.mul(projectionMatrix);
 
@@ -27,21 +26,21 @@ public class MathUtils {
 		}
 
 		return new Vector3f(
-			window.getScaledWidth() * (0.5f + worldPosRel.x * 0.5f),
-			window.getScaledHeight() * (0.5f - worldPosRel.y * 0.5f),
+			window.getGuiScaledWidth() * (0.5f + worldPosRel.x * 0.5f),
+			window.getGuiScaledHeight() * (0.5f - worldPosRel.y * 0.5f),
 			depth
 		);
 	}
 
-	public static void rotateZ(MatrixStack matrixStack, float theta) {
-		matrixStack.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(theta));
+	public static void rotateZ(PoseStack matrixStack, float theta) {
+		matrixStack.mulPose(com.mojang.math.Vector3f.ZP.rotation(theta));
 	}
 
-	public static Vec2f calculateAngleRectIntersection(float angle, Vec2f leftTop, Vec2f rightBottom) {
-		var direction = new Vec3d(Math.cos(angle), Math.sin(angle), 0f);
+	public static Vec2 calculateAngleRectIntersection(float angle, Vec2 leftTop, Vec2 rightBottom) {
+		var direction = new Vec3(Math.cos(angle), Math.sin(angle), 0f);
 		var width = rightBottom.x - leftTop.x;
 		var height = rightBottom.y - leftTop.y;
-		direction = direction.multiply(new Vec3d(1f / width, 1f / height, 0f));
+		direction = direction.multiply(new Vec3(1f / width, 1f / height, 0f));
 
 		var dx = Math.cos(angle);
 		var dy = Math.sin(angle);
@@ -54,14 +53,14 @@ public class MathUtils {
 				var t = -cy / dy;
 				var x = cx + t * dx;
 
-				return new Vec2f((float)x + leftTop.x, leftTop.y);
+				return new Vec2((float)x + leftTop.x, leftTop.y);
 			}
 
 			// bottom
 			var t = cy / dy;
 			var x = cx + t * dx;
 
-			return new Vec2f((float)x + leftTop.x, rightBottom.y);
+			return new Vec2((float)x + leftTop.x, rightBottom.y);
 		}
 
 		if (direction.x < 0) {
@@ -69,13 +68,13 @@ public class MathUtils {
 			var t = -cx / dx;
 			var y = cy + t * dy;
 
-			return new Vec2f(leftTop.x, (float)y + leftTop.y);
+			return new Vec2(leftTop.x, (float)y + leftTop.y);
 		}
 
 		// right
 		var t = cx / dx;
 		var y = cy + t * dy;
 
-		return new Vec2f(rightBottom.x, (float)y + leftTop.y);
+		return new Vec2(rightBottom.x, (float)y + leftTop.y);
 	}
 }

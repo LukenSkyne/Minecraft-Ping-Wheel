@@ -2,8 +2,8 @@ package nx.pingwheel.common.helper;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import nx.pingwheel.common.compat.Vector3f;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +13,7 @@ import java.util.UUID;
 public class PingData {
 
 	@Setter
-	private Vec3d pos;
+	private Vec3 pos;
 	@Nullable
 	private final UUID uuid;
 	private final UUID author;
@@ -29,7 +29,7 @@ public class PingData {
 	@Nullable
 	public ItemStack itemStack;
 
-	public PingData(Vec3d pos, @Nullable UUID uuid, UUID author, String authorName, int sequence, int dimension, int spawnTime) {
+	public PingData(Vec3 pos, @Nullable UUID uuid, UUID author, String authorName, int sequence, int dimension, int spawnTime) {
 		this.pos = pos;
 		this.uuid = uuid;
 		this.author = author;

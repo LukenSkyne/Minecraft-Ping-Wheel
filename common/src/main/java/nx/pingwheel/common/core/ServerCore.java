@@ -1,10 +1,10 @@
 package nx.pingwheel.common.core;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.server.level.ServerPlayer;
 import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.helper.RateLimiter;
 import nx.pingwheel.common.networking.PingLocationPacketC2S;
@@ -27,69 +27,69 @@ public class ServerCore {
 		RateLimiter.setRates(Config.getMsToRegenerate(), Config.getRateLimit());
 	}
 
-	public static void onPlayerDisconnect(ServerPlayerEntity player) {
-		playerChannels.remove(player.getUuid());
-		playerRates.remove(player.getUuid());
+	public static void onPlayerDisconnect(ServerPlayer player) {
+		playerChannels.remove(player.getUUID());
+		playerRates.remove(player.getUUID());
 	}
 
-	public static void onChannelUpdate(ServerPlayerEntity player, PacketByteBuf packet) {
+	public static void onChannelUpdate(ServerPlayer player, FriendlyByteBuf packet) {
 		var channelUpdatePacket = UpdateChannelPacketC2S.parse(packet);
 
 		if (channelUpdatePacket.isEmpty()) {
-			LOGGER.warn("invalid channel update from " + String.format("%s (%s)", player.getGameProfile().getName(), player.getUuid()));
-			player.sendMessage(Text.of("§c[Ping-Wheel] Channel couldn't be updated. Make sure your version matches the server's version: " + ModVersion), false);
+			LOGGER.warn("invalid channel update from " + String.format("%s (%s)", player.getGameProfile().getName(), player.getUUID()));
+			player.displayClientMessage(Component.nullToEmpty("§c[Ping-Wheel] Channel couldn't be updated. Make sure your version matches the server's version: " + ModVersion), false);
 			return;
 		}
 
 		updatePlayerChannel(player, channelUpdatePacket.get().getChannel());
 	}
 
-	public static void onPingLocation(MinecraftServer server, ServerPlayerEntity player, PacketByteBuf packet) {
-		var rateLimiter = playerRates.get(player.getUuid());
+	public static void onPingLocation(MinecraftServer server, ServerPlayer player, FriendlyByteBuf packet) {
+		var rateLimiter = playerRates.get(player.getUUID());
 
 		if (rateLimiter == null) {
-			playerRates.put(player.getUuid(), new RateLimiter());
+			playerRates.put(player.getUUID(), new RateLimiter());
 		} else if (Config.getRateLimit() > 0 && rateLimiter.checkAndBlock()) {
 			return;
 		}
 
-		var packetCopy = new PacketByteBuf(packet.copy());
+		var packetCopy = new FriendlyByteBuf(packet.copy());
 		var pingLocationPacket = PingLocationPacketC2S.parse(packet);
 
 		if (pingLocationPacket.isEmpty()) {
-			LOGGER.warn("invalid ping location from " + String.format("%s (%s)", player.getGameProfile().getName(), player.getUuid()));
-			player.sendMessage(Text.of("[Ping-Wheel] §cUnable to send ping\n§7Make sure your version matches the server's version: §d" + ModVersion), false);
+			LOGGER.warn("invalid ping location from " + String.format("%s (%s)", player.getGameProfile().getName(), player.getUUID()));
+			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §cUnable to send ping\n§7Make sure your version matches the server's version: §d" + ModVersion), false);
 			return;
 		}
 
 		var channel = pingLocationPacket.get().getChannel();
 
 		if (channel.isEmpty() && Config.isGlobalChannelDisabled()) {
-			player.sendMessage(Text.of("[Ping-Wheel] §eThe global channel is disabled on this server\n§7Use §a/pingwheel channel§7 to switch"), false);
+			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §eThe global channel is disabled on this server\n§7Use §a/pingwheel channel§7 to switch"), false);
 			return;
 		}
 
-		if (!channel.equals(playerChannels.getOrDefault(player.getUuid(), ""))) {
+		if (!channel.equals(playerChannels.getOrDefault(player.getUUID(), ""))) {
 			updatePlayerChannel(player, channel);
 		}
 
-		packetCopy.writeUuid(player.getUuid());
+		packetCopy.writeUUID(player.getUUID());
 
-		for (ServerPlayerEntity p : server.getPlayerManager().getPlayerList()) {
-			if (!channel.equals(playerChannels.getOrDefault(p.getUuid(), ""))) {
+		for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+			if (!channel.equals(playerChannels.getOrDefault(p.getUUID(), ""))) {
 				continue;
 			}
 
-			p.networkHandler.sendPacket(new CustomPayloadS2CPacket(PingLocationPacketS2C.ID, packetCopy));
+			p.connection.send(new ClientboundCustomPayloadPacket(PingLocationPacketS2C.ID, packetCopy));
 		}
 	}
 
-	private static void updatePlayerChannel(ServerPlayerEntity player, String channel) {
+	private static void updatePlayerChannel(ServerPlayer player, String channel) {
 		if (channel.isEmpty()) {
-			playerChannels.remove(player.getUuid());
+			playerChannels.remove(player.getUUID());
 			LOGGER.info("Channel update: " + String.format("%s -> Global", player.getGameProfile().getName()));
 		} else {
-			playerChannels.put(player.getUuid(), channel);
+			playerChannels.put(player.getUUID(), channel);
 			LOGGER.info("Channel update: " + String.format("%s -> \"%s\"", player.getGameProfile().getName(), channel));
 		}
 	}

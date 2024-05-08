@@ -1,8 +1,8 @@
 package nx.pingwheel.fabric.event;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.client.util.math.MatrixStack;
 
 public interface GameOverlayRenderCallback {
 
@@ -18,5 +18,5 @@ public interface GameOverlayRenderCallback {
 	 * @param matrixStack the matrixStack
 	 * @param tickDelta Progress for linearly interpolating between the previous and current game state
 	 */
-	void onGameOverlayRender(MatrixStack matrixStack, float tickDelta);
+	void onGameOverlayRender(PoseStack matrixStack, float tickDelta);
 }
