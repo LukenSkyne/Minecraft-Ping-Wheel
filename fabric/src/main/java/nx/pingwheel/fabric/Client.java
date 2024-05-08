@@ -20,8 +20,8 @@ import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.core.ClientCore;
 import nx.pingwheel.common.helper.ClientCommandBuilder;
-import nx.pingwheel.common.networking.PingLocationPacketS2C;
-import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
+import nx.pingwheel.common.networking.PingLocationS2CPacket;
+import nx.pingwheel.common.networking.UpdateChannelC2SPacket;
 import nx.pingwheel.common.resource.ResourceReloadListener;
 import nx.pingwheel.common.screen.SettingsScreen;
 import nx.pingwheel.fabric.event.GuiRenderCallback;
@@ -32,6 +32,7 @@ import java.util.concurrent.Executor;
 
 import static nx.pingwheel.common.ClientGlobal.*;
 import static nx.pingwheel.common.Global.MOD_ID;
+import static nx.pingwheel.common.Global.NetHandler;
 
 @Environment(EnvType.CLIENT)
 public class Client implements ClientModInitializer {
@@ -50,7 +51,7 @@ public class Client implements ClientModInitializer {
 		registerKeyBindings();
 
 		// register client connection callback
-		ClientPlayConnectionEvents.JOIN.register((a, b, c) -> new UpdateChannelPacketC2S(ConfigHandler.getConfig().getChannel()).send());
+		ClientPlayConnectionEvents.JOIN.register((a, b, c) -> NetHandler.sendToServer(new UpdateChannelC2SPacket(ConfigHandler.getConfig().getChannel())));
 
 		// register rendering callbacks
 		GuiRenderCallback.START.register(ClientCore::onRenderGUI);
@@ -67,7 +68,7 @@ public class Client implements ClientModInitializer {
 	}
 
 	private void registerNetworkPackets() {
-		ClientPlayNetworking.registerGlobalReceiver(PingLocationPacketS2C.ID, (a, b, packet, c) -> ClientCore.onPingLocation(packet));
+		ClientPlayNetworking.registerGlobalReceiver(PingLocationS2CPacket.PACKET_ID, (a, b, packet, c) -> ClientCore.onPingLocation(PingLocationS2CPacket.readSafe(packet)));
 	}
 
 	private void registerReloadListener() {

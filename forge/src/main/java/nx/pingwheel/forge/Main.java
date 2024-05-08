@@ -13,9 +13,10 @@ import net.minecraftforge.network.event.EventNetworkChannel;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.core.ServerCore;
-import nx.pingwheel.common.networking.PingLocationPacketC2S;
-import nx.pingwheel.common.networking.PingLocationPacketS2C;
-import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
+import nx.pingwheel.common.networking.NetworkHandler;
+import nx.pingwheel.common.networking.PingLocationC2SPacket;
+import nx.pingwheel.common.networking.PingLocationS2CPacket;
+import nx.pingwheel.common.networking.UpdateChannelC2SPacket;
 
 import static nx.pingwheel.common.Global.*;
 import static nx.pingwheel.forge.Main.FORGE_ID;
@@ -28,19 +29,19 @@ public class Main {
 
 	private static final String PROTOCOL_VERSION = "1";
 	public static final EventNetworkChannel PING_LOCATION_CHANNEL_C2S = NetworkRegistry.newEventChannel(
-		PingLocationPacketC2S.ID,
+		PingLocationC2SPacket.PACKET_ID,
 		() -> PROTOCOL_VERSION,
 		c -> true,
 		s -> true
 	);
 	public static final EventNetworkChannel PING_LOCATION_CHANNEL_S2C = NetworkRegistry.newEventChannel(
-		PingLocationPacketS2C.ID,
+		PingLocationS2CPacket.PACKET_ID,
 		() -> PROTOCOL_VERSION,
 		c -> true,
 		s -> true
 	);
 	public static final EventNetworkChannel UPDATE_CHANNEL_C2S = NetworkRegistry.newEventChannel(
-		UpdateChannelPacketC2S.ID,
+		UpdateChannelC2SPacket.PACKET_ID,
 		() -> PROTOCOL_VERSION,
 		c -> true,
 		s -> true
@@ -49,6 +50,8 @@ public class Main {
 	@SuppressWarnings({"java:S1118", "the public constructor is required by forge"})
 	public Main() {
 		LOGGER.info("Init");
+
+		NetHandler = new NetworkHandler();
 
 		ServerConfigHandler = new ConfigHandler<>(ServerConfig.class, FMLPaths.CONFIGDIR.get().resolve(MOD_ID + ".server.json"));
 		ServerConfigHandler.load();
@@ -61,10 +64,11 @@ public class Main {
 
 		PING_LOCATION_CHANNEL_C2S.addListener((event) -> {
 			var ctx = event.getSource().get();
-			var packet = event.getPayload();
+			var payload = event.getPayload();
 			var sender = ctx.getSender();
 
-			if (packet != null && sender != null) {
+			if (payload != null && sender != null) {
+				var packet = PingLocationC2SPacket.readSafe(payload);
 				ctx.enqueueWork(() -> ServerCore.onPingLocation(sender.getServer(), sender, packet));
 			}
 
@@ -73,9 +77,10 @@ public class Main {
 
 		UPDATE_CHANNEL_C2S.addListener((event) -> {
 			var ctx = event.getSource().get();
-			var packet = event.getPayload();
+			var payload = event.getPayload();
 
-			if (packet != null) {
+			if (payload != null) {
+				var packet = UpdateChannelC2SPacket.readSafe(payload);
 				ctx.enqueueWork(() -> ServerCore.onChannelUpdate(ctx.getSender(), packet));
 			}
 

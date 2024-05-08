@@ -4,7 +4,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
+import nx.pingwheel.common.networking.UpdateChannelC2SPacket;
+
+import static nx.pingwheel.common.Global.NetHandler;
 
 @Getter
 @Setter
@@ -37,6 +39,6 @@ public class ClientConfig implements IConfig {
 	}
 
 	public void onUpdate() {
-		new UpdateChannelPacketC2S(channel).send();
+		NetHandler.sendToServer(new UpdateChannelC2SPacket(channel));
 	}
 }

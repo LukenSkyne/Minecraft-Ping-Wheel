@@ -3,7 +3,6 @@ package nx.pingwheel.common.core;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -17,14 +16,16 @@ import nx.pingwheel.common.helper.Draw;
 import nx.pingwheel.common.helper.MathUtils;
 import nx.pingwheel.common.helper.PingData;
 import nx.pingwheel.common.helper.Raycast;
-import nx.pingwheel.common.networking.PingLocationPacketC2S;
-import nx.pingwheel.common.networking.PingLocationPacketS2C;
+import nx.pingwheel.common.networking.PingLocationC2SPacket;
+import nx.pingwheel.common.networking.PingLocationS2CPacket;
 import nx.pingwheel.common.sound.DirectionalSoundInstance;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
 import static nx.pingwheel.common.ClientGlobal.*;
+import static nx.pingwheel.common.Global.LOGGER;
+import static nx.pingwheel.common.Global.NetHandler;
 
 public class ClientCore {
 	private ClientCore() {}
@@ -43,49 +44,50 @@ public class ClientCore {
 		queuePing = true;
 	}
 
-	public static void onPingLocation(FriendlyByteBuf packet) {
-		var pingLocationPacket = PingLocationPacketS2C.parse(packet);
-
-		if (pingLocationPacket.isEmpty() || Game.player == null || Game.level == null) {
+	public static void onPingLocation(PingLocationS2CPacket packet) {
+		if (packet.isCorrupt()) {
+			LOGGER.warn("received invalid ping location from server");
 			return;
 		}
 
-		var pingLocation = pingLocationPacket.get();
+		if (Game.player == null || Game.level == null) {
+			return;
+		}
 
-		if (!pingLocation.getChannel().equals(Config.getChannel())) {
+		if (!packet.channel().equals(Config.getChannel())) {
 			return;
 		}
 
 		if (Config.getPingDistance() < 2048) {
-			var vecToPing = Game.player.position().vectorTo(pingLocation.getPos());
+			var vecToPing = Game.player.position().vectorTo(packet.pos());
 
 			if (vecToPing.length() > Config.getPingDistance()) {
 				return;
 			}
 		}
 
-		final var authorPlayer = Game.player.connection.getPlayerInfo(pingLocation.getAuthor());
+		final var authorPlayer = Game.player.connection.getPlayerInfo(packet.author());
 		final var authorName = authorPlayer != null ? authorPlayer.getProfile().getName() : "";
 
 		Game.execute(() -> {
 			addOrReplacePing(new PingData(
-				pingLocation.getPos(),
-				pingLocation.getEntity(),
-				pingLocation.getAuthor(),
+				packet.pos(),
+				packet.entity(),
+				packet.author(),
 				authorName,
-				pingLocation.getSequence(),
-				pingLocation.getDimension(),
+				packet.sequence(),
+				packet.dimension(),
 				(int)Game.level.getGameTime()
 			));
 
-			if (pingLocation.getDimension() == dimension) {
+			if (packet.dimension() == dimension) {
 				Game.getSoundManager().play(
 					new DirectionalSoundInstance(
 						PING_SOUND_EVENT,
 						SoundSource.MASTER,
 						Config.getPingVolume() / 100f,
 						1f,
-						pingLocation.getPos()
+						packet.pos()
 					)
 				);
 			}
@@ -256,7 +258,7 @@ public class ClientCore {
 			uuid = ((EntityHitResult)hitResult).getEntity().getUUID();
 		}
 
-		new PingLocationPacketC2S(Config.getChannel(), hitResult.getLocation(), uuid, pingSequence, dimension).send();
+		NetHandler.sendToServer(new PingLocationC2SPacket(Config.getChannel(), hitResult.getLocation(), uuid, pingSequence, dimension));
 	}
 
 	private static void addOrReplacePing(PingData newPing) {

@@ -15,7 +15,8 @@ import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.core.ClientCore;
 import nx.pingwheel.common.helper.ClientCommandBuilder;
-import nx.pingwheel.common.networking.UpdateChannelPacketC2S;
+import nx.pingwheel.common.networking.PingLocationS2CPacket;
+import nx.pingwheel.common.networking.UpdateChannelC2SPacket;
 import nx.pingwheel.common.resource.ResourceReloadListener;
 import nx.pingwheel.common.screen.SettingsScreen;
 
@@ -23,6 +24,7 @@ import java.util.Objects;
 
 import static nx.pingwheel.common.ClientGlobal.*;
 import static nx.pingwheel.common.Global.MOD_ID;
+import static nx.pingwheel.common.Global.NetHandler;
 import static nx.pingwheel.forge.Main.PING_LOCATION_CHANNEL_S2C;
 
 @OnlyIn(Dist.CLIENT)
@@ -47,9 +49,10 @@ public class Client {
 	private void registerNetworkPackets() {
 		PING_LOCATION_CHANNEL_S2C.addListener((event) -> {
 			var ctx = event.getSource().get();
-			var packet = event.getPayload();
+			var payload = event.getPayload();
 
-			if (packet != null) {
+			if (payload != null) {
+				var packet = PingLocationS2CPacket.readSafe(payload);
 				ctx.enqueueWork(() -> ClientCore.onPingLocation(packet));
 			}
 
@@ -83,7 +86,7 @@ public class Client {
 
 	@SubscribeEvent
 	public void onClientConnectedToServer(ClientPlayerNetworkEvent.LoggedInEvent event) {
-		new UpdateChannelPacketC2S(ConfigHandler.getConfig().getChannel()).send();
+		NetHandler.sendToServer(new UpdateChannelC2SPacket(ConfigHandler.getConfig().getChannel()));
 	}
 
 	@SubscribeEvent
