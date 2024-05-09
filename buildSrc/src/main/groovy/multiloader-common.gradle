@@ -5,6 +5,7 @@ plugins {
 
 base {
     archivesName = archive_name
+    version = mod_version
 }
 
 java {
