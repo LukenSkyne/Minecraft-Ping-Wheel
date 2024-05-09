@@ -1,8 +1,8 @@
-package nx.pingwheel.fabric.mixin;
+package nx.pingwheel.common.mixin;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Gui;
-import nx.pingwheel.fabric.event.GuiRenderCallback;
+import net.minecraft.client.gui.GuiGraphics;
+import nx.pingwheel.common.core.ClientCore;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,12 +12,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class GuiMixin {
 
 	@Inject(method = "render", at = @At(value = "HEAD"))
-	public void render(PoseStack matrixStack, float tickDelta, CallbackInfo callbackInfo) {
+	public void render(GuiGraphics guiGraphics, float tickDelta, CallbackInfo ci) {
+		var matrixStack = guiGraphics.pose();
 		matrixStack.pushPose();
 
-		/** the hotbar is rendered at Z -90 {@link Gui#renderHotbar(float, PoseStack)} */
+		/** the hotbar is rendered at Z -90 {@link Gui#renderHotbar(float, GuiGraphics)} */
 		matrixStack.translate(0, 0, -90);
-		GuiRenderCallback.START.invoker().onRenderGui(matrixStack, tickDelta);
+		ClientCore.onRenderGUI(guiGraphics, tickDelta);
 
 		matrixStack.popPose();
 	}

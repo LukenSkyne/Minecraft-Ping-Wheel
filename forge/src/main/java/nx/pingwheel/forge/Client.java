@@ -2,9 +2,11 @@ package nx.pingwheel.forge;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ClientRegistry;
-import net.minecraftforge.client.ConfigGuiHandler;
-import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -19,8 +21,6 @@ import nx.pingwheel.common.networking.PingLocationS2CPacket;
 import nx.pingwheel.common.networking.UpdateChannelC2SPacket;
 import nx.pingwheel.common.resource.ResourceReloadListener;
 import nx.pingwheel.common.screen.SettingsScreen;
-
-import java.util.Objects;
 
 import static nx.pingwheel.common.ClientGlobal.*;
 import static nx.pingwheel.common.Global.MOD_ID;
@@ -38,17 +38,17 @@ public class Client {
 
 		registerNetworkPackets();
 		registerReloadListener();
-		registerKeyBindings();
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegisterKeyBindings);
 
 		ModLoadingContext.get().registerExtensionPoint(
-			ConfigGuiHandler.ConfigGuiFactory.class,
-			() -> new ConfigGuiHandler.ConfigGuiFactory((client, parent) -> new SettingsScreen(parent))
+			ConfigScreenFactory.class,
+			() -> new ConfigScreenFactory((client, parent) -> new SettingsScreen(parent))
 		);
 	}
 
 	private void registerNetworkPackets() {
 		PING_LOCATION_CHANNEL_S2C.addListener((event) -> {
-			var ctx = event.getSource().get();
+			var ctx = event.getSource();
 			var payload = event.getPayload();
 
 			if (payload != null) {
@@ -65,10 +65,10 @@ public class Client {
 		bus.addListener((RegisterClientReloadListenersEvent event) -> event.registerReloadListener(new ResourceReloadListener()));
 	}
 
-	private void registerKeyBindings() {
-		ClientRegistry.registerKeyBinding(KEY_BINDING_PING);
-		ClientRegistry.registerKeyBinding(KEY_BINDING_SETTINGS);
-		ClientRegistry.registerKeyBinding(KEY_BINDING_NAME_LABELS);
+	private void onRegisterKeyBindings(RegisterKeyMappingsEvent event) {
+		event.register(KEY_BINDING_PING);
+		event.register(KEY_BINDING_SETTINGS);
+		event.register(KEY_BINDING_NAME_LABELS);
 	}
 
 	@SubscribeEvent
@@ -85,29 +85,15 @@ public class Client {
 	}
 
 	@SubscribeEvent
-	public void onClientConnectedToServer(ClientPlayerNetworkEvent.LoggedInEvent event) {
+	public void onClientConnectedToServer(ClientPlayerNetworkEvent.LoggingIn event) {
 		NetHandler.sendToServer(new UpdateChannelC2SPacket(ConfigHandler.getConfig().getChannel()));
-	}
-
-	@SubscribeEvent
-	public void onRenderWorld(RenderLevelStageEvent event) {
-		if (event.getStage().equals(RenderLevelStageEvent.Stage.AFTER_WEATHER)) {
-			ClientCore.onRenderWorld(event.getPoseStack().last().pose(), event.getProjectionMatrix(), event.getPartialTick());
-		}
-	}
-
-	@SubscribeEvent
-	public void onPreGuiRender(RenderGameOverlayEvent.Pre event) {
-		if (Objects.equals(event.getType(), RenderGameOverlayEvent.ElementType.ALL)) {
-			ClientCore.onRenderGUI(event.getMatrixStack(), event.getPartialTicks());
-		}
 	}
 
 	@SubscribeEvent
 	public void onCommandRegister(RegisterClientCommandsEvent event) {
 		event.getDispatcher().register(ClientCommandBuilder.build((context, success, response) -> {
 			if (success) {
-				context.getSource().sendSuccess(response, false);
+				context.getSource().sendSuccess(() -> response, false);
 			} else {
 				context.getSource().sendFailure(response);
 			}

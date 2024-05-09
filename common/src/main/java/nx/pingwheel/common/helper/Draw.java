@@ -4,12 +4,12 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import org.lwjgl.opengl.GL11;
@@ -25,7 +25,9 @@ public class Draw {
 	private static final int SHADOW_BLACK = FastColor.ARGB32.color(64, 0, 0, 0);
 	private static final int LIGHT_VALUE_MAX = 15728880;
 
-	public static void renderLabel(PoseStack matrices, String text, float yOffset) {
+	public static void renderLabel(GuiGraphics ctx, String text, float yOffset) {
+		var matrices = ctx.pose();
+
 		var textMetrics = new Vec2(
 			Game.font.width(text),
 			Game.font.lineHeight
@@ -34,18 +36,18 @@ public class Draw {
 
 		matrices.pushPose();
 		matrices.translate(textOffset.x, textOffset.y, 0);
-		GuiComponent.fill(matrices, -2, -2, (int)textMetrics.x + 1, (int)textMetrics.y, SHADOW_BLACK);
-		Game.font.draw(matrices, text, 0f, 0f, WHITE);
+		ctx.fill(-2, -2, (int)textMetrics.x + 1, (int)textMetrics.y, SHADOW_BLACK);
+		ctx.drawString(Game.font, text, 0, 0, WHITE, false);
 		matrices.popPose();
 	}
 
-	public static void renderPing(PoseStack matrices, ItemStack itemStack, boolean drawItemIcon) {
+	public static void renderPing(GuiGraphics ctx, ItemStack itemStack, boolean drawItemIcon) {
 		if (itemStack != null && drawItemIcon) {
-			Draw.renderGuiItemModel(matrices, itemStack);
+			Draw.renderGuiItemModel(ctx.pose(), itemStack);
 		} else if (hasCustomTexture()) {
-			renderCustomPingIcon(matrices);
+			renderCustomPingIcon(ctx);
 		} else {
-			renderDefaultPingIcon(matrices);
+			renderDefaultPingIcon(ctx);
 		}
 	}
 
@@ -62,8 +64,8 @@ public class Draw {
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
 		var matrixStack = RenderSystem.getModelViewStack();
-		matrixStack.pushPose();
-		matrixStack.mulPoseMatrix(matrices.last().pose());
+		matrixStack.pushMatrix();
+		matrixStack.mul(matrices.last().pose());
 		matrixStack.translate(0f, 0f, -0.5f);
 		matrixStack.scale(1f, -1f, 1f);
 		matrixStack.scale(10f, 10f, 0.5f);
@@ -78,7 +80,7 @@ public class Draw {
 		var matrixStackDummy = new PoseStack();
 		Game.getItemRenderer().render(
 			itemStack,
-			ItemTransforms.TransformType.GUI,
+			ItemDisplayContext.GUI,
 			false,
 			matrixStackDummy,
 			immediate,
@@ -93,18 +95,17 @@ public class Draw {
 			Lighting.setupFor3DItems();
 		}
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 	}
 
-	public static void renderCustomPingIcon(PoseStack matrices) {
+	public static void renderCustomPingIcon(GuiGraphics ctx) {
 		final var size = 12;
 		final var offset = size / -2;
 
-		RenderSystem.setShaderTexture(0, PING_TEXTURE_ID);
 		RenderSystem.enableBlend();
-		GuiComponent.blit(
-			matrices,
+		ctx.blit(
+			PING_TEXTURE_ID,
 			offset,
 			offset,
 			0,
@@ -118,11 +119,13 @@ public class Draw {
 		RenderSystem.disableBlend();
 	}
 
-	public static void renderDefaultPingIcon(PoseStack matrices) {
+	public static void renderDefaultPingIcon(GuiGraphics ctx) {
+		var matrices = ctx.pose();
+
 		matrices.pushPose();
 		MathUtils.rotateZ(matrices, (float)(Math.PI / 4f));
 		matrices.translate(-2.5, -2.5, 0);
-		GuiComponent.fill(matrices, 0, 0, 5, 5, WHITE);
+		ctx.fill(0, 0, 5, 5, WHITE);
 		matrices.popPose();
 	}
 
@@ -133,7 +136,6 @@ public class Draw {
 
 		var bufferBuilder = Tesselator.getInstance().getBuilder();
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -143,9 +145,7 @@ public class Draw {
 		bufferBuilder.vertex(mat, -5f, -5f, 0f).color(1f, 1f, 1f, 1f).endVertex();
 		bufferBuilder.vertex(mat, -3f, 0f, 0f).color(1f, 1f, 1f, 1f).endVertex();
 		bufferBuilder.vertex(mat, -5f, 5f, 0f).color(1f, 1f, 1f, 1f).endVertex();
-		bufferBuilder.end();
-		BufferUploader.end(bufferBuilder);
-		RenderSystem.enableTexture();
+		BufferUploader.drawWithShader(bufferBuilder.end());
 		RenderSystem.disableBlend();
 		GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
 	}

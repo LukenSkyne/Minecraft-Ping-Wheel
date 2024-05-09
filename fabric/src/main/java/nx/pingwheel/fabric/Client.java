@@ -3,7 +3,7 @@ package nx.pingwheel.fabric;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -44,7 +45,7 @@ public class Client implements ClientModInitializer {
 		ConfigHandler = new ConfigHandler<>(ClientConfig.class, FabricLoader.getInstance().getConfigDir().resolve(MOD_ID + ".json"));
 		ConfigHandler.load();
 
-		Registry.register(Registry.SOUND_EVENT, PING_SOUND_ID, PING_SOUND_EVENT);
+		Registry.register(BuiltInRegistries.SOUND_EVENT, PING_SOUND_ID, PING_SOUND_EVENT);
 
 		registerNetworkPackets();
 		registerReloadListener();
@@ -58,17 +59,17 @@ public class Client implements ClientModInitializer {
 		WorldRenderCallback.START.register(ClientCore::onRenderWorld);
 
 		// register commands
-		ClientCommandManager.DISPATCHER.register(ClientCommandBuilder.build((context, success, response) -> {
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandBuilder.build((context, success, response) -> {
 			if (success) {
 				context.getSource().sendFeedback(response);
 			} else {
 				context.getSource().sendError(response);
 			}
-		}));
+		})));
 	}
 
 	private void registerNetworkPackets() {
-		ClientPlayNetworking.registerGlobalReceiver(PingLocationS2CPacket.PACKET_ID, (a, b, packet, c) -> ClientCore.onPingLocation(PingLocationS2CPacket.readSafe(packet)));
+		ClientPlayNetworking.registerGlobalReceiver(PingLocationS2CPacket.PACKET_TYPE, (packet, context) -> ClientCore.onPingLocation(packet));
 	}
 
 	private void registerReloadListener() {

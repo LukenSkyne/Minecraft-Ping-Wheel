@@ -5,8 +5,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import nx.pingwheel.common.compat.Component;
 import nx.pingwheel.common.screen.SettingsScreen;
 import org.apache.logging.log4j.util.TriConsumer;
 
@@ -60,7 +60,7 @@ public class ClientCommandBuilder {
 		Command<S> helpCallback = (context) -> {
 			BinaryOperator<String> form = (command, key) -> Component.translatable("ping-wheel.command.help.format", command, Component.translatable(key)).getString();
 
-			var output = Component.empty().copy();
+			var output = Component.empty();
 			output.append(form.apply("/pingwheel config", "ping-wheel.command.config.description"));
 			output.append("\n");
 			output.append(form.apply("/pingwheel channel", "ping-wheel.command.channel.get.description"));
