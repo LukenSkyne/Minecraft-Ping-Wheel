@@ -3,7 +3,7 @@ package nx.pingwheel.fabric;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -59,13 +59,13 @@ public class Client implements ClientModInitializer {
 		WorldRenderCallback.START.register(ClientCore::onRenderWorld);
 
 		// register commands
-		ClientCommandManager.DISPATCHER.register(ClientCommandBuilder.build((context, success, response) -> {
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandBuilder.build((context, success, response) -> {
 			if (success) {
 				context.getSource().sendFeedback(LanguageUtils.withModPrefix(response));
 			} else {
 				context.getSource().sendError(LanguageUtils.withModPrefix(response));
 			}
-		}));
+		})));
 	}
 
 	private void registerNetworkPackets() {
