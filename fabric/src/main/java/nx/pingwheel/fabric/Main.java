@@ -1,7 +1,7 @@
 package nx.pingwheel.fabric;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
@@ -35,9 +35,9 @@ public class Main implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(UpdateChannelC2SPacket.PACKET_ID, (a, player, b, packet, c) -> ServerCore.onChannelUpdate(player, UpdateChannelC2SPacket.readSafe(packet)));
 		ServerPlayConnectionEvents.DISCONNECT.register((networkHandler, a) -> ServerCore.onPlayerDisconnect(networkHandler.player));
 
-		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> dispatcher.register(ServerCommandBuilder.build((context, success, response) -> {
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(ServerCommandBuilder.build((context, success, response) -> {
 			if (success) {
-				context.getSource().sendSuccess(LanguageUtils.withModPrefix(response), false);
+				context.getSource().sendSuccess(() -> LanguageUtils.withModPrefix(response), false);
 			} else {
 				context.getSource().sendFailure(LanguageUtils.withModPrefix(response));
 			}

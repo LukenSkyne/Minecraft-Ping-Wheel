@@ -95,14 +95,14 @@ public class Main {
 
 	@SubscribeEvent
 	public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-		ServerCore.onPlayerDisconnect((ServerPlayer)event.getPlayer());
+		ServerCore.onPlayerDisconnect((ServerPlayer)event.getEntity());
 	}
 
 	@SubscribeEvent
 	public static void onRegisterCommands(RegisterCommandsEvent event) {
 		event.getDispatcher().register(ServerCommandBuilder.build((context, success, response) -> {
 			if (success) {
-				context.getSource().sendSuccess(LanguageUtils.withModPrefix(response), false);
+				context.getSource().sendSuccess(() -> LanguageUtils.withModPrefix(response), false);
 			} else {
 				context.getSource().sendFailure(LanguageUtils.withModPrefix(response));
 			}
