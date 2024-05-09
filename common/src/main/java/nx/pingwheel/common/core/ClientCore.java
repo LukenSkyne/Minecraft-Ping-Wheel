@@ -1,8 +1,8 @@
 package nx.pingwheel.common.core;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -11,12 +11,12 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.scores.PlayerTeam;
-import nx.pingwheel.common.compat.Component;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.*;
 import nx.pingwheel.common.networking.PingLocationC2SPacket;
 import nx.pingwheel.common.networking.PingLocationS2CPacket;
 import nx.pingwheel.common.sound.DirectionalSoundInstance;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.Objects;

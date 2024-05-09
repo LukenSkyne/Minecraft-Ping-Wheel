@@ -1,8 +1,8 @@
 package nx.pingwheel.common.helper;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import nx.pingwheel.common.compat.Component;
 
 import static nx.pingwheel.common.Global.MOD_ID;
 import static nx.pingwheel.common.Global.MOD_PREFIX;

@@ -1,8 +1,8 @@
 package nx.pingwheel.common.core;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import nx.pingwheel.common.compat.Component;
 import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.helper.ChannelMode;
 import nx.pingwheel.common.helper.RateLimiter;
