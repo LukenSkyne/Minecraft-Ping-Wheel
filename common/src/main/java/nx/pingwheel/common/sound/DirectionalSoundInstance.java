@@ -3,6 +3,7 @@ package nx.pingwheel.common.sound;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
 import static nx.pingwheel.common.ClientGlobal.Game;
@@ -16,7 +17,7 @@ public class DirectionalSoundInstance extends AbstractTickableSoundInstance {
 									float volume,
 									float pitch,
 									Vec3 pos) {
-		super(sound, category);
+		super(sound, category, RandomSource.create(0));
 
 		this.volume = volume;
 		this.pitch = pitch;

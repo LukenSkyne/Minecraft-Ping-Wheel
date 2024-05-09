@@ -1,21 +1,16 @@
 package nx.pingwheel.common.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Option;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.OptionsList;
-import net.minecraft.client.gui.components.TooltipAccessor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.util.FormattedCharSequence;
-import nx.pingwheel.common.compat.Component;
+import net.minecraft.network.chat.Component;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.LanguageUtils;
 import nx.pingwheel.common.helper.OptionUtils;
-
-import java.util.Collections;
-import java.util.List;
 
 import static nx.pingwheel.common.ClientGlobal.ConfigHandler;
 import static nx.pingwheel.common.config.ClientConfig.*;
@@ -41,6 +36,10 @@ public class SettingsScreen extends Screen {
 	@Override
 	public void tick() {
 		this.channelTextField.tick();
+
+		if (this.channelTextField.isFocused() && this.getFocused() != this.channelTextField) {
+			this.setFocused(this.channelTextField);
+		}
 	}
 
 	@Override
@@ -71,7 +70,10 @@ public class SettingsScreen extends Screen {
 
 		this.addWidget(this.list);
 
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, (button) -> onClose()));
+		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (button) -> onClose())
+			.pos(this.width / 2 - 100, this.height - 27)
+			.size(200, 20)
+			.build());
 	}
 
 	@Override
@@ -91,31 +93,17 @@ public class SettingsScreen extends Screen {
 		this.list.render(matrices, mouseX, mouseY, delta);
 		drawCenteredString(matrices, this.font, this.title, this.width / 2, 20, 16777215);
 
-		drawString(matrices, this.font, LanguageUtils.settings("channel").get(), this.width / 2 - 100, this.channelTextField.y - 12, 10526880);
+		drawString(matrices, this.font, LanguageUtils.settings("channel").get(), this.width / 2 - 100, this.channelTextField.getY() - 12, 10526880);
 		this.channelTextField.render(matrices, mouseX, mouseY, delta);
 
 		super.render(matrices, mouseX, mouseY, delta);
 
-		var tooltipLines = getHoveredButtonTooltip(this.list, mouseX, mouseY);
-
-		if (tooltipLines.isEmpty() && (this.channelTextField.isHoveredOrFocused() && !this.channelTextField.isFocused())) {
-			tooltipLines = this.font.split(LanguageUtils.settings("channel.tooltip").get(), 140);
+		if (this.channelTextField.isHoveredOrFocused() && !this.channelTextField.isFocused()) {
+			this.renderTooltip(matrices, this.font.split(LanguageUtils.settings("channel.tooltip").get(), 140), mouseX, mouseY);
 		}
-
-		this.renderTooltip(matrices, tooltipLines, mouseX, mouseY);
 	}
 
-	private static List<FormattedCharSequence> getHoveredButtonTooltip(OptionsList buttonList, int mouseX, int mouseY) {
-		final var orderableTooltip = (TooltipAccessor)buttonList.getMouseOver(mouseX, mouseY).orElse(null);
-
-		if (orderableTooltip != null) {
-			return orderableTooltip.getTooltip();
-		}
-
-		return Collections.emptyList();
-	}
-
-	private Option getPingVolumeOption() {
+	private OptionInstance<Integer> getPingVolumeOption() {
 		final var text = LanguageUtils.settings("pingVolume");
 
 		return OptionUtils.ofInt(
@@ -133,7 +121,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getPingDurationOption() {
+	private OptionInstance<Integer> getPingDurationOption() {
 		final var text = LanguageUtils.settings("pingDuration");
 
 		return OptionUtils.ofInt(
@@ -151,7 +139,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getPingDistanceOption() {
+	private OptionInstance<Integer> getPingDistanceOption() {
 		final var text = LanguageUtils.settings("pingDistance");
 
 		return OptionUtils.ofInt(
@@ -171,7 +159,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getCorrectionPeriodOption() {
+	private OptionInstance<Float> getCorrectionPeriodOption() {
 		final var text = LanguageUtils.settings("correctionPeriod");
 
 		return OptionUtils.ofFloat(
@@ -189,7 +177,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getItemIconsVisibleOption() {
+	private OptionInstance<Boolean> getItemIconsVisibleOption() {
 		return OptionUtils.ofBool(
 			LanguageUtils.settings("itemIconVisible").key(),
 			config::isItemIconVisible,
@@ -197,7 +185,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getDirectionIndicatorVisibleOption() {
+	private OptionInstance<Boolean> getDirectionIndicatorVisibleOption() {
 		return OptionUtils.ofBool(
 			LanguageUtils.settings("directionIndicatorVisible").key(),
 			config::isDirectionIndicatorVisible,
@@ -205,7 +193,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getNameLabelForcedOption() {
+	private OptionInstance<Boolean> getNameLabelForcedOption() {
 		return OptionUtils.ofBool(
 			LanguageUtils.settings("nameLabelForced").key(),
 			config::isNameLabelForced,
@@ -213,7 +201,7 @@ public class SettingsScreen extends Screen {
 		);
 	}
 
-	private Option getPingSizeOption() {
+	private OptionInstance<Integer> getPingSizeOption() {
 		final var text = LanguageUtils.settings("pingSize");
 
 		return OptionUtils.ofInt(
