@@ -7,7 +7,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 public interface Component {
 
 	static MutableComponent empty() {
-		return (MutableComponent)TextComponent.EMPTY;
+		return TextComponent.EMPTY.copy();
 	}
 
 	static MutableComponent translatable(String key, Object... args) {

@@ -61,7 +61,7 @@ public class ClientCommandBuilder {
 			});
 
 		Command<S> helpCallback = (context) -> {
-			var output = Component.empty().copy();
+			var output = Component.empty();
 			output.append(langHelpFormat.getString("/pingwheel config", langConfig.path("description").get()));
 			output.append("\n");
 			output.append(langHelpFormat.getString("/pingwheel channel", langChannel.path("get.description").get()));
