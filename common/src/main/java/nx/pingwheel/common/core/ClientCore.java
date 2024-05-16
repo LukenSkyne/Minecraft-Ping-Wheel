@@ -107,7 +107,7 @@ public class ClientCore {
 		var time = (int)Game.level.getGameTime();
 
 		if (queuePing) {
-			if (time - lastPing > Config.getCorrectionPeriod() * TPS) {
+			if (Config.getCorrectionPeriod() < 5.f && time - lastPing > Config.getCorrectionPeriod() * TPS) {
 				++pingSequence;
 			}
 
@@ -230,7 +230,10 @@ public class ClientCore {
 			ping.aliveTime = time - ping.getSpawnTime();
 		}
 
-		pingRepo.removeIf(p -> p.aliveTime > Config.getPingDuration() * TPS);
+		if (Config.getPingDuration() < 60) {
+			pingRepo.removeIf(p -> p.aliveTime > Config.getPingDuration() * TPS);
+		}
+
 		pingRepo.sort((a, b) -> Double.compare(b.distance, a.distance));
 	}
 

@@ -138,7 +138,13 @@ public class SettingsScreen extends Screen {
 		return OptionUtils.ofInt(
 			text.key(),
 			1, 60, 1,
-			(value) -> text.get("%ss".formatted(value)),
+			(value) -> {
+				if (value >= 60) {
+					return text.get(LanguageUtils.SYMBOL_INFINITE);
+				}
+
+				return text.get("%ss".formatted(value));
+			},
 			config::getPingDuration,
 			config::setPingDuration
 		);
@@ -153,7 +159,7 @@ public class SettingsScreen extends Screen {
 			(value) -> {
 				if (value == 0) {
 					return text.get(LanguageUtils.VALUE_HIDDEN);
-				} else if (value == 2048) {
+				} else if (value >= 2048) {
 					return text.get(LanguageUtils.SYMBOL_INFINITE);
 				}
 
@@ -170,7 +176,13 @@ public class SettingsScreen extends Screen {
 		return OptionUtils.ofFloat(
 			text.key(),
 			0.1f, 5.f, 0.1f,
-			(value) -> text.get("%.1fs".formatted(value)),
+			(value) -> {
+				if (value >= 5.f) {
+					return text.get(LanguageUtils.SYMBOL_INFINITE);
+				}
+
+				return text.get("%.1fs".formatted(value));
+			},
 			config::getCorrectionPeriod,
 			config::setCorrectionPeriod
 		);
