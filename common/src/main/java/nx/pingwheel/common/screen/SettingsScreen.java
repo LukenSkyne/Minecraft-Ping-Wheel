@@ -11,6 +11,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.util.FormattedCharSequence;
 import nx.pingwheel.common.compat.Component;
 import nx.pingwheel.common.config.ClientConfig;
+import nx.pingwheel.common.helper.LanguageUtils;
 import nx.pingwheel.common.helper.OptionUtils;
 
 import java.util.Collections;
@@ -28,7 +29,7 @@ public class SettingsScreen extends Screen {
 	private EditBox channelTextField;
 
 	public SettingsScreen() {
-		super(Component.translatable("ping-wheel.settings.title"));
+		super(LanguageUtils.settings("title").get());
 		this.config = ConfigHandler.getConfig();
 	}
 
@@ -90,7 +91,7 @@ public class SettingsScreen extends Screen {
 		this.list.render(matrices, mouseX, mouseY, delta);
 		drawCenteredString(matrices, this.font, this.title, this.width / 2, 20, 16777215);
 
-		drawString(matrices, this.font, Component.translatable("ping-wheel.settings.channel"), this.width / 2 - 100, 148, 10526880);
+		drawString(matrices, this.font, LanguageUtils.settings("channel").get(), this.width / 2 - 100, 148, 10526880);
 		this.channelTextField.render(matrices, mouseX, mouseY, delta);
 
 		super.render(matrices, mouseX, mouseY, delta);
@@ -98,7 +99,7 @@ public class SettingsScreen extends Screen {
 		var tooltipLines = getHoveredButtonTooltip(this.list, mouseX, mouseY);
 
 		if (tooltipLines.isEmpty() && (this.channelTextField.isHoveredOrFocused() && !this.channelTextField.isFocused())) {
-			tooltipLines = this.font.split(Component.translatable("ping-wheel.settings.channel.tooltip"), 140);
+			tooltipLines = this.font.split(LanguageUtils.settings("channel.tooltip").get(), 140);
 		}
 
 		this.renderTooltip(matrices, tooltipLines, mouseX, mouseY);
@@ -115,17 +116,17 @@ public class SettingsScreen extends Screen {
 	}
 
 	private Option getPingVolumeOption() {
-		final var pingVolumeKey = "ping-wheel.settings.pingVolume";
+		final var text = LanguageUtils.settings("pingVolume");
 
 		return OptionUtils.ofInt(
-			pingVolumeKey,
+			text.key(),
 			0, 100, 1,
 			(value) -> {
 				if (value == 0) {
-					return Component.translatable(pingVolumeKey, CommonComponents.OPTION_OFF);
+					return text.get(CommonComponents.OPTION_OFF);
 				}
 
-				return Component.translatable(pingVolumeKey, String.format("%s%%", value));
+				return text.get("%s%%".formatted(value));
 			},
 			config::getPingVolume,
 			config::setPingVolume
@@ -133,31 +134,31 @@ public class SettingsScreen extends Screen {
 	}
 
 	private Option getPingDurationOption() {
-		final var pingDurationKey = "ping-wheel.settings.pingDuration";
+		final var text = LanguageUtils.settings("pingDuration");
 
 		return OptionUtils.ofInt(
-			pingDurationKey,
+			text.key(),
 			1, 60, 1,
-			(value) -> Component.translatable(pingDurationKey, String.format("%ss", config.getPingDuration())),
+			(value) -> text.get("%ss".formatted(value)),
 			config::getPingDuration,
 			config::setPingDuration
 		);
 	}
 
 	private Option getPingDistanceOption() {
-		final var pingDistanceKey = "ping-wheel.settings.pingDistance";
+		final var text = LanguageUtils.settings("pingDistance");
 
 		return OptionUtils.ofInt(
-			pingDistanceKey,
+			text.key(),
 			0, 2048, 16,
 			(value) -> {
 				if (value == 0) {
-					return Component.translatable(pingDistanceKey, Component.translatable(pingDistanceKey + ".hidden"));
+					return text.get(LanguageUtils.VALUE_HIDDEN);
 				} else if (value == 2048) {
-					return Component.translatable(pingDistanceKey, Component.translatable(pingDistanceKey + ".unlimited"));
+					return text.get(LanguageUtils.SYMBOL_INFINITE);
 				}
 
-				return Component.translatable(pingDistanceKey, String.format("%sm", value));
+				return text.get("%sm".formatted(value));
 			},
 			config::getPingDistance,
 			config::setPingDistance
@@ -165,12 +166,12 @@ public class SettingsScreen extends Screen {
 	}
 
 	private Option getCorrectionPeriodOption() {
-		final var correctionPeriodKey = "ping-wheel.settings.correctionPeriod";
+		final var text = LanguageUtils.settings("correctionPeriod");
 
 		return OptionUtils.ofFloat(
-			correctionPeriodKey,
-			0.1f, 5.0f, 0.1f,
-			(value) -> Component.translatable(correctionPeriodKey, String.format("%.1fs", value)),
+			text.key(),
+			0.1f, 5.f, 0.1f,
+			(value) -> text.get("%.1fs".formatted(value)),
 			config::getCorrectionPeriod,
 			config::setCorrectionPeriod
 		);
@@ -178,7 +179,7 @@ public class SettingsScreen extends Screen {
 
 	private Option getItemIconsVisibleOption() {
 		return OptionUtils.ofBool(
-			"ping-wheel.settings.itemIconVisible",
+			LanguageUtils.settings("itemIconVisible").key(),
 			config::isItemIconVisible,
 			config::setItemIconVisible
 		);
@@ -186,7 +187,7 @@ public class SettingsScreen extends Screen {
 
 	private Option getDirectionIndicatorVisibleOption() {
 		return OptionUtils.ofBool(
-			"ping-wheel.settings.directionIndicatorVisible",
+			LanguageUtils.settings("directionIndicatorVisible").key(),
 			config::isDirectionIndicatorVisible,
 			config::setDirectionIndicatorVisible
 		);
@@ -194,19 +195,19 @@ public class SettingsScreen extends Screen {
 
 	private Option getNameLabelForcedOption() {
 		return OptionUtils.ofBool(
-			"ping-wheel.settings.nameLabelForced",
+			LanguageUtils.settings("nameLabelForced").key(),
 			config::isNameLabelForced,
 			config::setNameLabelForced
 		);
 	}
 
 	private Option getPingSizeOption() {
-		final var pingSizeKey = "ping-wheel.settings.pingSize";
+		final var text = LanguageUtils.settings("pingSize");
 
 		return OptionUtils.ofInt(
-			pingSizeKey,
+			text.key(),
 			40, 300, 10,
-			(value) -> Component.translatable(pingSizeKey, String.format("%s%%", value)),
+			(value) -> text.get("%s%%".formatted(value)),
 			config::getPingSize,
 			config::setPingSize
 		);
