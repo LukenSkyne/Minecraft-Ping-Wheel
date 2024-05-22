@@ -23,7 +23,7 @@
 
 	"ping-wheel.command.config.description": "manage pingwheel configuration",
 	"ping-wheel.command.channel.get.description": "get your current channel",
-	"ping-wheel.command.channel.set.description": "set your current channel, use \"\" for global channel",
+	"ping-wheel.command.channel.set.description": "set your channel, use \"\" for global channel",
 	"ping-wheel.command.channel.get.response": "Current Ping-Wheel channel: %s",
 	"ping-wheel.command.channel.set.response": "Set Ping-Wheel channel to: %s",
 	"ping-wheel.command.channel.set.reject": "Channel names are limited to a length of %s characters",
