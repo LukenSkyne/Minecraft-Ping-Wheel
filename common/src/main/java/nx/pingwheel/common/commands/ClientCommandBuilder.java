@@ -1,16 +1,18 @@
-package nx.pingwheel.common.helper;
+package nx.pingwheel.common.commands;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.MutableComponent;
 import nx.pingwheel.common.compat.Component;
+import nx.pingwheel.common.helper.LanguageUtils;
 import nx.pingwheel.common.screen.SettingsScreen;
 import org.apache.logging.log4j.util.TriConsumer;
 
-import java.util.function.UnaryOperator;
+import java.util.function.Function;
 
 import static nx.pingwheel.common.ClientGlobal.ConfigHandler;
 import static nx.pingwheel.common.ClientGlobal.Game;
@@ -20,16 +22,15 @@ public class ClientCommandBuilder {
 	private ClientCommandBuilder() {}
 
 	public static <S> LiteralArgumentBuilder<S> build(TriConsumer<CommandContext<S>, Boolean, MutableComponent> responseHandler) {
-		var langHelpFormat = LanguageUtils.command("help.format");
-		var langChannel = LanguageUtils.command("channel");
 		var langConfig = LanguageUtils.command("config");
+		var langChannel = LanguageUtils.command("channel");
 
-		UnaryOperator<String> formatChannel = (channel) -> {
+		Function<String, MutableComponent> formatChannel = (channel) -> {
 			if (channel.isEmpty()) {
-				return langChannel.path("name.default").getString();
+				return langChannel.path("default").get();
 			}
 
-			return langChannel.path("name").getString(channel);
+			return LanguageUtils.wrapped(Component.nullToEmpty(channel).withStyle(ChatFormatting.GOLD), "\"");
 		};
 
 		var cmdChannel = LiteralArgumentBuilder.<S>literal("channel")
@@ -61,14 +62,14 @@ public class ClientCommandBuilder {
 			});
 
 		Command<S> helpCallback = (context) -> {
-			var output = Component.empty();
-			output.append(langHelpFormat.getString("/pingwheel config", langConfig.path("description").get()));
-			output.append("\n");
-			output.append(langHelpFormat.getString("/pingwheel channel", langChannel.path("get.description").get()));
-			output.append("\n");
-			output.append(langHelpFormat.getString("/pingwheel channel <channel_name>", langChannel.path("set.description").get()));
-
-			responseHandler.accept(context, true, output);
+			responseHandler.accept(context, true, LanguageUtils.join(
+				Component.nullToEmpty("/pingwheel config"),
+				LanguageUtils.wrapped(langConfig.path("description").get()).withStyle(ChatFormatting.GRAY),
+				Component.nullToEmpty("/pingwheel channel"),
+				LanguageUtils.wrapped(langChannel.path("get.description").get()).withStyle(ChatFormatting.GRAY),
+				Component.nullToEmpty("/pingwheel channel <channel_name>"),
+				LanguageUtils.wrapped(langChannel.path("set.description").get()).withStyle(ChatFormatting.GRAY)
+			));
 			return 1;
 		};
 
