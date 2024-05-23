@@ -67,9 +67,10 @@ public class SettingsScreen extends Screen {
 		this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
 		this.channelTextField.setValue(config.getChannel());
 		this.channelTextField.setResponder(config::setChannel);
+		this.addWidget(this.channelTextField);
 
 		this.addWidget(this.list);
-		this.addWidget(this.channelTextField);
+
 		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, (button) -> onClose()));
 	}
 
