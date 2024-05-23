@@ -14,7 +14,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.core.ClientCore;
-import nx.pingwheel.common.helper.ClientCommandBuilder;
+import nx.pingwheel.common.commands.ClientCommandBuilder;
 import nx.pingwheel.common.networking.PingLocationS2CPacket;
 import nx.pingwheel.common.networking.UpdateChannelC2SPacket;
 import nx.pingwheel.common.resource.ResourceReloadListener;
@@ -104,7 +104,7 @@ public class Client {
 	}
 
 	@SubscribeEvent
-	public void onCommandRegister(RegisterClientCommandsEvent event) {
+	public void onRegisterClientCommands(RegisterClientCommandsEvent event) {
 		event.getDispatcher().register(ClientCommandBuilder.build((context, success, response) -> {
 			if (success) {
 				context.getSource().sendSuccess(response, false);
