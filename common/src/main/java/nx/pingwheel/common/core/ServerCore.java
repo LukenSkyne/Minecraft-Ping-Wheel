@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import nx.pingwheel.common.config.ServerConfig;
+import nx.pingwheel.common.helper.ChannelMode;
 import nx.pingwheel.common.helper.RateLimiter;
 import nx.pingwheel.common.networking.PingLocationC2SPacket;
 import nx.pingwheel.common.networking.PingLocationS2CPacket;
@@ -57,7 +58,7 @@ public class ServerCore {
 		
 		var channel = packet.channel();
 
-		if (channel.isEmpty() && Config.isGlobalChannelDisabled()) {
+		if (channel.isEmpty() && Config.getDefaultChannelMode() == ChannelMode.DISABLED) {
 			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §eThe global channel is disabled on this server\n§7Use §a/pingwheel channel§7 to switch"), false);
 			return;
 		}

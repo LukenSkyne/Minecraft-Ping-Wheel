@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import nx.pingwheel.common.core.ServerCore;
+import nx.pingwheel.common.helper.ChannelMode;
 
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
 public class ServerConfig implements IConfig {
-	boolean globalChannelDisabled = false;
+	ChannelMode defaultChannelMode = ChannelMode.AUTO;
 	int msToRegenerate = 1000;
 	int rateLimit = 5;
 
