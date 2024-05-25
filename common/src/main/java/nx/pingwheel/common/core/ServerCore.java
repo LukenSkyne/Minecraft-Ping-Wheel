@@ -57,9 +57,15 @@ public class ServerCore {
 		}
 		
 		var channel = packet.channel();
+		var defaultChannelMode = Config.getDefaultChannelMode();
 
-		if (channel.isEmpty() && Config.getDefaultChannelMode() == ChannelMode.DISABLED) {
+		if (channel.isEmpty() && defaultChannelMode == ChannelMode.DISABLED) {
 			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §eThe global channel is disabled on this server\n§7Use §a/pingwheel channel§7 to switch"), false);
+			return;
+		}
+
+		if (channel.isEmpty() && defaultChannelMode == ChannelMode.TEAM_ONLY && player.getTeam() == null) {
+			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §eMust be in a team or channel to ping location\n§7Use §a/pingwheel channel§7 to switch"), false);
 			return;
 		}
 
@@ -71,6 +77,10 @@ public class ServerCore {
 
 		for (ServerPlayer p : server.getPlayerList().getPlayers()) {
 			if (!channel.equals(playerChannels.getOrDefault(p.getUUID(), ""))) {
+				continue;
+			}
+
+			if (defaultChannelMode != ChannelMode.GLOBAL && player.getTeam() != p.getTeam()) {
 				continue;
 			}
 
