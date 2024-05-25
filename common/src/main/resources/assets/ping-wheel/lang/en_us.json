@@ -28,4 +28,13 @@
 	"ping-wheel.command.channel.set.response": "Set Ping-Wheel channel to: %s",
 	"ping-wheel.command.channel.set.reject": "Channel names are limited to a length of %s characters",
 	"ping-wheel.command.channel.default": "Global",
+	"ping-wheel.command.default_channel.get.description": "get the current default channel mode",
+	"ping-wheel.command.default_channel.set.description": "set the default channel mode",
+	"ping-wheel.command.default_channel.get.response": "Current Ping-Wheel default channel mode: %s",
+	"ping-wheel.command.default_channel.set.response": "Set Ping-Wheel default channel mode to: %s",
+	"ping-wheel.command.default_channel.set.reject": "Unknown mode, valid options are: %s",
+	"ping-wheel.command.default_channel.value.auto": "Auto",
+	"ping-wheel.command.default_channel.value.disabled": "Disabled",
+	"ping-wheel.command.default_channel.value.global": "Global",
+	"ping-wheel.command.default_channel.value.team_only": "Team Only"
 }

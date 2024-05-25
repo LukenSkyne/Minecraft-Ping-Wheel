@@ -1,12 +1,14 @@
 package nx.pingwheel.fabric;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.core.ServerCore;
+import nx.pingwheel.common.commands.ServerCommandBuilder;
 import nx.pingwheel.common.networking.NetworkHandler;
 import nx.pingwheel.common.networking.PingLocationC2SPacket;
 import nx.pingwheel.common.networking.UpdateChannelC2SPacket;
@@ -31,6 +33,14 @@ public class Main implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(PingLocationC2SPacket.PACKET_ID, (server, player, b, packet, c) -> ServerCore.onPingLocation(server, player, PingLocationC2SPacket.readSafe(packet)));
 		ServerPlayNetworking.registerGlobalReceiver(UpdateChannelC2SPacket.PACKET_ID, (a, player, b, packet, c) -> ServerCore.onChannelUpdate(player, UpdateChannelC2SPacket.readSafe(packet)));
 		ServerPlayConnectionEvents.DISCONNECT.register((networkHandler, a) -> ServerCore.onPlayerDisconnect(networkHandler.player));
+
+		CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> dispatcher.register(ServerCommandBuilder.build((context, success, response) -> {
+			if (success) {
+				context.getSource().sendSuccess(response, false);
+			} else {
+				context.getSource().sendFailure(response);
+			}
+		})));
 
 		ServerCore.init();
 	}

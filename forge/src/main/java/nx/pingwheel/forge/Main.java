@@ -2,6 +2,7 @@ package nx.pingwheel.forge;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -10,6 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.event.EventNetworkChannel;
+import nx.pingwheel.common.commands.ServerCommandBuilder;
 import nx.pingwheel.common.config.ConfigHandler;
 import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.core.ServerCore;
@@ -93,5 +95,16 @@ public class Main {
 	@SubscribeEvent
 	public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
 		ServerCore.onPlayerDisconnect((ServerPlayer)event.getPlayer());
+	}
+
+	@SubscribeEvent
+	public static void onRegisterCommands(RegisterCommandsEvent event) {
+		event.getDispatcher().register(ServerCommandBuilder.build((context, success, response) -> {
+			if (success) {
+				context.getSource().sendSuccess(response, false);
+			} else {
+				context.getSource().sendFailure(response);
+			}
+		}));
 	}
 }
