@@ -60,7 +60,7 @@ public class ServerCore {
 		var defaultChannelMode = Config.getDefaultChannelMode();
 
 		if (channel.isEmpty() && defaultChannelMode == ChannelMode.DISABLED) {
-			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §eThe global channel is disabled on this server\n§7Use §a/pingwheel channel§7 to switch"), false);
+			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §eMust be in a channel to ping location\n§7Use §a/pingwheel channel§7 to switch"), false);
 			return;
 		}
 
