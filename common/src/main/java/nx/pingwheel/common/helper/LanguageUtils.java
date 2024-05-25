@@ -29,10 +29,6 @@ public class LanguageUtils {
 		public MutableComponent get(Object... args) {
 			return Component.translatable(this.key, args);
 		}
-
-		public String getString(Object... args) {
-			return this.get(args).getString();
-		}
 	}
 
 	public static MutableComponent join(MutableComponent... components) {
