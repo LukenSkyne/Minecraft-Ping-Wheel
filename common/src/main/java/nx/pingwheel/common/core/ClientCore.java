@@ -40,7 +40,7 @@ public class ClientCore {
 	private static int lastPing = 0;
 	private static int pingSequence = 0;
 
-	public static void markLocation() {
+	public static void pingLocation() {
 		queuePing = true;
 	}
 

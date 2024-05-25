@@ -75,7 +75,7 @@ public class Client {
 	public void onClientTick(TickEvent.ClientTickEvent event) {
 		if (event.phase.equals(TickEvent.Phase.END)) {
 			if (KEY_BINDING_PING.consumeClick()) {
-				ClientCore.markLocation();
+				ClientCore.pingLocation();
 			}
 
 			if (KEY_BINDING_SETTINGS.consumeClick()) {

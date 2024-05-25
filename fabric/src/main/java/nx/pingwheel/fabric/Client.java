@@ -93,7 +93,7 @@ public class Client implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (KEY_BINDING_PING.consumeClick()) {
-				ClientCore.markLocation();
+				ClientCore.pingLocation();
 			}
 
 			if (KEY_BINDING_SETTINGS.consumeClick()) {
