@@ -1,0 +1,40 @@
+{
+	"ping-wheel.key.ping-location": "Поставити мітку",
+	"ping-wheel.key.open-settings": "Відкрити налаштування",
+	"ping-wheel.key.name-labels": "Показувати ярлики імен",
+	"ping-wheel.subtitles.ping": "Мітка поставлена",
+
+	"ping-wheel.settings.pingVolume": "Гучність мітки: %s",
+	"ping-wheel.settings.pingDuration": "Тривалість мітки: %s",
+	"ping-wheel.settings.pingDistance": "Дистанція мітки: %s",
+	"ping-wheel.settings.correctionPeriod": "Період коригування: %s",
+	"ping-wheel.settings.itemIconVisible": "Піктограми предметів",
+	"ping-wheel.settings.directionIndicatorVisible": "Індикатор напрямку",
+	"ping-wheel.settings.nameLabelForced": "Завжди показувати імена",
+	"ping-wheel.settings.pingSize": "Розмір мітки: %s",
+	"ping-wheel.settings.channel": "Канал мітки",
+	"ping-wheel.settings.channel.tooltip": "Мітки один одного бачитимуть лише користувачі певного каналу",
+
+	"ping-wheel.value.hidden": "Приховано",
+	"ping-wheel.symbol.infinite": "∞",
+
+	"ping-wheel.settings.title": "Налаштування «Ping Wheel»",
+	"ping-wheel.name": "Ping Wheel",
+
+	"ping-wheel.command.config.description": "керувати налаштуваннями pingwheel",
+	"ping-wheel.command.channel.get.description": "дізнатися ваш канал",
+	"ping-wheel.command.channel.set.description": "встановити канал, використовуйте \"\" для загального каналу",
+	"ping-wheel.command.channel.get.response": "Наразі вашим каналом у Ping-Wheel є «%s»",
+	"ping-wheel.command.channel.set.response": "Ваш канал у Ping-Wheel змінено на «%s»",
+	"ping-wheel.command.channel.set.reject": "Назви каналів не можуть бути довшими за %s символів",
+	"ping-wheel.command.channel.default": "Загальний",
+	"ping-wheel.command.default_channel.get.description": "дізнатися усталений канал",
+	"ping-wheel.command.default_channel.set.description": "встановити усталений канал",
+	"ping-wheel.command.default_channel.get.response": "Наразі усталеним каналом у Ping-Wheel є «%s»",
+	"ping-wheel.command.default_channel.set.response": "Ваш усталений канал у Ping-Wheel зміено на «%s»",
+	"ping-wheel.command.default_channel.set.reject": "Невідомий тип, вірним варіантом є «%s»",
+	"ping-wheel.command.default_channel.value.auto": "Автоматичний",
+	"ping-wheel.command.default_channel.value.disabled": "Вимкнений",
+	"ping-wheel.command.default_channel.value.global": "Загальний",
+	"ping-wheel.command.default_channel.value.team_only": "Командний"
+}
