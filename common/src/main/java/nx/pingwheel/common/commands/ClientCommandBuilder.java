@@ -30,7 +30,7 @@ public class ClientCommandBuilder {
 				return langChannel.path("default").get().withStyle(ChatFormatting.YELLOW);
 			}
 
-			return LanguageUtils.wrapped(Component.nullToEmpty(channel).withStyle(ChatFormatting.GOLD), "\"");
+			return LanguageUtils.wrapped(Component.literal(channel).withStyle(ChatFormatting.GOLD), "\"");
 		};
 
 		var cmdChannel = LiteralArgumentBuilder.<S>literal("channel")
@@ -65,11 +65,11 @@ public class ClientCommandBuilder {
 
 		Command<S> helpCallback = (context) -> {
 			responseHandler.accept(context, true, LanguageUtils.join(
-				Component.nullToEmpty("/pingwheel config"),
+				Component.literal("/pingwheel config"),
 				LanguageUtils.wrapped(langConfig.path("description").get()).withStyle(ChatFormatting.GRAY),
-				Component.nullToEmpty("/pingwheel channel"),
+				Component.literal("/pingwheel channel"),
 				LanguageUtils.wrapped(langChannel.path("get.description").get()).withStyle(ChatFormatting.GRAY),
-				Component.nullToEmpty("/pingwheel channel <channel_name>"),
+				Component.literal("/pingwheel channel <channel_name>"),
 				LanguageUtils.wrapped(langChannel.path("set.description").get()).withStyle(ChatFormatting.GRAY)
 			));
 			return 1;

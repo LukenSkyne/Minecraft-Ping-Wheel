@@ -10,7 +10,7 @@ public class LanguageUtils {
 
 	public static final MutableComponent SYMBOL_INFINITE = Component.translatable(MOD_ID + ".symbol.infinite");
 	public static final MutableComponent VALUE_HIDDEN = Component.translatable(MOD_ID + ".value.hidden");
-	public static final MutableComponent NEWLINE = Component.nullToEmpty("\n");
+	public static final MutableComponent NEWLINE = Component.literal("\n");
 
 	public static LanguageWrapper settings(String key) {
 		return new LanguageWrapper(MOD_ID + ".settings." + key);
@@ -53,8 +53,8 @@ public class LanguageUtils {
 		}
 
 		return Component.empty()
-			.append(Component.nullToEmpty(delimiter[0]))
+			.append(Component.literal(delimiter[0]))
 			.append(component)
-			.append(Component.nullToEmpty(delimiter[delimiter.length - 1]));
+			.append(Component.literal(delimiter[delimiter.length - 1]));
 	}
 }

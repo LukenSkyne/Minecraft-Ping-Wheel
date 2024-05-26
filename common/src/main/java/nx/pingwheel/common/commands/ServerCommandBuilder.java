@@ -9,12 +9,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.MutableComponent;
 import nx.pingwheel.common.compat.Component;
-import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.helper.ChannelMode;
 import nx.pingwheel.common.helper.LanguageUtils;
 import org.apache.logging.log4j.util.TriConsumer;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -63,9 +61,9 @@ public class ServerCommandBuilder {
 
 		Command<CommandSourceStack> helpCallback = (context) -> {
 			responseHandler.accept(context, true, LanguageUtils.join(
-				Component.nullToEmpty("/pingwheel:server default_channel"),
+				Component.literal("/pingwheel:server default_channel"),
 				LanguageUtils.wrapped(langDefaultChannel.path("get.description").get()).withStyle(ChatFormatting.GRAY),
-				Component.nullToEmpty("/pingwheel:server default_channel <mode_name>"),
+				Component.literal("/pingwheel:server default_channel <mode_name>"),
 				LanguageUtils.wrapped(langDefaultChannel.path("set.description").get()).withStyle(ChatFormatting.GRAY)
 			));
 			return 1;

@@ -6,8 +6,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 
 public interface Component {
 
-	static MutableComponent nullToEmpty(String text) {
-		return (text != null ? new TextComponent(text) : empty());
+	static MutableComponent literal(String text) {
+		return new TextComponent(text);
 	}
 
 	static MutableComponent empty() {
