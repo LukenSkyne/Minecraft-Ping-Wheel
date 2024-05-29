@@ -52,15 +52,11 @@ public class LanguageUtils {
 		return output;
 	}
 
-	public static MutableComponent wrapped(MutableComponent component, String... delimiter) {
-		if (delimiter.length == 0) {
-			delimiter = new String[] {"(", ")"};
-		}
-
+	public static MutableComponent wrapped(MutableComponent component) {
 		return Component.empty()
-			.append(Component.literal(delimiter[0]))
+			.append(Component.literal("("))
 			.append(component)
-			.append(Component.literal(delimiter[delimiter.length - 1]));
+			.append(Component.literal(")"));
 	}
 
 	public static MutableComponent withModPrefix(MutableComponent component) {
