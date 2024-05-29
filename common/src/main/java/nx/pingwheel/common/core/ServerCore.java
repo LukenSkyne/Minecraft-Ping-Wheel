@@ -1,8 +1,8 @@
 package nx.pingwheel.common.core;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import nx.pingwheel.common.compat.Component;
 import nx.pingwheel.common.config.ServerConfig;
 import nx.pingwheel.common.helper.ChannelMode;
 import nx.pingwheel.common.helper.RateLimiter;
@@ -34,7 +34,7 @@ public class ServerCore {
 	public static void onChannelUpdate(ServerPlayer player, UpdateChannelC2SPacket packet) {
 		if (packet.isCorrupt()) {
 			LOGGER.warn(() -> "invalid channel update from %s (%s)".formatted(player.getGameProfile().getName(), player.getUUID()));
-			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §cChannel couldn't be updated\n§7Make sure your version matches the server's version: §d" + ModVersion), false);
+			player.displayClientMessage(Component.literal("[Ping-Wheel] §cChannel couldn't be updated\n§7Make sure your version matches the server's version: §d" + ModVersion), false);
 			return;
 		}
 
@@ -44,7 +44,7 @@ public class ServerCore {
 	public static void onPingLocation(MinecraftServer server, ServerPlayer player, PingLocationC2SPacket packet) {
 		if (packet.isCorrupt()) {
 			LOGGER.warn(() -> "invalid ping location from %s (%s)".formatted(player.getGameProfile().getName(), player.getUUID()));
-			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §cUnable to send ping\n§7Make sure your version matches the server's version: §d" + ModVersion), false);
+			player.displayClientMessage(Component.literal("[Ping-Wheel] §cUnable to send ping\n§7Make sure your version matches the server's version: §d" + ModVersion), false);
 			return;
 		}
 
@@ -60,12 +60,12 @@ public class ServerCore {
 		var defaultChannelMode = Config.getDefaultChannelMode();
 
 		if (channel.isEmpty() && defaultChannelMode == ChannelMode.DISABLED) {
-			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §eMust be in a channel to ping location\n§7Use §a/pingwheel channel§7 to switch"), false);
+			player.displayClientMessage(Component.literal("[Ping-Wheel] §eMust be in a channel to ping location\n§7Use §a/pingwheel channel§7 to switch"), false);
 			return;
 		}
 
 		if (channel.isEmpty() && defaultChannelMode == ChannelMode.TEAM_ONLY && player.getTeam() == null) {
-			player.displayClientMessage(Component.nullToEmpty("[Ping-Wheel] §eMust be in a team or channel to ping location\n§7Use §a/pingwheel channel§7 to switch"), false);
+			player.displayClientMessage(Component.literal("[Ping-Wheel] §eMust be in a team or channel to ping location\n§7Use §a/pingwheel channel§7 to switch"), false);
 			return;
 		}
 
