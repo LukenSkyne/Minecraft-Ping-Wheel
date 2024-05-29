@@ -61,6 +61,7 @@ public class ServerCommandBuilder {
 
 		Command<CommandSourceStack> helpCallback = (context) -> {
 			responseHandler.accept(context, true, LanguageUtils.join(
+				Component.empty(),
 				Component.literal("/pingwheel:server default_channel"),
 				LanguageUtils.wrapped(langDefaultChannel.path("get.description").get()).withStyle(ChatFormatting.GRAY),
 				Component.literal("/pingwheel:server default_channel <mode_name>"),

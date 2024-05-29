@@ -1,9 +1,11 @@
 package nx.pingwheel.common.helper;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.MutableComponent;
 import nx.pingwheel.common.compat.Component;
 
 import static nx.pingwheel.common.Global.MOD_ID;
+import static nx.pingwheel.common.Global.MOD_PREFIX;
 
 public class LanguageUtils {
 	private LanguageUtils() {}
@@ -56,5 +58,11 @@ public class LanguageUtils {
 			.append(Component.literal(delimiter[0]))
 			.append(component)
 			.append(Component.literal(delimiter[delimiter.length - 1]));
+	}
+
+	public static MutableComponent withModPrefix(MutableComponent component) {
+		return Component.empty()
+			.append(Component.literal(MOD_PREFIX).withStyle(ChatFormatting.DARK_GRAY))
+			.append(component);
 	}
 }

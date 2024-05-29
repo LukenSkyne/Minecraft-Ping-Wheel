@@ -16,11 +16,12 @@ public class Global {
 	public static INetworkHandler NetHandler = null;
 
 	public static final String MOD_ID = "ping-wheel";
+	public static final String MOD_PREFIX = "[Ping-Wheel] ";
 	public static final Logger LOGGER = LogManager.getLogger(MOD_ID,
 		new FormattedMessageFactory() {
 			@Override
 			public Message newMessage(String message) {
-				return super.newMessage("[Ping-Wheel] " + message);
+				return super.newMessage(MOD_PREFIX + message);
 			}
 		});
 }

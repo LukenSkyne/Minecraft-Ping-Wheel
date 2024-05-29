@@ -67,6 +67,7 @@ public class ClientCommandBuilder {
 
 		Command<S> helpCallback = (context) -> {
 			responseHandler.accept(context, true, LanguageUtils.join(
+				Component.empty(),
 				Component.literal("/pingwheel config"),
 				LanguageUtils.wrapped(langConfig.path("description").get()).withStyle(ChatFormatting.GRAY),
 				Component.literal("/pingwheel channel"),
