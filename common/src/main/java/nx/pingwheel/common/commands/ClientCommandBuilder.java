@@ -12,8 +12,6 @@ import nx.pingwheel.common.helper.LanguageUtils;
 import nx.pingwheel.common.screen.SettingsScreen;
 import org.apache.logging.log4j.util.TriConsumer;
 
-import java.util.function.Function;
-
 import static nx.pingwheel.common.ClientGlobal.ConfigHandler;
 import static nx.pingwheel.common.ClientGlobal.Game;
 import static nx.pingwheel.common.config.ClientConfig.MAX_CHANNEL_LENGTH;
@@ -25,20 +23,18 @@ public class ClientCommandBuilder {
 		var langConfig = LanguageUtils.command("config");
 		var langChannel = LanguageUtils.command("channel");
 
-		Function<String, MutableComponent> formatChannel = (channel) -> {
-			if (channel.isEmpty()) {
-				return langChannel.path("default").get().withStyle(ChatFormatting.YELLOW);
-			}
-
-			return LanguageUtils.wrapped(Component.literal(channel).withStyle(ChatFormatting.GOLD), "\"");
-		};
-
 		var cmdChannel = LiteralArgumentBuilder.<S>literal("channel")
 			.executes((context) -> {
 				var currentChannel = ConfigHandler.getConfig().getChannel();
 
-				responseHandler.accept(context, true, langChannel.path("get.response")
-					.get(formatChannel.apply(currentChannel)));
+				if (currentChannel.isEmpty()) {
+					responseHandler.accept(context, true, langChannel.path("get.response.default").get());
+				} else {
+					responseHandler.accept(context, true, langChannel.path("get.response")
+						.get(Component.literal(currentChannel).withStyle(ChatFormatting.YELLOW))
+					);
+				}
+
 				return 1;
 			})
 			.then(RequiredArgumentBuilder.<S, String>argument("channel_name", StringArgumentType.string()).executes((context) -> {
@@ -52,8 +48,14 @@ public class ClientCommandBuilder {
 				ConfigHandler.getConfig().setChannel(newChannel);
 				ConfigHandler.save();
 
-				responseHandler.accept(context, true, langChannel.path("set.response")
-					.get(formatChannel.apply(newChannel)));
+				if (newChannel.isEmpty()) {
+					responseHandler.accept(context, true, langChannel.path("set.response.default").get());
+				} else {
+					responseHandler.accept(context, true, langChannel.path("set.response")
+						.get(Component.literal(newChannel).withStyle(ChatFormatting.YELLOW))
+					);
+				}
+
 				return 1;
 			}));
 
