@@ -13,6 +13,9 @@ public class LanguageUtils {
 	public static final MutableComponent SYMBOL_INFINITE = Component.translatable(MOD_ID + ".symbol.infinite");
 	public static final MutableComponent VALUE_HIDDEN = Component.translatable(MOD_ID + ".value.hidden");
 	public static final MutableComponent NEWLINE = Component.literal("\n");
+	public static final LanguageWrapper UNIT_SECONDS = new LanguageWrapper(MOD_ID + ".unit.seconds");
+	public static final LanguageWrapper UNIT_METERS = new LanguageWrapper(MOD_ID + ".unit.meters");
+	public static final LanguageWrapper UNIT_PERCENT = new LanguageWrapper(MOD_ID + ".unit.percent");
 
 	public static LanguageWrapper settings(String key) {
 		return new LanguageWrapper(MOD_ID + ".settings." + key);

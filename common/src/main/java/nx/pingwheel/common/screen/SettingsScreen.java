@@ -126,7 +126,7 @@ public class SettingsScreen extends Screen {
 					return text.get(CommonComponents.OPTION_OFF);
 				}
 
-				return text.get("%s%%".formatted(value));
+				return text.get(LanguageUtils.UNIT_PERCENT.get(value));
 			},
 			config::getPingVolume,
 			config::setPingVolume
@@ -144,7 +144,7 @@ public class SettingsScreen extends Screen {
 					return text.get(LanguageUtils.SYMBOL_INFINITE);
 				}
 
-				return text.get("%ss".formatted(value));
+				return text.get(LanguageUtils.UNIT_SECONDS.get(value));
 			},
 			config::getPingDuration,
 			config::setPingDuration
@@ -164,7 +164,7 @@ public class SettingsScreen extends Screen {
 					return text.get(LanguageUtils.SYMBOL_INFINITE);
 				}
 
-				return text.get("%sm".formatted(value));
+				return text.get(LanguageUtils.UNIT_METERS.get(value));
 			},
 			config::getPingDistance,
 			config::setPingDistance
@@ -182,7 +182,7 @@ public class SettingsScreen extends Screen {
 					return text.get(LanguageUtils.SYMBOL_INFINITE);
 				}
 
-				return text.get("%.1fs".formatted(value));
+				return text.get(LanguageUtils.UNIT_SECONDS.get("%.1f".formatted(value)));
 			},
 			config::getCorrectionPeriod,
 			config::setCorrectionPeriod
@@ -219,7 +219,7 @@ public class SettingsScreen extends Screen {
 		return OptionUtils.ofInt(
 			text.key(),
 			40, 300, 10,
-			(value) -> text.get("%s%%".formatted(value)),
+			(value) -> text.get(LanguageUtils.UNIT_PERCENT.get(value)),
 			config::getPingSize,
 			config::setPingSize
 		);

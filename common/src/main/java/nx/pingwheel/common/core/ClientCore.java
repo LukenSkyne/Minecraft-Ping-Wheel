@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.Draw;
+import nx.pingwheel.common.helper.LanguageUtils;
 import nx.pingwheel.common.helper.MathUtils;
 import nx.pingwheel.common.helper.PingData;
 import nx.pingwheel.common.helper.Raycast;
@@ -190,7 +191,7 @@ public class ClientCore {
 				m.translate(pos.x, pos.y, 0);
 				m.scale(pingScale, pingScale, 1f);
 
-				var text = String.format("%,.1fm", ping.distance);
+				var text = LanguageUtils.UNIT_METERS.get("%,.1f".formatted(ping.distance)).getString();
 				Draw.renderLabel(m, text, -1.5f);
 				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
 

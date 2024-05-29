@@ -17,6 +17,9 @@
 
 	"ping-wheel.value.hidden": "Hidden",
 	"ping-wheel.symbol.infinite": "∞",
+	"ping-wheel.unit.seconds": "%ss",
+	"ping-wheel.unit.meters": "%sm",
+	"ping-wheel.unit.percent": "%s%%",
 
 	"ping-wheel.settings.title": "Ping Wheel Settings",
 	"ping-wheel.name": "Ping Wheel",
