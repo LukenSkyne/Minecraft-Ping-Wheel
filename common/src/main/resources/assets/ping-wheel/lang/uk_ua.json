@@ -26,7 +26,7 @@
 
 	"ping-wheel.command.config.description": "відкрити інтерфейс налаштувань",
 	"ping-wheel.command.channel.get.description": "дізнатися ваш канал",
-	"ping-wheel.command.channel.set.description": "встановити канал, використовуйте «» для усталеного каналу",
+	"ping-wheel.command.channel.set.description": "встановити канал, використовуйте \"\" для усталеного каналу",
 	"ping-wheel.command.channel.get.response": "Наразі вашим каналом є «%s»",
 	"ping-wheel.command.channel.get.response.default": "Наразі ви в усталеному каналі",
 	"ping-wheel.command.channel.set.response": "Ваш канал змінено на «%s»",
