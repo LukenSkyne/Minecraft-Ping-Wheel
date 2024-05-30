@@ -10,7 +10,7 @@
 	"ping-wheel.settings.correctionPeriod": "Період коригування: %s",
 	"ping-wheel.settings.itemIconVisible": "Піктограми предметів",
 	"ping-wheel.settings.directionIndicatorVisible": "Індикатор напрямку",
-	"ping-wheel.settings.nameLabelForced": "Завжди показувати імена",
+	"ping-wheel.settings.nameLabelForced": "Постійний показ імен",
 	"ping-wheel.settings.pingSize": "Розмір мітки: %s",
 	"ping-wheel.settings.channel": "Канал мітки",
 	"ping-wheel.settings.channel.tooltip": "Мітки один одного бачитимуть лише користувачі певного каналу",
