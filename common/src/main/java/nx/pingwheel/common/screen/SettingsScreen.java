@@ -91,7 +91,7 @@ public class SettingsScreen extends Screen {
 		this.list.render(matrices, mouseX, mouseY, delta);
 		drawCenteredString(matrices, this.font, this.title, this.width / 2, 20, 16777215);
 
-		drawString(matrices, this.font, LanguageUtils.settings("channel").get(), this.width / 2 - 100, 148, 10526880);
+		drawString(matrices, this.font, LanguageUtils.settings("channel").get(), this.width / 2 - 100, this.channelTextField.y - 12, 10526880);
 		this.channelTextField.render(matrices, mouseX, mouseY, delta);
 
 		super.render(matrices, mouseX, mouseY, delta);
