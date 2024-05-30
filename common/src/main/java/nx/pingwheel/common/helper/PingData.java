@@ -2,6 +2,7 @@ package nx.pingwheel.common.helper;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import nx.pingwheel.common.compat.Vector3f;
@@ -16,8 +17,7 @@ public class PingData {
 	private Vec3 pos;
 	@Nullable
 	private final UUID uuid;
-	private final UUID author;
-	private final String authorName;
+	private final Player author;
 	private final int sequence;
 	private final int dimension;
 	private final int spawnTime;
@@ -29,11 +29,10 @@ public class PingData {
 	@Nullable
 	public ItemStack itemStack;
 
-	public PingData(Vec3 pos, @Nullable UUID uuid, UUID author, String authorName, int sequence, int dimension, int spawnTime) {
+	public PingData(Vec3 pos, @Nullable UUID uuid, Player author, int sequence, int dimension, int spawnTime) {
 		this.pos = pos;
 		this.uuid = uuid;
 		this.author = author;
-		this.authorName = authorName;
 		this.sequence = sequence;
 		this.dimension = dimension;
 		this.spawnTime = spawnTime;

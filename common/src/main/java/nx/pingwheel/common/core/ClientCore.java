@@ -63,15 +63,13 @@ public class ClientCore {
 			}
 		}
 
-		final var authorPlayer = Game.player.connection.getPlayerInfo(packet.author());
-		final var authorName = authorPlayer != null ? authorPlayer.getProfile().getName() : "";
+		final var authorPlayer = Game.level.getPlayerByUUID(packet.author());
 
 		Game.execute(() -> {
 			addOrReplacePing(new PingData(
 				packet.pos(),
 				packet.entity(),
-				packet.author(),
-				authorName,
+				authorPlayer,
 				packet.sequence(),
 				packet.dimension(),
 				(int)Game.level.getGameTime()
@@ -187,12 +185,14 @@ public class ClientCore {
 				m.translate(pos.x, pos.y, 0);
 				m.scale(pingScale, pingScale, 1f);
 
-				var text = LanguageUtils.UNIT_METERS.get("%,.1f".formatted(ping.distance)).getString();
-				Draw.renderLabel(m, text, -1.5f);
+				var text = LanguageUtils.UNIT_METERS.get("%,.1f".formatted(ping.distance));
+				Draw.renderLabel(m, text, -1.5f, null);
 				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
 
-				if (showNameLabels && !ping.getAuthor().equals(Game.player.getUUID())) {
-					Draw.renderLabel(m, ping.getAuthorName(), 1.75f);
+				var author = ping.getAuthor();
+
+				if (showNameLabels && author != null && !author.getUUID().equals(Game.player.getUUID())) {
+					Draw.renderLabel(m, author.getDisplayName(), 1.75f, author);
 				}
 
 				m.popPose();

@@ -5,11 +5,14 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import org.lwjgl.opengl.GL11;
@@ -25,9 +28,10 @@ public class Draw {
 	private static final int SHADOW_BLACK = FastColor.ARGB32.color(64, 0, 0, 0);
 	private static final int LIGHT_VALUE_MAX = 15728880;
 
-	public static void renderLabel(PoseStack matrices, String text, float yOffset) {
+	public static void renderLabel(PoseStack matrices, Component text, float yOffset, Player player) {
+		float extraWidth = (player != null) ? 10f : 0f;
 		var textMetrics = new Vec2(
-			Game.font.width(text),
+			Game.font.width(text) + extraWidth,
 			Game.font.lineHeight
 		);
 		var textOffset = textMetrics.scale(-0.5f).add(new Vec2(0f, textMetrics.y * yOffset));
@@ -35,8 +39,22 @@ public class Draw {
 		matrices.pushPose();
 		matrices.translate(textOffset.x, textOffset.y, 0);
 		GuiComponent.fill(matrices, -2, -2, (int)textMetrics.x + 1, (int)textMetrics.y, SHADOW_BLACK);
-		Game.font.draw(matrices, text, 0f, 0f, WHITE);
+		Game.font.draw(matrices, text, extraWidth, 0f, WHITE);
+
+		if (player != null) {
+			matrices.translate(-0.5, -0.5, 0);
+			renderPlayerHead(matrices, player);
+		}
+
 		matrices.popPose();
+	}
+
+	public static void renderPlayerHead(PoseStack matrices, Player player) {
+		RenderSystem.setShaderTexture(0, ((AbstractClientPlayer)player).getSkinTextureLocation());
+		RenderSystem.enableBlend();
+		GuiComponent.blit(matrices, 0, 0, 0, 8, 8, 8, 8, 64, 64);
+		GuiComponent.blit(matrices, 0, 0, 0, 40, 8, 8, 8, 64, 64); // Overlay (hat)
+		RenderSystem.disableBlend();
 	}
 
 	public static void renderPing(PoseStack matrices, ItemStack itemStack, boolean drawItemIcon) {
