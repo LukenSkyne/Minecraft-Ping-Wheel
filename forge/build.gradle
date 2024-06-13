@@ -7,7 +7,7 @@ plugins {
 minecraft {
     mappings channel: "official", version: minecraft_version
 
-    // reobf = false
+    reobf = false
     copyIdeResources = true
 
     runs {
