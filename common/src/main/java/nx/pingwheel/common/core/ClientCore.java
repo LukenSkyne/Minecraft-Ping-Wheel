@@ -1,7 +1,7 @@
 package nx.pingwheel.common.core;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -15,6 +15,7 @@ import nx.pingwheel.common.helper.*;
 import nx.pingwheel.common.networking.PingLocationC2SPacket;
 import nx.pingwheel.common.networking.PingLocationS2CPacket;
 import nx.pingwheel.common.sound.DirectionalSoundInstance;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -111,10 +112,12 @@ public class ClientCore {
 		}
 	}
 
-	public static void onRenderGUI(PoseStack m, float tickDelta) {
+	public static void onRenderGUI(GuiGraphics ctx, float tickDelta) {
 		if (Game.player == null || pingRepo.isEmpty()) {
 			return;
 		}
+
+		var m = ctx.pose();
 
 		var wnd = Game.getWindow();
 		var screenSize = new Vec2(wnd.getGuiScaledWidth(), wnd.getGuiScaledHeight());
@@ -160,7 +163,7 @@ public class ClientCore {
 				var indicatorOffsetX = Math.cos(pingAngle + Math.PI) * 12;
 				var indicatorOffsetY = Math.sin(pingAngle + Math.PI) * 12;
 				m.translate(indicatorOffsetX, indicatorOffsetY, 0);
-				Draw.renderPing(m, ping.getItemStack(), Config.isItemIconVisible());
+				Draw.renderPing(ctx, ping.getItemStack(), Config.isItemIconVisible());
 				m.popPose();
 
 				m.pushPose();
@@ -183,13 +186,13 @@ public class ClientCore {
 				m.scale(pingScale, pingScale, 1f);
 
 				var text = LanguageUtils.UNIT_METERS.get("%,.1f".formatted(ping.getDistance()));
-				Draw.renderLabel(m, text, -1.5f, null);
-				Draw.renderPing(m, ping.getItemStack(), Config.isItemIconVisible());
+				Draw.renderLabel(ctx, text, -1.5f, null);
+				Draw.renderPing(ctx, ping.getItemStack(), Config.isItemIconVisible());
 
 				var author = ping.getAuthor();
 
 				if (showNameLabels && author != null) {
-					Draw.renderLabel(m, author.getDisplayName(), 1.75f, author);
+					Draw.renderLabel(ctx, author.getDisplayName(), 1.75f, author);
 				}
 
 				m.popPose();
