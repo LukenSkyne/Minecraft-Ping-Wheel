@@ -10,7 +10,7 @@
 	"ping-wheel.settings.correctionPeriod": "Doğrulama Süresi: %s",
 	"ping-wheel.settings.itemIconVisible": "Eşya Simgeleri",
 	"ping-wheel.settings.directionIndicatorVisible": "Yön Göstergesi",
-	"ping-wheel.settings.nameLabelForced": "İsimleri Her Zaman Göster",
+	"ping-wheel.settings.nameLabelForced": "Adları Sürekli Göster",
 	"ping-wheel.settings.pingSize": "Ping Boyutu: %s",
 	"ping-wheel.settings.channel": "Ping Kanalı",
 	"ping-wheel.settings.channel.tooltip": "Sadece aynı kanaldaki oyuncularla Ping paylaşırsınız",
