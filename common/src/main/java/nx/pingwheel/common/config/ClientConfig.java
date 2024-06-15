@@ -24,6 +24,7 @@ public class ClientConfig implements IConfig {
 	String channel = "";
 
 	// hidden from settings screen
+	int removeRadius = 10;
 	int raycastDistance = 1024;
 	int safeZoneLeft = 5;
 	int safeZoneRight = 5;

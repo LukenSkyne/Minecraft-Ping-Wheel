@@ -52,7 +52,11 @@ public class Ping {
 	public boolean isExpired() {
 		return Config.getPingDuration() < MAX_PING_DURATION && this.age > Config.getPingDuration() * TPS;
 	}
-	
+
+	public boolean isRemovable() {
+		return (Config.getCorrectionPeriod() >= MAX_CORRECTION_PERIOD || this.age > Config.getCorrectionPeriod() * TPS) && this.distanceToCenter() < Config.getRemoveRadius();
+	}
+
 	public float distanceToCenter() {
 		if (this.screenPos == null) {
 			return 0f;
@@ -62,5 +66,13 @@ public class Ping {
 		var center = new Vec2(wnd.getGuiScaledWidth() * 0.5f, wnd.getGuiScaledHeight() * 0.5f);
 
 		return this.screenPos.distanceTo(center);
+	}
+
+	public boolean isCloserToCenter(@Nullable Ping b) {
+		if (b == null) {
+			return true;
+		}
+
+		return this.distanceToCenter() < b.distanceToCenter();
 	}
 }

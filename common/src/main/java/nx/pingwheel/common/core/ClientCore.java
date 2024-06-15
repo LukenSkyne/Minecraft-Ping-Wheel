@@ -98,6 +98,7 @@ public class ClientCore {
 		}
 
 		var time = (int)Game.level.getGameTime();
+		processPings(modelViewMatrix, projectionMatrix, tickDelta, time);
 
 		if (pingQueued) {
 			if (Config.getCorrectionPeriod() < MAX_CORRECTION_PERIOD && time - lastPing > Config.getCorrectionPeriod() * TPS) {
@@ -108,8 +109,6 @@ public class ClientCore {
 			pingQueued = false;
 			executePing(tickDelta);
 		}
-
-		processPings(modelViewMatrix, projectionMatrix, tickDelta, time);
 	}
 
 	public static void onRenderGUI(PoseStack m, float tickDelta) {
@@ -206,6 +205,7 @@ public class ClientCore {
 		}
 
 		var cameraPos = Game.player.getEyePosition(tickDelta);
+		Ping target = null;
 
 		for (var iter = pingRepo.iterator(); iter.hasNext(); ) {
 			var ping = iter.next();
@@ -228,7 +228,13 @@ public class ClientCore {
 
 			if (ping.isExpired()) {
 				iter.remove();
+			} else if (pingQueued && ping.isRemovable() && ping.isCloserToCenter(target)) {
+				target = ping;
 			}
+		}
+
+		if (target != null && pingRepo.remove(target)) {
+			pingQueued = false;
 		}
 
 		pingRepo.sort((a, b) -> Double.compare(b.getDistance(), a.getDistance()));
