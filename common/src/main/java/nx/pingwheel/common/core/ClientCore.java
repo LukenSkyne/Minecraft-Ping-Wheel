@@ -10,7 +10,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.*;
 import nx.pingwheel.common.networking.PingLocationC2SPacket;
@@ -29,7 +28,7 @@ public class ClientCore {
 	private ClientCore() {}
 
 	private static final ClientConfig Config = ConfigHandler.getConfig();
-	private static final ArrayList<PingData> pingRepo = new ArrayList<>();
+	private static final ArrayList<Ping> pingRepo = new ArrayList<>();
 	private static boolean queuePing = false;
 	private static ClientLevel lastWorld = null;
 	private static int dimension = 0;
@@ -65,7 +64,7 @@ public class ClientCore {
 		final var authorPlayer = Game.level.getPlayerByUUID(packet.author());
 
 		Game.execute(() -> {
-			addOrReplacePing(new PingData(
+			addOrReplacePing(new Ping(
 				packet.pos(),
 				packet.entity(),
 				authorPlayer,
@@ -119,10 +118,10 @@ public class ClientCore {
 		}
 
 		var wnd = Game.getWindow();
-		var screenBounds = new Vec3(wnd.getGuiScaledWidth(), wnd.getGuiScaledHeight(), 0);
+		var screenSize = new Vec2(wnd.getGuiScaledWidth(), wnd.getGuiScaledHeight());
 		var safeZoneTopLeft = new Vec2(Config.getSafeZoneLeft(), Config.getSafeZoneTop());
-		var safeZoneBottomRight = new Vec2((float)screenBounds.x - Config.getSafeZoneRight(), (float)screenBounds.y - Config.getSafeZoneBottom());
-		var safeScreenCentre = new Vec2((safeZoneBottomRight.x - safeZoneTopLeft.x) * 0.5f, (safeZoneBottomRight.y - safeZoneTopLeft.y) * 0.5f);
+		var safeZoneBottomRight = new Vec2(screenSize.x - Config.getSafeZoneRight(), screenSize.y - Config.getSafeZoneBottom());
+		var safeScreenCenter = new Vec2((safeZoneBottomRight.x - safeZoneTopLeft.x) * 0.5f, (safeZoneBottomRight.y - safeZoneTopLeft.y) * 0.5f);
 		final var showDirectionIndicator = Config.isDirectionIndicatorVisible();
 		final var showNameLabels = Config.isNameLabelForced() || KEY_BINDING_NAME_LABELS.isDown();
 
@@ -130,26 +129,26 @@ public class ClientCore {
 		m.translate(0f, 0f, -pingRepo.size());
 
 		for (var ping : pingRepo) {
-			if (ping.screenPos == null || (ping.screenPos.z <= 0 && !showDirectionIndicator) || ping.getDimension() != dimension) {
+			var screenPos = ping.getScreenPos();
+
+			if (screenPos == null || ping.getDimension() != dimension || (screenPos.isBehindCamera() && !showDirectionIndicator)) {
 				continue;
 			}
 
 			m.translate(0f, 0f, 1f);
 
-			var pos = ping.screenPos;
 			var pingSize = Config.getPingSize() / 100f;
-			var pingScale = getDistanceScale(ping.distance) * pingSize * 0.4f;
+			var pingScale = getDistanceScale(ping.getDistance()) * pingSize * 0.4f;
 
-			var pingDirectionVec = new Vec2(pos.x - safeZoneTopLeft.x - safeScreenCentre.x, pos.y - safeZoneTopLeft.y - safeScreenCentre.y);
-			var behindCamera = false;
+			var pingDirectionVec = new Vec2(screenPos.x - safeZoneTopLeft.x - safeScreenCenter.x, screenPos.y - safeZoneTopLeft.y - safeScreenCenter.y);
+			var behindCamera = screenPos.isBehindCamera();
 
-			if (pos.z <= 0) {
-				behindCamera = true;
+			if (behindCamera) {
 				pingDirectionVec = pingDirectionVec.scale(-1);
 			}
 
 			var pingAngle = (float)Math.atan2(pingDirectionVec.y, pingDirectionVec.x);
-			var isOffScreen = behindCamera || pos.x < 0 || pos.x > screenBounds.x || pos.y < 0 || pos.y > screenBounds.y;
+			var isOffScreen = behindCamera || !screenPos.isInBounds(Vec2.ZERO, screenSize);
 
 			if (isOffScreen && showDirectionIndicator) {
 				var indicator = MathUtils.calculateAngleRectIntersection(pingAngle, safeZoneTopLeft, safeZoneBottomRight);
@@ -162,7 +161,7 @@ public class ClientCore {
 				var indicatorOffsetX = Math.cos(pingAngle + Math.PI) * 12;
 				var indicatorOffsetY = Math.sin(pingAngle + Math.PI) * 12;
 				m.translate(indicatorOffsetX, indicatorOffsetY, 0);
-				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
+				Draw.renderPing(m, ping.getItemStack(), Config.isItemIconVisible());
 				m.popPose();
 
 				m.pushPose();
@@ -181,12 +180,12 @@ public class ClientCore {
 
 			if (!behindCamera) {
 				m.pushPose();
-				m.translate(pos.x, pos.y, 0);
+				m.translate(screenPos.x, screenPos.y, 0);
 				m.scale(pingScale, pingScale, 1f);
 
-				var text = LanguageUtils.UNIT_METERS.get("%,.1f".formatted(ping.distance));
+				var text = LanguageUtils.UNIT_METERS.get("%,.1f".formatted(ping.getDistance()));
 				Draw.renderLabel(m, text, -1.5f, null);
-				Draw.renderPing(m, ping.itemStack, Config.isItemIconVisible());
+				Draw.renderPing(m, ping.getItemStack(), Config.isItemIconVisible());
 
 				var author = ping.getAuthor();
 
@@ -208,29 +207,31 @@ public class ClientCore {
 
 		var cameraPos = Game.player.getEyePosition(tickDelta);
 
-		for (var ping : pingRepo) {
+		for (var iter = pingRepo.iterator(); iter.hasNext(); ) {
+			var ping = iter.next();
+
 			if (ping.getUuid() != null) {
 				var ent = getEntity(ping.getUuid());
 
 				if (ent != null) {
 					if (ent.getType() == EntityType.ITEM && Config.isItemIconVisible()) {
-						ping.itemStack = ((ItemEntity)ent).getItem().copy();
+						ping.setItemStack(((ItemEntity)ent).getItem().copy());
 					}
 
 					ping.setPos(ent.getPosition(tickDelta).add(0, ent.getBoundingBox().getYsize(), 0));
 				}
 			}
 
-			ping.distance = cameraPos.distanceTo(ping.getPos());
-			ping.screenPos = MathUtils.worldToScreen(ping.getPos(), modelViewMatrix, projectionMatrix);
-			ping.aliveTime = time - ping.getSpawnTime();
+			ping.setDistance(cameraPos.distanceTo(ping.getPos()));
+			ping.setScreenPos(MathUtils.worldToScreen(ping.getPos(), modelViewMatrix, projectionMatrix));
+			ping.setAge(time - ping.getSpawnTime());
+
+			if (ping.isExpired()) {
+				iter.remove();
+			}
 		}
 
-		if (Config.getPingDuration() < 60) {
-			pingRepo.removeIf(p -> p.aliveTime > Config.getPingDuration() * TPS);
-		}
-
-		pingRepo.sort((a, b) -> Double.compare(b.distance, a.distance));
+		pingRepo.sort((a, b) -> Double.compare(b.getDistance(), a.getDistance()));
 	}
 
 	private static void executePing(float tickDelta) {
@@ -260,7 +261,7 @@ public class ClientCore {
 		NetHandler.sendToServer(new PingLocationC2SPacket(Config.getChannel(), hitResult.getLocation(), uuid, pingSequence, dimension));
 	}
 
-	private static void addOrReplacePing(PingData newPing) {
+	private static void addOrReplacePing(Ping newPing) {
 		int index = -1;
 
 		for (int i = 0; i < pingRepo.size(); i++) {

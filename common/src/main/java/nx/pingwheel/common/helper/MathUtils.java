@@ -2,7 +2,6 @@ package nx.pingwheel.common.helper;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
-import nx.pingwheel.common.compat.Vector3f;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import nx.pingwheel.common.compat.Vector4f;
@@ -12,7 +11,7 @@ import static nx.pingwheel.common.ClientGlobal.Game;
 public class MathUtils {
 	private MathUtils() {}
 
-	public static Vector3f worldToScreen(Vec3 worldPos, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
+	public static ScreenPos worldToScreen(Vec3 worldPos, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 		var window = Game.getWindow();
 		var camera = Game.gameRenderer.getMainCamera();
 		var worldPosRel = new Vector4f(camera.getPosition().reverse().add(worldPos), 1f);
@@ -25,7 +24,7 @@ public class MathUtils {
 			worldPosRel.div(depth);
 		}
 
-		return new Vector3f(
+		return new ScreenPos(
 			window.getGuiScaledWidth() * (0.5f + worldPosRel.x * 0.5f),
 			window.getGuiScaledHeight() * (0.5f - worldPosRel.y * 0.5f),
 			depth
