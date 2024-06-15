@@ -23,11 +23,10 @@ import java.util.UUID;
 import static nx.pingwheel.common.ClientGlobal.*;
 import static nx.pingwheel.common.Global.LOGGER;
 import static nx.pingwheel.common.Global.NetHandler;
+import static nx.pingwheel.common.config.ClientConfig.*;
 
 public class ClientCore {
 	private ClientCore() {}
-
-	private static final int TPS = 20;
 
 	private static final ClientConfig Config = ConfigHandler.getConfig();
 	private static final ArrayList<PingData> pingRepo = new ArrayList<>();
@@ -55,7 +54,7 @@ public class ClientCore {
 			return;
 		}
 
-		if (Config.getPingDistance() < 2048) {
+		if (Config.getPingDistance() < MAX_PING_DISTANCE) {
 			var vecToPing = Game.player.position().vectorTo(packet.pos());
 
 			if (vecToPing.length() > Config.getPingDistance()) {
@@ -102,7 +101,7 @@ public class ClientCore {
 		var time = (int)Game.level.getGameTime();
 
 		if (queuePing) {
-			if (Config.getCorrectionPeriod() < 5.f && time - lastPing > Config.getCorrectionPeriod() * TPS) {
+			if (Config.getCorrectionPeriod() < MAX_CORRECTION_PERIOD && time - lastPing > Config.getCorrectionPeriod() * TPS) {
 				++pingSequence;
 			}
 

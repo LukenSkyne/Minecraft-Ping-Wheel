@@ -30,7 +30,11 @@ public class ClientConfig implements IConfig {
 	int safeZoneTop = 5;
 	int safeZoneBottom = 60;
 
-	public static final Integer MAX_CHANNEL_LENGTH = 128;
+	public static final int TPS = 20;
+	public static final int MAX_PING_DURATION = 60;
+	public static final int MAX_PING_DISTANCE = 2048;
+	public static final float MAX_CORRECTION_PERIOD = 5f;
+	public static final int MAX_CHANNEL_LENGTH = 128;
 
 	public void validate() {
 		if (channel.length() > MAX_CHANNEL_LENGTH) {

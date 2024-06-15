@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static nx.pingwheel.common.ClientGlobal.ConfigHandler;
-import static nx.pingwheel.common.config.ClientConfig.MAX_CHANNEL_LENGTH;
+import static nx.pingwheel.common.config.ClientConfig.*;
 
 public class SettingsScreen extends Screen {
 
@@ -138,9 +138,9 @@ public class SettingsScreen extends Screen {
 
 		return OptionUtils.ofInt(
 			text.key(),
-			1, 60, 1,
+			1, MAX_PING_DURATION, 1,
 			(value) -> {
-				if (value >= 60) {
+				if (value >= MAX_PING_DURATION) {
 					return text.get(LanguageUtils.SYMBOL_INFINITE);
 				}
 
@@ -156,11 +156,11 @@ public class SettingsScreen extends Screen {
 
 		return OptionUtils.ofInt(
 			text.key(),
-			0, 2048, 16,
+			0, MAX_PING_DISTANCE, 16,
 			(value) -> {
 				if (value == 0) {
 					return text.get(LanguageUtils.VALUE_HIDDEN);
-				} else if (value >= 2048) {
+				} else if (value >= MAX_PING_DISTANCE) {
 					return text.get(LanguageUtils.SYMBOL_INFINITE);
 				}
 
@@ -176,9 +176,9 @@ public class SettingsScreen extends Screen {
 
 		return OptionUtils.ofFloat(
 			text.key(),
-			0.1f, 5.f, 0.1f,
+			0.1f, MAX_CORRECTION_PERIOD, 0.1f,
 			(value) -> {
-				if (value >= 5.f) {
+				if (value >= MAX_CORRECTION_PERIOD) {
 					return text.get(LanguageUtils.SYMBOL_INFINITE);
 				}
 
