@@ -29,14 +29,14 @@ public class ClientCore {
 
 	private static final ClientConfig Config = ConfigHandler.getConfig();
 	private static final ArrayList<Ping> pingRepo = new ArrayList<>();
-	private static boolean queuePing = false;
+	private static boolean pingQueued = false;
 	private static ClientLevel lastWorld = null;
 	private static int dimension = 0;
 	private static int lastPing = 0;
 	private static int pingSequence = 0;
 
 	public static void pingLocation() {
-		queuePing = true;
+		pingQueued = true;
 	}
 
 	public static void onPingLocation(PingLocationS2CPacket packet) {
@@ -99,13 +99,13 @@ public class ClientCore {
 
 		var time = (int)Game.level.getGameTime();
 
-		if (queuePing) {
+		if (pingQueued) {
 			if (Config.getCorrectionPeriod() < MAX_CORRECTION_PERIOD && time - lastPing > Config.getCorrectionPeriod() * TPS) {
 				++pingSequence;
 			}
 
 			lastPing = time;
-			queuePing = false;
+			pingQueued = false;
 			executePing(tickDelta);
 		}
 
