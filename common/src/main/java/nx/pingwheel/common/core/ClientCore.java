@@ -188,7 +188,7 @@ public class ClientCore {
 
 				var author = ping.getAuthor();
 
-				if (showNameLabels && author != null && !author.getUUID().equals(Game.player.getUUID())) {
+				if (showNameLabels && author != null) {
 					Draw.renderLabel(m, author.getDisplayName(), 1.75f, author);
 				}
 
