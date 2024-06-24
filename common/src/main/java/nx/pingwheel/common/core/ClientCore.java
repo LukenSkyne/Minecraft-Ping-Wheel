@@ -42,6 +42,10 @@ public class ClientCore {
 		pingQueued = true;
 	}
 
+	public static void onDisconnect() {
+		pingRepo.clear();
+	}
+
 	public static void onPingLocation(PingLocationS2CPacket packet) {
 		if (packet.isCorrupt()) {
 			LOGGER.warn("received invalid ping location from server");

@@ -91,6 +91,11 @@ public class Client {
 	}
 
 	@SubscribeEvent
+	public void onClientDisconnectedFromServer(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+		ClientCore.onDisconnect();
+	}
+
+	@SubscribeEvent
 	public void onRenderWorld(RenderLevelStageEvent event) {
 		if (event.getStage().equals(RenderLevelStageEvent.Stage.AFTER_WEATHER)) {
 			ClientCore.onRenderWorld(event.getPoseStack().last().pose(), event.getProjectionMatrix(), event.getPartialTick());

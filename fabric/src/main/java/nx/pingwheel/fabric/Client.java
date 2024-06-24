@@ -53,6 +53,7 @@ public class Client implements ClientModInitializer {
 
 		// register client connection callback
 		ClientPlayConnectionEvents.JOIN.register((a, b, c) -> NetHandler.sendToServer(new UpdateChannelC2SPacket(ConfigHandler.getConfig().getChannel())));
+		ClientPlayConnectionEvents.DISCONNECT.register((a, b) -> ClientCore.onDisconnect());
 
 		// register rendering callbacks
 		GuiRenderCallback.START.register(ClientCore::onRenderGUI);
