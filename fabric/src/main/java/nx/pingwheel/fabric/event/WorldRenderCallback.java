@@ -1,8 +1,8 @@
 package nx.pingwheel.fabric.event;
 
-import com.mojang.math.Matrix4f;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import org.joml.Matrix4f;
 
 public interface WorldRenderCallback {
 

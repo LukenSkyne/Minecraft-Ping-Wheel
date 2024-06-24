@@ -21,7 +21,7 @@ public class Raycast {
 											 boolean hitFluids) {
 		var cameraEntity = Game.cameraEntity;
 
-		if (cameraEntity == null || cameraEntity.level == null) {
+		if (cameraEntity == null || cameraEntity.level() == null) {
 			return null;
 		}
 
@@ -32,7 +32,7 @@ public class Raycast {
 			.expandTowards(cameraEntity.getViewVector(1.f).scale(maxDistance))
 			.inflate(1.0, 1.0, 1.0);
 
-		var blockHitResult = cameraEntity.level.clip(
+		var blockHitResult = cameraEntity.level().clip(
 			new ClipContext(
 				rayStartVec,
 				rayEndVec,
@@ -67,7 +67,7 @@ public class Raycast {
 		var minDist = min.distanceToSqr(max);
 		EntityHitResult minHitResult = null;
 
-		for (var ent : entity.level.getEntities(entity, box, predicate)) {
+		for (var ent : entity.level().getEntities(entity, box, predicate)) {
 			var targetBoundingBox = ent.getBoundingBox()
 				.inflate(ent.getPickRadius())
 				.inflate(0.25);
