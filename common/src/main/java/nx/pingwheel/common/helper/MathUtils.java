@@ -1,10 +1,11 @@
 package nx.pingwheel.common.helper;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import nx.pingwheel.common.compat.Vector4f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import static nx.pingwheel.common.ClientGlobal.Game;
 
@@ -14,7 +15,7 @@ public class MathUtils {
 	public static ScreenPos worldToScreen(Vec3 worldPos, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
 		var window = Game.getWindow();
 		var camera = Game.gameRenderer.getMainCamera();
-		var worldPosRel = new Vector4f(camera.getPosition().reverse().add(worldPos), 1f);
+		var worldPosRel = new Vector4f(camera.getPosition().reverse().add(worldPos).toVector3f(), 1f);
 		worldPosRel.mul(modelViewMatrix);
 		worldPosRel.mul(projectionMatrix);
 
@@ -32,7 +33,7 @@ public class MathUtils {
 	}
 
 	public static void rotateZ(PoseStack matrixStack, float theta) {
-		matrixStack.mulPose(com.mojang.math.Vector3f.ZP.rotation(theta));
+		matrixStack.mulPose(new Matrix4f().rotateZ(theta));
 	}
 
 	public static Vec2 calculateAngleRectIntersection(float angle, Vec2 leftTop, Vec2 rightBottom) {

@@ -62,6 +62,7 @@ jar {
                 "Implementation-Version": project.jar.archiveVersion,
                 "Implementation-Vendor" : mod_author,
                 "Built-On-Minecraft"    : minecraft_version,
+                "MixinConfigs"          : "${mod_id}.mixins.json"
         ])
     }
 }

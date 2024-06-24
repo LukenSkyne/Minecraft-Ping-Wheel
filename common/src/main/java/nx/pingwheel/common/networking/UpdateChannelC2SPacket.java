@@ -9,6 +9,7 @@ import static nx.pingwheel.common.config.ClientConfig.MAX_CHANNEL_LENGTH;
 public record UpdateChannelC2SPacket(String channel) implements IPacket {
 
 	public static final ResourceLocation PACKET_ID = new ResourceLocation(MOD_ID + "-c2s", "update-channel");
+	public static final Type<UpdateChannelC2SPacket> PACKET_TYPE = new Type<>(PACKET_ID);
 
 	public UpdateChannelC2SPacket() {
 		this((String)null);
@@ -32,5 +33,10 @@ public record UpdateChannelC2SPacket(String channel) implements IPacket {
 
 	public static UpdateChannelC2SPacket readSafe(FriendlyByteBuf buf) {
 		return PacketHandler.readSafe(buf, UpdateChannelC2SPacket.class);
+	}
+
+	@Override
+	public Type<UpdateChannelC2SPacket> type() {
+		return PACKET_TYPE;
 	}
 }
