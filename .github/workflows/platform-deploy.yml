@@ -101,6 +101,7 @@ jobs:
           echo "MOD_VERSION=$(awk -F'mod_version=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
           echo "MC_VERSION=$(awk -F'minecraft_version=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
           echo "VERSION_RANGE=$(awk -F'${{ matrix.loader }}_compatible_range=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
+          echo "MODRINTH_FEATURED=$(awk -F'modrinth_featured=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
 
       - name: "Set release info"
         run: |
@@ -123,6 +124,7 @@ jobs:
         with:
           modrinth-id: QQXAdCzh
           modrinth-token: ${{ secrets.MODRINTH_API_TOKEN }}
+          modrinth-featured: ${{ env.MODRINTH_FEATURED }}
 
           curseforge-id: 734339
           curseforge-token: ${{ secrets.CURSEFORGE_API_TOKEN }}
