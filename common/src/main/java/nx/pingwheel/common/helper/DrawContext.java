@@ -4,14 +4,14 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import org.lwjgl.opengl.GL11;
@@ -26,14 +26,16 @@ public class DrawContext {
 	private static final int SHADOW_BLACK = FastColor.ARGB32.color(64, 0, 0, 0);
 	private static final int LIGHT_VALUE_MAX = 15728880;
 
+	private GuiGraphics guiGraphics;
 	private PoseStack matrices;
 
-	public DrawContext(PoseStack matrices) {
-		this.matrices = matrices;
+	public DrawContext(GuiGraphics guiGraphics) {
+		this.guiGraphics = guiGraphics;
+		this.matrices = guiGraphics.pose();
 	}
 
 	public void renderLabel(Component text, float yOffset, PlayerInfo player) {
-		var extraWidth = (player != null) ? 10f : 0f;
+		var extraWidth = (player != null) ? 10 : 0;
 		var textMetrics = new Vec2(
 			Game.font.width(text) + extraWidth,
 			Game.font.lineHeight
@@ -42,8 +44,8 @@ public class DrawContext {
 
 		matrices.pushPose();
 		matrices.translate(textOffset.x, textOffset.y, 0);
-		GuiComponent.fill(matrices, -2, -2, (int)textMetrics.x + 1, (int)textMetrics.y, SHADOW_BLACK);
-		Game.font.draw(matrices, text, extraWidth, 0f, WHITE);
+		guiGraphics.fill(-2, -2, (int)textMetrics.x + 1, (int)textMetrics.y, SHADOW_BLACK);
+		guiGraphics.drawString(Game.font, text, extraWidth, 0, WHITE, false);
 
 		if (player != null) {
 			matrices.translate(-0.5, -0.5, 0);
@@ -54,10 +56,10 @@ public class DrawContext {
 	}
 
 	public void renderPlayerHead(PlayerInfo player) {
-		RenderSystem.setShaderTexture(0, player.getSkinLocation());
+		var texture = player.getSkin().texture();
 		RenderSystem.enableBlend();
-		GuiComponent.blit(matrices, 0, 0, 0, 8, 8, 8, 8, 64, 64);
-		GuiComponent.blit(matrices, 0, 0, 0, 40, 8, 8, 8, 64, 64); // Overlay (hat)
+		guiGraphics.blit(texture, 0, 0, 0, 8, 8, 8, 8, 64, 64);
+		guiGraphics.blit(texture, 0, 0, 0, 40, 8, 8, 8, 64, 64); // Overlay (hat)
 		RenderSystem.disableBlend();
 	}
 
@@ -84,8 +86,8 @@ public class DrawContext {
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
 		var matrixStack = RenderSystem.getModelViewStack();
-		matrixStack.pushPose();
-		matrixStack.mulPoseMatrix(matrices.last().pose());
+		matrixStack.pushMatrix();
+		matrixStack.mul(matrices.last().pose());
 		matrixStack.translate(0f, 0f, -0.5f);
 		matrixStack.scale(1f, -1f, 1f);
 		matrixStack.scale(10f, 10f, 0.5f);
@@ -100,7 +102,7 @@ public class DrawContext {
 		var matrixStackDummy = new PoseStack();
 		Game.getItemRenderer().render(
 			itemStack,
-			ItemTransforms.TransformType.GUI,
+			ItemDisplayContext.GUI,
 			false,
 			matrixStackDummy,
 			immediate,
@@ -115,7 +117,7 @@ public class DrawContext {
 			Lighting.setupFor3DItems();
 		}
 
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 	}
 
@@ -123,10 +125,9 @@ public class DrawContext {
 		final var size = 12;
 		final var offset = size / -2;
 
-		RenderSystem.setShaderTexture(0, PING_TEXTURE_ID);
 		RenderSystem.enableBlend();
-		GuiComponent.blit(
-			matrices,
+		guiGraphics.blit(
+			PING_TEXTURE_ID,
 			offset,
 			offset,
 			0,
@@ -144,7 +145,7 @@ public class DrawContext {
 		matrices.pushPose();
 		MathUtils.rotateZ(matrices, (float)(Math.PI / 4f));
 		matrices.translate(-2.5, -2.5, 0);
-		GuiComponent.fill(matrices, 0, 0, 5, 5, WHITE);
+		guiGraphics.fill(0, 0, 5, 5, WHITE);
 		matrices.popPose();
 	}
 
@@ -153,21 +154,18 @@ public class DrawContext {
 			GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
 		}
 
-		var bufferBuilder = Tesselator.getInstance().getBuilder();
+		var tesselator = Tesselator.getInstance();
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+		var bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
 		var mat = matrices.last().pose();
-		bufferBuilder.vertex(mat, 5f, 0f, 0f).color(1f, 1f, 1f, 1f).endVertex();
-		bufferBuilder.vertex(mat, -5f, -5f, 0f).color(1f, 1f, 1f, 1f).endVertex();
-		bufferBuilder.vertex(mat, -3f, 0f, 0f).color(1f, 1f, 1f, 1f).endVertex();
-		bufferBuilder.vertex(mat, -5f, 5f, 0f).color(1f, 1f, 1f, 1f).endVertex();
-		bufferBuilder.end();
-		BufferUploader.end(bufferBuilder);
-		RenderSystem.enableTexture();
+		bufferBuilder.addVertex(mat, 5f, 0f, 0f).setColor(1f, 1f, 1f, 1f);
+		bufferBuilder.addVertex(mat, -5f, -5f, 0f).setColor(1f, 1f, 1f, 1f);
+		bufferBuilder.addVertex(mat, -3f, 0f, 0f).setColor(1f, 1f, 1f, 1f);
+		bufferBuilder.addVertex(mat, -5f, 5f, 0f).setColor(1f, 1f, 1f, 1f);
+		BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 		RenderSystem.disableBlend();
 		GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
 	}
