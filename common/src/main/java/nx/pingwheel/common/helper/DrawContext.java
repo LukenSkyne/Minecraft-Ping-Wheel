@@ -33,7 +33,7 @@ public class DrawContext {
 	}
 
 	public void renderLabel(Component text, float yOffset, PlayerInfo player) {
-		float extraWidth = (player != null) ? 10f : 0f;
+		var extraWidth = (player != null) ? 10f : 0f;
 		var textMetrics = new Vec2(
 			Game.font.width(text) + extraWidth,
 			Game.font.lineHeight
