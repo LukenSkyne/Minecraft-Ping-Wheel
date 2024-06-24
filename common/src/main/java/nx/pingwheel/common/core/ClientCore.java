@@ -125,6 +125,7 @@ public class ClientCore {
 			return;
 		}
 
+		var ctx = new DrawContext(m);
 		var wnd = Game.getWindow();
 		var screenSize = new Vec2(wnd.getGuiScaledWidth(), wnd.getGuiScaledHeight());
 		var safeZoneTopLeft = new Vec2(Config.getSafeZoneLeft(), Config.getSafeZoneTop());
@@ -169,7 +170,7 @@ public class ClientCore {
 				var indicatorOffsetX = Math.cos(pingAngle + Math.PI) * 12;
 				var indicatorOffsetY = Math.sin(pingAngle + Math.PI) * 12;
 				m.translate(indicatorOffsetX, indicatorOffsetY, 0);
-				Draw.renderPing(m, ping.getItemStack(), Config.isItemIconVisible());
+				ctx.renderPing(ping.getItemStack(), Config.isItemIconVisible());
 				m.popPose();
 
 				m.pushPose();
@@ -178,9 +179,9 @@ public class ClientCore {
 
 				m.scale(0.25f, 0.25f, 1f);
 				m.translate(-5f, 0f, 0f);
-				Draw.renderArrow(m, true);
+				ctx.renderArrow(true);
 				m.scale(0.9f, 0.9f, 1f);
-				Draw.renderArrow(m, false);
+				ctx.renderArrow(false);
 				m.popPose();
 
 				m.popPose();
@@ -192,14 +193,14 @@ public class ClientCore {
 				m.scale(pingScale, pingScale, 1f);
 
 				var text = LanguageUtils.UNIT_METERS.get("%,.1f".formatted(ping.getDistance()));
-				Draw.renderLabel(m, text, -1.5f, null);
-				Draw.renderPing(m, ping.getItemStack(), Config.isItemIconVisible());
+				ctx.renderLabel(text, -1.5f, null);
+				ctx.renderPing(ping.getItemStack(), Config.isItemIconVisible());
 
 				var author = ping.getAuthor();
 
 				if (showNameLabels && author != null) {
 					var displayName = PlayerTeam.formatNameForTeam(author.getTeam(), Component.literal(author.getProfile().getName()));
-					Draw.renderLabel(m, displayName, 1.75f, author);
+					ctx.renderLabel(displayName, 1.75f, author);
 				}
 
 				m.popPose();

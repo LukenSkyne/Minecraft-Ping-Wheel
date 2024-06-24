@@ -20,14 +20,19 @@ import static nx.pingwheel.common.ClientGlobal.Game;
 import static nx.pingwheel.common.ClientGlobal.PING_TEXTURE_ID;
 import static nx.pingwheel.common.resource.ResourceReloadListener.hasCustomTexture;
 
-public class Draw {
-	private Draw() {}
+public class DrawContext {
 
 	private static final int WHITE = FastColor.ARGB32.color(255, 255, 255, 255);
 	private static final int SHADOW_BLACK = FastColor.ARGB32.color(64, 0, 0, 0);
 	private static final int LIGHT_VALUE_MAX = 15728880;
 
-	public static void renderLabel(PoseStack matrices, Component text, float yOffset, PlayerInfo player) {
+	private PoseStack matrices;
+
+	public DrawContext(PoseStack matrices) {
+		this.matrices = matrices;
+	}
+
+	public void renderLabel(Component text, float yOffset, PlayerInfo player) {
 		float extraWidth = (player != null) ? 10f : 0f;
 		var textMetrics = new Vec2(
 			Game.font.width(text) + extraWidth,
@@ -42,13 +47,13 @@ public class Draw {
 
 		if (player != null) {
 			matrices.translate(-0.5, -0.5, 0);
-			renderPlayerHead(matrices, player);
+			renderPlayerHead(player);
 		}
 
 		matrices.popPose();
 	}
 
-	public static void renderPlayerHead(PoseStack matrices, PlayerInfo player) {
+	public void renderPlayerHead(PlayerInfo player) {
 		RenderSystem.setShaderTexture(0, player.getSkinLocation());
 		RenderSystem.enableBlend();
 		GuiComponent.blit(matrices, 0, 0, 0, 8, 8, 8, 8, 64, 64);
@@ -56,17 +61,17 @@ public class Draw {
 		RenderSystem.disableBlend();
 	}
 
-	public static void renderPing(PoseStack matrices, ItemStack itemStack, boolean drawItemIcon) {
+	public void renderPing(ItemStack itemStack, boolean drawItemIcon) {
 		if (itemStack != null && drawItemIcon) {
-			Draw.renderGuiItemModel(matrices, itemStack);
+			renderGuiItemModel(itemStack);
 		} else if (hasCustomTexture()) {
-			renderCustomPingIcon(matrices);
+			renderCustomPingIcon();
 		} else {
-			renderDefaultPingIcon(matrices);
+			renderDefaultPingIcon();
 		}
 	}
 
-	public static void renderGuiItemModel(PoseStack matrices, ItemStack itemStack) {
+	public void renderGuiItemModel(ItemStack itemStack) {
 		var model = Game.getItemRenderer().getModel(itemStack, null, null, 0);
 
 		Game.getTextureManager()
@@ -114,7 +119,7 @@ public class Draw {
 		RenderSystem.applyModelViewMatrix();
 	}
 
-	public static void renderCustomPingIcon(PoseStack matrices) {
+	public void renderCustomPingIcon() {
 		final var size = 12;
 		final var offset = size / -2;
 
@@ -135,7 +140,7 @@ public class Draw {
 		RenderSystem.disableBlend();
 	}
 
-	public static void renderDefaultPingIcon(PoseStack matrices) {
+	public void renderDefaultPingIcon() {
 		matrices.pushPose();
 		MathUtils.rotateZ(matrices, (float)(Math.PI / 4f));
 		matrices.translate(-2.5, -2.5, 0);
@@ -143,7 +148,7 @@ public class Draw {
 		matrices.popPose();
 	}
 
-	public static void renderArrow(PoseStack m, boolean antialias) {
+	public void renderArrow(boolean antialias) {
 		if (antialias) {
 			GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
 		}
@@ -155,7 +160,7 @@ public class Draw {
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-		var mat = m.last().pose();
+		var mat = matrices.last().pose();
 		bufferBuilder.vertex(mat, 5f, 0f, 0f).color(1f, 1f, 1f, 1f).endVertex();
 		bufferBuilder.vertex(mat, -5f, -5f, 0f).color(1f, 1f, 1f, 1f).endVertex();
 		bufferBuilder.vertex(mat, -3f, 0f, 0f).color(1f, 1f, 1f, 1f).endVertex();
