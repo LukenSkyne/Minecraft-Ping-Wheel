@@ -10,6 +10,8 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.scores.PlayerTeam;
+import nx.pingwheel.common.compat.Component;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.helper.*;
 import nx.pingwheel.common.networking.PingLocationC2SPacket;
@@ -17,6 +19,7 @@ import nx.pingwheel.common.networking.PingLocationS2CPacket;
 import nx.pingwheel.common.sound.DirectionalSoundInstance;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 import static nx.pingwheel.common.ClientGlobal.*;
@@ -45,7 +48,9 @@ public class ClientCore {
 			return;
 		}
 
-		if (Game.player == null || Game.level == null) {
+		final var connection = Game.getConnection();
+
+		if (Game.player == null || Game.level == null || connection == null) {
 			return;
 		}
 
@@ -61,13 +66,13 @@ public class ClientCore {
 			}
 		}
 
-		final var authorPlayer = Game.level.getPlayerByUUID(packet.author());
+		final var authorInfo = connection.getPlayerInfo(packet.author());
 
 		Game.execute(() -> {
 			addOrReplacePing(new Ping(
 				packet.pos(),
 				packet.entity(),
-				authorPlayer,
+				authorInfo,
 				packet.sequence(),
 				packet.dimension(),
 				(int)Game.level.getGameTime()
@@ -189,7 +194,8 @@ public class ClientCore {
 				var author = ping.getAuthor();
 
 				if (showNameLabels && author != null) {
-					Draw.renderLabel(m, author.getDisplayName(), 1.75f, author);
+					var displayName = PlayerTeam.formatNameForTeam(author.getTeam(), Component.literal(author.getProfile().getName()));
+					Draw.renderLabel(m, displayName, 1.75f, author);
 				}
 
 				m.popPose();
@@ -273,7 +279,7 @@ public class ClientCore {
 		for (int i = 0; i < pingRepo.size(); i++) {
 			var entry = pingRepo.get(i);
 
-			if (entry.getAuthor().equals(newPing.getAuthor()) && entry.getSequence() == newPing.getSequence()) {
+			if (Objects.equals(entry.getAuthor(), newPing.getAuthor()) && entry.getSequence() == newPing.getSequence()) {
 				index = i;
 				break;
 			}
