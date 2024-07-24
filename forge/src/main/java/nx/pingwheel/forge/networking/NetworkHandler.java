@@ -44,7 +44,7 @@ public class NetworkHandler implements INetworkHandler {
 	public void sendToClient(IPacket packet, ServerPlayer player) {
 		var channel = channels.get(packet.getId());
 
-		if (Game.getConnection() == null || channel == null) {
+		if (channel == null) {
 			return;
 		}
 
