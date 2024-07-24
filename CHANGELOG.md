@@ -1,2 +1,1 @@
-* Fixed player info being lost when outside of render distance
-* Fixed pings not being cleared on disconnect
+* Fixed pings not working on server due to invalid connection check
