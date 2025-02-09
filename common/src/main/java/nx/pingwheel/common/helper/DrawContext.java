@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec2;
 import nx.pingwheel.common.Global;
 import nx.pingwheel.common.config.ClientConfig;
@@ -76,7 +77,10 @@ public class DrawContext {
     public void renderGuiItemModel(Ping ping, ClientConfig config) {
         switch (config.getItemIconVisible()) {
             case ITEM_RENDER -> guiGraphics.renderItem(ping.getItemStack(), -8, -8, 0, -150);
-            case ITEM_ENTITY_RENDER -> renderEntity(ping, 45f);
+            case ITEM_ENTITY_RENDER -> renderEntity(config, ping, 45f);
+            default -> {
+                // Do nothing
+            }
         }
     }
 
@@ -108,33 +112,42 @@ public class DrawContext {
         matrices.popPose();
 
         switch (config.getEntityIconVisible()) {
-            case ROTATION_ENABLE -> renderEntity(ping, 20f);
+            case ROTATION_ENABLE -> renderEntity(config, ping, 20f);
             case ROTATION_DISABLE -> renderEntity(ping, 20f, 30f, 0f);
-        }
-    }
-
-    public void renderEntity(Ping ping, float scale, @Nullable Float yaw, @Nullable Float pitch) {
-        LivingEntity originalEntity = (LivingEntity) ping.getEntity();
-        if (originalEntity != null && ping.getDistance() > 10) {
-            LivingEntity entityCopy = (LivingEntity) originalEntity.getType().create(originalEntity.level());
-            if (entityCopy != null) {
-                entityCopy.moveTo(originalEntity.getX(), originalEntity.getY(), originalEntity.getZ(),
-                        originalEntity.getYRot(), originalEntity.getXRot());
-
-                if (yaw != null) {
-                    entityCopy.setYRot(yaw);
-                    entityCopy.setYBodyRot(yaw);
-                }
-                if (pitch != null) {
-                    entityCopy.setXRot(pitch);
-                }
-
-                renderEntityBase(entityCopy, scale);
+            default -> {
+                // Do nothing
             }
         }
     }
 
-    public void renderEntity(Ping ping, float scale) {
+    public void renderEntity(Ping ping, float scale, @Nullable Float yaw, @Nullable Float pitch) {
+        if (!(ping.getEntity() instanceof ItemEntity)) {
+            LivingEntity originalEntity = (LivingEntity) ping.getEntity();
+            if (originalEntity != null && ping.getDistance() > 10) {
+                LivingEntity entityCopy = (LivingEntity) originalEntity.getType().create(originalEntity.level());
+                if (entityCopy != null) {
+                    if (yaw != null) {
+                        entityCopy.setYRot(yaw); // Rotación del cuerpo
+                        entityCopy.setYBodyRot(yaw); // Rotación del cuerpo para animaciones
+                        entityCopy.yHeadRot = yaw; // Rotación de la cabeza
+                        entityCopy.yHeadRotO = yaw; // Rotación anterior de la cabeza
+                    }
+                    if (pitch != null) {
+                        entityCopy.setXRot(pitch); // Rotación vertical (pitch)
+                        entityCopy.xRotO = pitch; // Rotación vertical anterior (pitch)
+                    }
+
+                    renderEntityBase(entityCopy, scale);
+                }
+            }
+        }
+    }
+
+    public void renderEntity(ClientConfig config, Ping ping, float scale) {
+        if (ping.getEntity() instanceof ItemEntity && config.getItemIconVisible() == ItemRenderType.DISABLE) {
+            return;
+        }
+
         if (ping.getEntity() != null && ping.getDistance() > 10) {
             renderEntityBase(ping.getEntity(), scale);
         }
