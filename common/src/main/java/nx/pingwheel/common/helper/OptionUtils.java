@@ -39,25 +39,21 @@ public class OptionUtils {
 		);
 	}
 
-	public static <E extends Enum<E>> OptionInstance<E> ofEnum(
+	public static <E extends Enum<E>> Option ofEnum(
 			String key,
 			Class<E> enumClass,
 			Function<E, Component> formatter,
 			Supplier<E> getter,
 			Consumer<E> setter
 	) {
-		E[] values = enumClass.getEnumConstants();
+		E[] enumValues = enumClass.getEnumConstants();
 
-		return new OptionInstance<>(
+		return CycleOption.create(
 				key,
-				OptionInstance.noTooltip(),
-				(optionText, value) -> formatter.apply(value),
-				new OptionInstance.Enum<>(List.of(values), Codec.STRING.xmap(
-						name -> Enum.valueOf(enumClass, name),
-						Enum::name
-				)),
-				getter.get(),
-				setter
+				enumValues,
+				formatter,
+				gameOptions -> getter.get(),
+				(gameOptions, option, newValue) -> setter.accept(newValue)
 		);
 	}
 }
