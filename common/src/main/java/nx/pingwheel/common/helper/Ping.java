@@ -3,6 +3,7 @@ package nx.pingwheel.common.helper;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -39,6 +40,9 @@ public class Ping {
 	@Setter
 	@Nullable
 	private ItemStack itemStack;
+	@Setter
+	@Nullable
+	private Entity entity;
 
 	public Ping(Vec3 pos, @Nullable UUID uuid, PlayerInfo author, int sequence, int dimension, int spawnTime) {
 		this.pos = pos;

@@ -11,6 +11,8 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.util.FormattedCharSequence;
 import nx.pingwheel.common.compat.Component;
 import nx.pingwheel.common.config.ClientConfig;
+import nx.pingwheel.common.helper.EntityRenderType;
+import nx.pingwheel.common.helper.ItemRenderType;
 import nx.pingwheel.common.helper.LanguageUtils;
 import nx.pingwheel.common.helper.OptionUtils;
 
@@ -22,206 +24,221 @@ import static nx.pingwheel.common.config.ClientConfig.*;
 
 public class SettingsScreen extends Screen {
 
-	private final ClientConfig config;
+    private final ClientConfig config;
 
-	private Screen parent;
-	private OptionsList list;
-	private EditBox channelTextField;
+    private Screen parent;
+    private OptionsList list;
+    private EditBox channelTextField;
 
-	public SettingsScreen() {
-		super(LanguageUtils.settings("title").get());
-		this.config = ConfigHandler.getConfig();
-	}
+    public SettingsScreen() {
+        super(LanguageUtils.settings("title").get());
+        this.config = ConfigHandler.getConfig();
+    }
 
-	public SettingsScreen(Screen parent) {
-		this();
-		this.parent = parent;
-	}
+    public SettingsScreen(Screen parent) {
+        this();
+        this.parent = parent;
+    }
 
-	@Override
-	public void tick() {
-		this.channelTextField.tick();
-	}
+    @Override
+    public void tick() {
+        this.channelTextField.tick();
+    }
 
-	@Override
-	protected void init() {
-		this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
+    @Override
+    protected void init() {
+        this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
 
-		final var pingVolumeOption = getPingVolumeOption();
-		final var pingDurationOption = getPingDurationOption();
-		this.list.addSmall(pingVolumeOption, pingDurationOption);
+        final var pingVolumeOption = getPingVolumeOption();
+        final var pingDurationOption = getPingDurationOption();
+        this.list.addSmall(pingVolumeOption, pingDurationOption);
 
-		final var pingDistanceOption = getPingDistanceOption();
-		final var correctionPeriodOption = getCorrectionPeriodOption();
-		this.list.addSmall(pingDistanceOption, correctionPeriodOption);
+        final var pingDistanceOption = getPingDistanceOption();
+        final var correctionPeriodOption = getCorrectionPeriodOption();
+        this.list.addSmall(pingDistanceOption, correctionPeriodOption);
 
-		final var itemIconsVisibleOption = getItemIconsVisibleOption();
-		final var directionIndicatorVisibleOption = getDirectionIndicatorVisibleOption();
-		this.list.addSmall(itemIconsVisibleOption, directionIndicatorVisibleOption);
+        final var itemIconsVisibleOption = getItemIconsVisibleOption();
+        final var directionIndicatorVisibleOption = getDirectionIndicatorVisibleOption();
+        this.list.addSmall(itemIconsVisibleOption, directionIndicatorVisibleOption);
 
-		final var nameLabelForcedOption = getNameLabelForcedOption();
-		final var pingSizeOption = getPingSizeOption();
-		this.list.addSmall(nameLabelForcedOption, pingSizeOption);
+        final var entityIconVisibleOption = getEntityIconVisibleOption();
+        this.list.addSmall(entityIconVisibleOption, null);
 
-		this.channelTextField = new EditBox(this.font, this.width / 2 - 100, 160, 200, 20, Component.empty());
-		this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
-		this.channelTextField.setValue(config.getChannel());
-		this.channelTextField.setResponder(config::setChannel);
-		this.addWidget(this.channelTextField);
+        final var nameLabelForcedOption = getNameLabelForcedOption();
+        final var pingSizeOption = getPingSizeOption();
+        this.list.addSmall(nameLabelForcedOption, pingSizeOption);
 
-		this.addWidget(this.list);
+        this.channelTextField = new EditBox(this.font, this.width / 2 - 100, 160, 200, 20, Component.empty());
+        this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
+        this.channelTextField.setValue(config.getChannel());
+        this.channelTextField.setResponder(config::setChannel);
+        this.addWidget(this.channelTextField);
 
-		this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, (button) -> onClose()));
-	}
+        this.addWidget(this.list);
 
-	@Override
-	public void onClose() {
-		ConfigHandler.save();
+        this.addRenderableWidget(new Button(this.width / 2 - 100, this.height - 27, 200, 20, CommonComponents.GUI_DONE, button -> onClose()));
+    }
 
-		if (parent != null && this.minecraft != null) {
-			this.minecraft.setScreen(parent);
-		} else {
-			super.onClose();
-		}
-	}
+    @Override
+    public void onClose() {
+        ConfigHandler.save();
 
-	@Override
-	public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-		this.renderBackground(matrices);
-		this.list.render(matrices, mouseX, mouseY, delta);
-		drawCenteredString(matrices, this.font, this.title, this.width / 2, 20, 16777215);
+        if (parent != null && this.minecraft != null) {
+            this.minecraft.setScreen(parent);
+        } else {
+            super.onClose();
+        }
+    }
 
-		drawString(matrices, this.font, LanguageUtils.settings("channel").get(), this.width / 2 - 100, this.channelTextField.y - 12, 10526880);
-		this.channelTextField.render(matrices, mouseX, mouseY, delta);
+    @Override
+    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+        this.renderBackground(matrices);
+        this.list.render(matrices, mouseX, mouseY, delta);
+        drawCenteredString(matrices, this.font, this.title, this.width / 2, 20, 16777215);
 
-		super.render(matrices, mouseX, mouseY, delta);
+        drawString(matrices, this.font, LanguageUtils.settings("channel").get(), this.width / 2 - 100, this.channelTextField.y - 12, 10526880);
+        this.channelTextField.render(matrices, mouseX, mouseY, delta);
 
-		var tooltipLines = getHoveredButtonTooltip(this.list, mouseX, mouseY);
+        super.render(matrices, mouseX, mouseY, delta);
 
-		if (tooltipLines.isEmpty() && (this.channelTextField.isHoveredOrFocused() && !this.channelTextField.isFocused())) {
-			tooltipLines = this.font.split(LanguageUtils.settings("channel.tooltip").get(), 140);
-		}
+        var tooltipLines = getHoveredButtonTooltip(this.list, mouseX, mouseY);
 
-		this.renderTooltip(matrices, tooltipLines, mouseX, mouseY);
-	}
+        if (tooltipLines.isEmpty() && (this.channelTextField.isHoveredOrFocused() && !this.channelTextField.isFocused())) {
+            tooltipLines = this.font.split(LanguageUtils.settings("channel.tooltip").get(), 140);
+        }
 
-	private static List<FormattedCharSequence> getHoveredButtonTooltip(OptionsList buttonList, int mouseX, int mouseY) {
-		final var orderableTooltip = (TooltipAccessor)buttonList.getMouseOver(mouseX, mouseY).orElse(null);
+        this.renderTooltip(matrices, tooltipLines, mouseX, mouseY);
+    }
 
-		if (orderableTooltip != null) {
-			return orderableTooltip.getTooltip();
-		}
+    private static List<FormattedCharSequence> getHoveredButtonTooltip(OptionsList buttonList, int mouseX, int mouseY) {
+        final var orderableTooltip = (TooltipAccessor) buttonList.getMouseOver(mouseX, mouseY).orElse(null);
 
-		return Collections.emptyList();
-	}
+        if (orderableTooltip != null) {
+            return orderableTooltip.getTooltip();
+        }
 
-	private Option getPingVolumeOption() {
-		final var text = LanguageUtils.settings("pingVolume");
+        return Collections.emptyList();
+    }
 
-		return OptionUtils.ofInt(
-			text.key(),
-			0, 100, 1,
-			(value) -> {
-				if (value == 0) {
-					return text.get(CommonComponents.OPTION_OFF);
-				}
+    private Option getPingVolumeOption() {
+        final var text = LanguageUtils.settings("pingVolume");
 
-				return text.get(LanguageUtils.UNIT_PERCENT.get(value));
-			},
-			config::getPingVolume,
-			config::setPingVolume
-		);
-	}
+        return OptionUtils.ofInt(
+                text.key(),
+                0, 100, 1,
+                value -> {
+                    if (value == 0) {
+                        return text.get(CommonComponents.OPTION_OFF);
+                    }
 
-	private Option getPingDurationOption() {
-		final var text = LanguageUtils.settings("pingDuration");
+                    return text.get(LanguageUtils.UNIT_PERCENT.get(value));
+                },
+                config::getPingVolume,
+                config::setPingVolume
+        );
+    }
 
-		return OptionUtils.ofInt(
-			text.key(),
-			1, MAX_PING_DURATION, 1,
-			(value) -> {
-				if (value >= MAX_PING_DURATION) {
-					return text.get(LanguageUtils.SYMBOL_INFINITE);
-				}
+    private Option getPingDurationOption() {
+        final var text = LanguageUtils.settings("pingDuration");
 
-				return text.get(LanguageUtils.UNIT_SECONDS.get(value));
-			},
-			config::getPingDuration,
-			config::setPingDuration
-		);
-	}
+        return OptionUtils.ofInt(
+                text.key(),
+                1, MAX_PING_DURATION, 1,
+                value -> {
+                    if (value >= MAX_PING_DURATION) {
+                        return text.get(LanguageUtils.SYMBOL_INFINITE);
+                    }
 
-	private Option getPingDistanceOption() {
-		final var text = LanguageUtils.settings("pingDistance");
+                    return text.get(LanguageUtils.UNIT_SECONDS.get(value));
+                },
+                config::getPingDuration,
+                config::setPingDuration
+        );
+    }
 
-		return OptionUtils.ofInt(
-			text.key(),
-			0, MAX_PING_DISTANCE, 16,
-			(value) -> {
-				if (value == 0) {
-					return text.get(LanguageUtils.VALUE_HIDDEN);
-				} else if (value >= MAX_PING_DISTANCE) {
-					return text.get(LanguageUtils.SYMBOL_INFINITE);
-				}
+    private Option getPingDistanceOption() {
+        final var text = LanguageUtils.settings("pingDistance");
 
-				return text.get(LanguageUtils.UNIT_METERS.get(value));
-			},
-			config::getPingDistance,
-			config::setPingDistance
-		);
-	}
+        return OptionUtils.ofInt(
+                text.key(),
+                0, MAX_PING_DISTANCE, 16,
+                value -> {
+                    if (value == 0) {
+                        return text.get(LanguageUtils.VALUE_HIDDEN);
+                    } else if (value >= MAX_PING_DISTANCE) {
+                        return text.get(LanguageUtils.SYMBOL_INFINITE);
+                    }
 
-	private Option getCorrectionPeriodOption() {
-		final var text = LanguageUtils.settings("correctionPeriod");
+                    return text.get(LanguageUtils.UNIT_METERS.get(value));
+                },
+                config::getPingDistance,
+                config::setPingDistance
+        );
+    }
 
-		return OptionUtils.ofFloat(
-			text.key(),
-			0.1f, MAX_CORRECTION_PERIOD, 0.1f,
-			(value) -> {
-				if (value >= MAX_CORRECTION_PERIOD) {
-					return text.get(LanguageUtils.SYMBOL_INFINITE);
-				}
+    private Option getCorrectionPeriodOption() {
+        final var text = LanguageUtils.settings("correctionPeriod");
 
-				return text.get(LanguageUtils.UNIT_SECONDS.get("%.1f".formatted(value)));
-			},
-			config::getCorrectionPeriod,
-			config::setCorrectionPeriod
-		);
-	}
+        return OptionUtils.ofFloat(
+                text.key(),
+                0.1f, MAX_CORRECTION_PERIOD, 0.1f,
+                value -> {
+                    if (value >= MAX_CORRECTION_PERIOD) {
+                        return text.get(LanguageUtils.SYMBOL_INFINITE);
+                    }
 
-	private Option getItemIconsVisibleOption() {
-		return OptionUtils.ofBool(
-			LanguageUtils.settings("itemIconVisible").key(),
-			config::isItemIconVisible,
-			config::setItemIconVisible
-		);
-	}
+                    return text.get(LanguageUtils.UNIT_SECONDS.get("%.1f".formatted(value)));
+                },
+                config::getCorrectionPeriod,
+                config::setCorrectionPeriod
+        );
+    }
 
-	private Option getDirectionIndicatorVisibleOption() {
-		return OptionUtils.ofBool(
-			LanguageUtils.settings("directionIndicatorVisible").key(),
-			config::isDirectionIndicatorVisible,
-			config::setDirectionIndicatorVisible
-		);
-	}
+    private Option getItemIconsVisibleOption() {
+        return OptionUtils.ofEnum(
+                LanguageUtils.settings("itemIconVisible").key(),
+                ItemRenderType.class,
+                value -> Component.literal(value.name()),
+                config::getItemIconVisible,
+                config::setItemIconVisible
+        );
+    }
 
-	private Option getNameLabelForcedOption() {
-		return OptionUtils.ofBool(
-			LanguageUtils.settings("nameLabelForced").key(),
-			config::isNameLabelForced,
-			config::setNameLabelForced
-		);
-	}
+    private Option getEntityIconVisibleOption() {
+        return OptionUtils.ofEnum(
+                LanguageUtils.settings("entityIconVisible").key(),
+                EntityRenderType.class,
+                value -> Component.literal(value.name()),
+                config::getEntityIconVisible,
+                config::setEntityIconVisible
+        );
+    }
 
-	private Option getPingSizeOption() {
-		final var text = LanguageUtils.settings("pingSize");
+    private Option getDirectionIndicatorVisibleOption() {
+        return OptionUtils.ofBool(
+                LanguageUtils.settings("directionIndicatorVisible").key(),
+                config::isDirectionIndicatorVisible,
+                config::setDirectionIndicatorVisible
+        );
+    }
 
-		return OptionUtils.ofInt(
-			text.key(),
-			40, 300, 10,
-			(value) -> text.get(LanguageUtils.UNIT_PERCENT.get(value)),
-			config::getPingSize,
-			config::setPingSize
-		);
-	}
+    private Option getNameLabelForcedOption() {
+        return OptionUtils.ofBool(
+                LanguageUtils.settings("nameLabelForced").key(),
+                config::isNameLabelForced,
+                config::setNameLabelForced
+        );
+    }
+
+    private Option getPingSizeOption() {
+        final var text = LanguageUtils.settings("pingSize");
+
+        return OptionUtils.ofInt(
+                text.key(),
+                40, 300, 10,
+                value -> text.get(LanguageUtils.UNIT_PERCENT.get(value)),
+                config::getPingSize,
+                config::setPingSize
+        );
+    }
 }
