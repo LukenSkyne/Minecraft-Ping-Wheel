@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import nx.pingwheel.common.config.ClientConfig;
+import nx.pingwheel.common.helper.EntityRenderType;
 import nx.pingwheel.common.helper.ItemRenderType;
 import nx.pingwheel.common.helper.LanguageUtils;
 import nx.pingwheel.common.helper.OptionUtils;
@@ -75,6 +76,9 @@ public class SettingsScreen extends OptionsSubScreen {
         final var itemIconsVisibleOption = getItemIconsVisibleOption();
         final var directionIndicatorVisibleOption = getDirectionIndicatorVisibleOption();
         this.list.addSmall(itemIconsVisibleOption, directionIndicatorVisibleOption);
+
+        final var entityIconVisibleOption = getEntityIconVisibleOption();
+        this.list.addSmall(entityIconVisibleOption, null);
 
         final var nameLabelForcedOption = getNameLabelForcedOption();
         final var pingSizeOption = getPingSizeOption();
@@ -195,6 +199,16 @@ public class SettingsScreen extends OptionsSubScreen {
                 (value) -> Component.literal(value.name()),
                 config::getItemIconVisible,
                 config::setItemIconVisible
+        );
+    }
+
+    private OptionInstance<EntityRenderType> getEntityIconVisibleOption() {
+        return OptionUtils.ofEnum(
+                LanguageUtils.settings("entityIconVisible").key(),
+                EntityRenderType.class,
+                (value) -> Component.literal(value.name()),
+                config::getEntityIconVisible,
+                config::setEntityIconVisible
         );
     }
 

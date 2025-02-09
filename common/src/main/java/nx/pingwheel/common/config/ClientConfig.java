@@ -20,6 +20,7 @@ public class ClientConfig implements IConfig {
 	int pingDistance = 2048;
 	float correctionPeriod = 1f;
 	ItemRenderType itemIconVisible = ItemRenderType.ITEM_ENTITY_RENDER;
+	EntityRenderType entityIconVisible = EntityRenderType.ROTATION_ENABLE;
 	boolean directionIndicatorVisible = true;
 	boolean nameLabelForced = false;
 	int pingSize = 100;

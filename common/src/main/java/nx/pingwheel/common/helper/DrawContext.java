@@ -9,8 +9,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.phys.Vec2;
 import nx.pingwheel.common.Global;
 import nx.pingwheel.common.config.ClientConfig;
@@ -38,7 +37,7 @@ public class DrawContext {
     public void renderLabel(Component text, float yOffset, PlayerInfo player) {
         var extraWidth = (player != null) ? 10 : 0;
         var textMetrics = new Vec2(
-                Game.font.width(text) + extraWidth,
+                (float) Game.font.width(text) + extraWidth,
                 Game.font.lineHeight
         );
         var textOffset = textMetrics.scale(-0.5f).add(new Vec2(0f, textMetrics.y * yOffset));
@@ -70,34 +69,14 @@ public class DrawContext {
         } else if (hasCustomTexture()) {
             renderCustomPingIcon();
         } else {
-            renderDefaultPingIcon();
+            renderDefaultPingIcon(ping, config);
         }
     }
 
     public void renderGuiItemModel(Ping ping, ClientConfig config) {
         switch (config.getItemIconVisible()) {
             case ITEM_RENDER -> guiGraphics.renderItem(ping.getItemStack(), -8, -8, 0, -150);
-            case ITEM_ENTITY_RENDER -> renderEntity(ping, 45f, null, null);
-        }
-    }
-
-    public void renderEntity(Ping ping, float scale, @Nullable Float yaw, @Nullable Float pitch) {
-        if (ping.getEntity() != null && ping.getDistance() > 10) {
-            matrices.pushPose();
-            matrices.translate(-2.5, -20, 0);
-            matrices.scale(scale, scale, scale);
-            matrices.mulPose(new Quaternionf().rotateZ((float) Math.toRadians(180)));
-            if (yaw != null) matrices.mulPose(new Quaternionf().rotateX((float) Math.toRadians(yaw)));
-            if (pitch != null) matrices.mulPose(new Quaternionf().rotateY((float) Math.toRadians(pitch)));
-            EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-            dispatcher.setRenderShadow(false);
-            try {
-                dispatcher.render(ping.getEntity(), 0.0, 0.0, 0.0, 0.0F, 1.0F, matrices, Minecraft.getInstance().renderBuffers().bufferSource(), 15728880);
-            } catch (Exception e) {
-                Global.LOGGER.error(e);
-            }
-            dispatcher.setRenderShadow(true);
-            matrices.popPose();
+            case ITEM_ENTITY_RENDER -> renderEntity(ping, 45f);
         }
     }
 
@@ -121,11 +100,62 @@ public class DrawContext {
         RenderSystem.disableBlend();
     }
 
-    public void renderDefaultPingIcon() {
+    public void renderDefaultPingIcon(Ping ping, ClientConfig config) {
         matrices.pushPose();
         MathUtils.rotateZ(matrices, (float) (Math.PI / 4f));
         matrices.translate(-2.5, -2.5, 0);
         guiGraphics.fill(0, 0, 5, 5, WHITE);
+        matrices.popPose();
+
+        switch (config.getEntityIconVisible()) {
+            case ROTATION_ENABLE -> renderEntity(ping, 20f);
+            case ROTATION_DISABLE -> renderEntity(ping, 20f, 30f, 0f);
+        }
+    }
+
+    public void renderEntity(Ping ping, float scale, @Nullable Float yaw, @Nullable Float pitch) {
+        LivingEntity originalEntity = (LivingEntity) ping.getEntity();
+        if (originalEntity != null && ping.getDistance() > 10) {
+            LivingEntity entityCopy = (LivingEntity) originalEntity.getType().create(originalEntity.level());
+            if (entityCopy != null) {
+                entityCopy.moveTo(originalEntity.getX(), originalEntity.getY(), originalEntity.getZ(),
+                        originalEntity.getYRot(), originalEntity.getXRot());
+
+                if (yaw != null) {
+                    entityCopy.setYRot(yaw);
+                    entityCopy.setYBodyRot(yaw);
+                }
+                if (pitch != null) {
+                    entityCopy.setXRot(pitch);
+                }
+
+                renderEntityBase(entityCopy, scale);
+            }
+        }
+    }
+
+    public void renderEntity(Ping ping, float scale) {
+        if (ping.getEntity() != null && ping.getDistance() > 10) {
+            renderEntityBase(ping.getEntity(), scale);
+        }
+    }
+
+    private void renderEntityBase(Entity entity, float scale) {
+        matrices.pushPose();
+
+        matrices.translate(-2.5, -20, 0);
+        matrices.scale(scale, scale, scale);
+        matrices.mulPose(new Quaternionf().rotateZ((float) Math.toRadians(180)));
+
+        EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        dispatcher.setRenderShadow(false);
+        try {
+            dispatcher.render(entity, 0.0, 0.0, 0.0, 0.0F, 1.0F, matrices,
+                    Minecraft.getInstance().renderBuffers().bufferSource(), 15728880);
+        } catch (Exception e) {
+            Global.LOGGER.error("Failed to render entity in GUI", e);
+        }
+        dispatcher.setRenderShadow(true);
         matrices.popPose();
     }
 
