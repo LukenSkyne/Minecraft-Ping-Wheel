@@ -4,6 +4,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import nx.pingwheel.common.helper.EntityRenderType;
+import nx.pingwheel.common.helper.ItemRenderType;
 import nx.pingwheel.common.networking.UpdateChannelC2SPacket;
 
 import static nx.pingwheel.common.Global.NetHandler;
@@ -17,7 +19,7 @@ public class ClientConfig implements IConfig {
 	int pingDuration = 7;
 	int pingDistance = 2048;
 	float correctionPeriod = 1f;
-	boolean itemIconVisible = true;
+	ItemRenderType itemIconVisible = ItemRenderType.ITEM_ENTITY_RENDER;
 	boolean directionIndicatorVisible = true;
 	boolean nameLabelForced = false;
 	int pingSize = 100;

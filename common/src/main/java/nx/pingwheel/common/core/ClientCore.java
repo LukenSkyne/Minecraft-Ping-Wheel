@@ -127,23 +127,23 @@ public class ClientCore {
 		}
 	}
 
-	public static void onRenderGUI(GuiGraphics gg, float tickDelta) {
+	public static void onRenderGUI(GuiGraphics guiGraphics, float tickDelta) {
 		if (Game.player == null || pingRepo.isEmpty()) {
 			return;
 		}
 
-		var m = gg.pose();
-		var ctx = new DrawContext(gg);
-		var wnd = Game.getWindow();
-		var screenSize = new Vec2(wnd.getGuiScaledWidth(), wnd.getGuiScaledHeight());
+		var poseStack = guiGraphics.pose();
+		var drawContext = new DrawContext(guiGraphics);
+		var window = Game.getWindow();
+		var screenSize = new Vec2(window.getGuiScaledWidth(), window.getGuiScaledHeight());
 		var safeZoneTopLeft = new Vec2(Config.getSafeZoneLeft(), Config.getSafeZoneTop());
 		var safeZoneBottomRight = new Vec2(screenSize.x - Config.getSafeZoneRight(), screenSize.y - Config.getSafeZoneBottom());
 		var safeScreenCenter = new Vec2((safeZoneBottomRight.x - safeZoneTopLeft.x) * 0.5f, (safeZoneBottomRight.y - safeZoneTopLeft.y) * 0.5f);
 		final var showDirectionIndicator = Config.isDirectionIndicatorVisible();
 		final var showNameLabels = Config.isNameLabelForced() || KEY_BINDING_NAME_LABELS.isDown();
 
-		m.pushPose();
-		m.translate(0f, 0f, -pingRepo.size() * 16f);
+		poseStack.pushPose();
+		poseStack.translate(0f, 0f, -pingRepo.size() * 16f);
 
 		for (var ping : pingRepo) {
 			var screenPos = ping.getScreenPos();
@@ -152,7 +152,7 @@ public class ClientCore {
 				continue;
 			}
 
-			m.translate(0f, 0f, 16f);
+			poseStack.translate(0f, 0f, 16f);
 
 			var pingSize = Config.getPingSize() / 100f;
 			var pingScale = getDistanceScale(ping.getDistance()) * pingSize * 0.4f;
@@ -170,52 +170,52 @@ public class ClientCore {
 			if (isOffScreen && showDirectionIndicator) {
 				var indicator = MathUtils.calculateAngleRectIntersection(pingAngle, safeZoneTopLeft, safeZoneBottomRight);
 
-				m.pushPose();
-				m.translate(indicator.x, indicator.y, 0f);
+				poseStack.pushPose();
+				poseStack.translate(indicator.x, indicator.y, 0f);
 
-				m.pushPose();
-				m.scale(pingScale, pingScale, 1f);
+				poseStack.pushPose();
+				poseStack.scale(pingScale, pingScale, 1f);
 				var indicatorOffsetX = Math.cos(pingAngle + Math.PI) * 12;
 				var indicatorOffsetY = Math.sin(pingAngle + Math.PI) * 12;
-				m.translate(indicatorOffsetX, indicatorOffsetY, 0);
-				ctx.renderPing(ping.getItemStack(), Config.isItemIconVisible());
-				m.popPose();
+				poseStack.translate(indicatorOffsetX, indicatorOffsetY, 0);
+				drawContext.renderPing(ping, Config);
+				poseStack.popPose();
 
-				m.pushPose();
-				MathUtils.rotateZ(m, pingAngle);
-				m.scale(pingSize, pingSize, 1f);
+				poseStack.pushPose();
+				MathUtils.rotateZ(poseStack, pingAngle);
+				poseStack.scale(pingSize, pingSize, 1f);
 
-				m.scale(0.25f, 0.25f, 1f);
-				m.translate(-5f, 0f, 0f);
-				ctx.renderArrow(true);
-				m.scale(0.9f, 0.9f, 1f);
-				ctx.renderArrow(false);
-				m.popPose();
+				poseStack.scale(0.25f, 0.25f, 1f);
+				poseStack.translate(-5f, 0f, 0f);
+				drawContext.renderArrow(true);
+				poseStack.scale(0.9f, 0.9f, 1f);
+				drawContext.renderArrow(false);
+				poseStack.popPose();
 
-				m.popPose();
+				poseStack.popPose();
 			}
 
 			if (!behindCamera) {
-				m.pushPose();
-				m.translate(screenPos.x, screenPos.y, 0);
-				m.scale(pingScale, pingScale, 1f);
+				poseStack.pushPose();
+				poseStack.translate(screenPos.x, screenPos.y, 0);
+				poseStack.scale(pingScale, pingScale, 1f);
 
 				var text = LanguageUtils.UNIT_METERS.get("%,.1f".formatted(ping.getDistance()));
-				ctx.renderLabel(text, -1.5f, null);
-				ctx.renderPing(ping.getItemStack(), Config.isItemIconVisible());
+				drawContext.renderLabel(text, -1.5f, null);
+				drawContext.renderPing(ping, Config);
 
 				var author = ping.getAuthor();
 
 				if (showNameLabels && author != null) {
 					var displayName = PlayerTeam.formatNameForTeam(author.getTeam(), Component.literal(author.getProfile().getName()));
-					ctx.renderLabel(displayName, 1.75f, author);
+					drawContext.renderLabel(displayName, 1.75f, author);
 				}
 
-				m.popPose();
+				poseStack.popPose();
 			}
 		}
 
-		m.popPose();
+		poseStack.popPose();
 	}
 
 	private static void processPings(Matrix4f modelViewMatrix, Matrix4f projectionMatrix, float tickDelta, int time) {
@@ -230,14 +230,17 @@ public class ClientCore {
 			var ping = iter.next();
 
 			if (ping.getUuid() != null) {
-				var ent = getEntity(ping.getUuid());
+				var entity = getEntity(ping.getUuid());
 
-				if (ent != null) {
-					if (ent.getType() == EntityType.ITEM && Config.isItemIconVisible()) {
-						ping.setItemStack(((ItemEntity)ent).getItem().copy());
+				if (entity != null) {
+					if (entity.getType() == EntityType.ITEM && !Config.getItemIconVisible().equals(ItemRenderType.DISABLE)) {
+						ping.setItemStack(((ItemEntity)entity).getItem().copy());
 					}
 
-					ping.setPos(ent.getPosition(tickDelta).add(0, ent.getBoundingBox().getYsize(), 0));
+					if (entity instanceof Entity pingedEntity) {
+						ping.setEntity(pingedEntity);
+					}
+					ping.setPos(entity.getPosition(tickDelta).add(0, entity.getBoundingBox().getYsize(), 0));
 				}
 			}
 
