@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -45,6 +46,28 @@ public class OptionUtils {
 			key,
 			getter.get(),
 			setter
+		);
+	}
+
+	public static <E extends Enum<E>> OptionInstance<E> ofEnum(
+			String key,
+			Class<E> enumClass,
+			Function<E, Component> formatter,
+			Supplier<E> getter,
+			Consumer<E> setter
+	) {
+		E[] values = enumClass.getEnumConstants();
+
+		return new OptionInstance<>(
+				key,
+				OptionInstance.noTooltip(),
+				(optionText, value) -> formatter.apply(value),
+				new OptionInstance.Enum<>(List.of(values), Codec.STRING.xmap(
+						name -> Enum.valueOf(enumClass, name),
+						Enum::name
+				)),
+				getter.get(),
+				setter
 		);
 	}
 }
