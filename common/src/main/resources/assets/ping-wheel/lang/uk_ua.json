@@ -26,14 +26,14 @@
 
 	"ping-wheel.command.config.description": "відкрити інтерфейс налаштувань",
 	"ping-wheel.command.channel.get.description": "дізнатися ваш канал",
-	"ping-wheel.command.channel.set.description": "встановити канал, використовуйте \"\" для усталеного каналу",
+	"ping-wheel.command.channel.set.description": "установити канал, використовуйте \"\" для усталеного каналу",
 	"ping-wheel.command.channel.get.response": "Наразі вашим каналом є «%s»",
 	"ping-wheel.command.channel.get.response.default": "Наразі ви в усталеному каналі",
 	"ping-wheel.command.channel.set.response": "Ваш канал змінено на «%s»",
 	"ping-wheel.command.channel.set.response.default": "Ваш канал змінено на усталений",
 	"ping-wheel.command.channel.set.reject": "Назви каналів не можуть бути довшими за %s символів",
 	"ping-wheel.command.default_channel.get.description": "дізнатися усталений канал",
-	"ping-wheel.command.default_channel.set.description": "встановити усталений канал",
+	"ping-wheel.command.default_channel.set.description": "установити усталений канал",
 	"ping-wheel.command.default_channel.get.response": "Наразі усталеним каналом є «%s»",
 	"ping-wheel.command.default_channel.set.response": "Ваш усталений канал зміено на «%s»",
 	"ping-wheel.command.default_channel.set.reject": "Невідомий тип, вірним варіантом є «%s»",
@@ -41,4 +41,16 @@
 	"ping-wheel.command.default_channel.value.disabled": "Вимкнений",
 	"ping-wheel.command.default_channel.value.global": "Загальний",
 	"ping-wheel.command.default_channel.value.team_only": "Командний"
+	"ping-wheel.command.player_tracking.get.description": "перевірити, чи ввімкнене відслідковування гравців",
+	"ping-wheel.command.player_tracking.set.description": "увімкнути чи вимкнути відслідковування гравців",
+	"ping-wheel.command.player_tracking.get.response": "Наразі відслідковування гравців «%s»",
+	"ping-wheel.command.player_tracking.set.response": "Відслідковування гравців тепер «%s»",
+	"ping-wheel.command.regen_time.get.description": "дізнатися час відновлення міток",
+	"ping-wheel.command.regen_time.set.description": "установити час відновлення міток",
+	"ping-wheel.command.regen_time.get.response": "Наразі час відновлення становить «%s»",
+	"ping-wheel.command.regen_time.set.response": "Час відновлення змінено на «%s»",
+	"ping-wheel.command.rate_limit.get.description": "дізнатися ліміт частоти використання міток",
+	"ping-wheel.command.rate_limit.set.description": "установити ліміт частоти використання міток",
+	"ping-wheel.command.rate_limit.get.response": "Наразі ліміт частоти становить «%s»",
+	"ping-wheel.command.rate_limit.set.response": "Ліміт частоти змінено на «%s»"
 }
