@@ -64,6 +64,13 @@ public class PingController {
 			cameraEntity.isCrouching());
 
 		if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {
+			if (ModContext.HasVoxy) {
+				var voxyHitResult = Raycast.traceVoxy(cameraDirection, tickDelta, CLIENT_CONFIG.getPingDistance());
+				if (voxyHitResult != null && voxyHitResult.getType() != HitResult.Type.MISS) {
+					IPlatformNetworkService.INSTANCE.sendToServer(new PingLocationC2SPacket(CLIENT_CONFIG.getChannel(), voxyHitResult.getLocation(), null, pingSequence, GameContext.getDimension()));
+					return;
+				}
+			}
 			if (ModContext.HasDistantHorizons) {
 				Raycast.traceDistantAsync(cameraDirection, tickDelta, (distantHitResult) -> {
 					IPlatformNetworkService.INSTANCE.sendToServer(new PingLocationC2SPacket(CLIENT_CONFIG.getChannel(), distantHitResult.getLocation(), null, pingSequence, GameContext.getDimension()));
