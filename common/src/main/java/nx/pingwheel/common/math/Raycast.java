@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.*;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -67,6 +68,43 @@ public class Raycast {
 		});
 
 		ft.thenAccept(result -> Optional.ofNullable(result).ifPresent(callback));
+	}
+
+	public static BlockHitResult traceVoxy(Vec3 direction, float tickDelta, double maxDistance) {
+		try {
+			var cameraEntity = Game.getCameraEntity();
+
+			if (cameraEntity == null || cameraEntity.level() == null) {
+				return null;
+			}
+
+			var rayStartVec = cameraEntity.getEyePosition(tickDelta);
+
+			var apiClass = Class.forName("me.cortex.voxy.client.api.VoxyRaycastAPI");
+			var raycastMethod = apiClass.getMethod("raycast",
+				net.minecraft.world.level.Level.class,
+				Vec3.class,
+				Vec3.class,
+				double.class);
+			var result = raycastMethod.invoke(null,
+				cameraEntity.level(),
+				rayStartVec,
+				direction,
+				maxDistance);
+
+			if (result == null) {
+				return null;
+			}
+
+			var resultClass = result.getClass();
+			var pos = (BlockPos) resultClass.getMethod("blockPos").invoke(result);
+			var hitLoc = (Vec3) resultClass.getMethod("hitLocation").invoke(result);
+			var face = (Direction) resultClass.getMethod("face").invoke(result);
+
+			return new BlockHitResult(hitLoc, face, pos, true);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	public static HitResult traceDirectional(Vec3 direction,
