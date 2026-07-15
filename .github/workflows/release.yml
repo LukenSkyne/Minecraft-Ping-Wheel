@@ -1,0 +1,93 @@
+name: "📦 Build & Release"
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: "Build ${{ matrix.loader }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        loader: [fabric, forge, neoforge]
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@v4
+
+      - name: "Extract Java version"
+        run: |
+          echo "JAVA_VERSION=$(awk -F'java_version=' '{print $2}' gradle.properties | xargs)" >> "$GITHUB_ENV"
+          echo "MOD_VERSION=$(awk -F'mod_version=' '{print $2}' gradle.properties | xargs)" >> "$GITHUB_ENV"
+          echo "MC_VERSION=$(awk -F'minecraft_version=' '{print $2}' gradle.properties | xargs)" >> "$GITHUB_ENV"
+          echo "ARCHIVE_NAME=$(awk -F'archive_name=' '{print $2}' gradle.properties | xargs)" >> "$GITHUB_ENV"
+
+      - name: "Set up JDK ${{ env.JAVA_VERSION }}"
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "${{ env.JAVA_VERSION }}"
+
+      - name: "Setup Gradle"
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: "Build ${{ matrix.loader }}"
+        run: chmod +x gradlew && ./gradlew :${{ matrix.loader }}:build -x javadoc -x sourcesJar --no-daemon
+
+      - name: "Upload artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: ping-wheel-${{ matrix.loader }}
+          path: ${{ matrix.loader }}/build/libs/${{ env.ARCHIVE_NAME }}-${{ env.MOD_VERSION }}-${{ matrix.loader }}-${{ env.MC_VERSION }}.jar
+          if-no-files-found: error
+
+  release:
+    name: "GitHub Release"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@v4
+
+      - name: "Extract version info"
+        run: |
+          echo "MOD_VERSION=$(awk -F'mod_version=' '{print $2}' gradle.properties | xargs)" >> "$GITHUB_ENV"
+          echo "MC_VERSION=$(awk -F'minecraft_version=' '{print $2}' gradle.properties | xargs)" >> "$GITHUB_ENV"
+
+      - name: "Download all artifacts"
+        uses: actions/download-artifact@v4
+        with:
+          path: release-jars
+          pattern: ping-wheel-*
+          merge-multiple: true
+
+      - name: "List release files"
+        run: find release-jars -type f -ls
+
+      - name: "Create GitHub Release"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}-mc{1}', env.MOD_VERSION, env.MC_VERSION) }}
+          name: v${{ env.MOD_VERSION }} for Minecraft ${{ env.MC_VERSION }}
+          body: |
+            Ping Wheel **v${{ env.MOD_VERSION }}** for Minecraft **${{ env.MC_VERSION }}**.
+
+            ### Downloads
+            - `Ping-Wheel-${{ env.MOD_VERSION }}-fabric-${{ env.MC_VERSION }}.jar` — Fabric
+            - `Ping-Wheel-${{ env.MOD_VERSION }}-forge-${{ env.MC_VERSION }}.jar` — Forge
+            - `Ping-Wheel-${{ env.MOD_VERSION }}-neoforge-${{ env.MC_VERSION }}.jar` — NeoForge
+
+            Built from branch `${{ github.ref_name }}` (`${{ github.sha }}`).
+          files: release-jars/*.jar
+          draft: false
+          prerelease: false
+          make_latest: true
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
