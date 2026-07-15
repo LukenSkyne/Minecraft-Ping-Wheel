@@ -1,0 +1,111 @@
+plugins {
+    id "me.modmuss50.mod-publish-plugin" version "1.1.0"
+}
+
+publishMods {
+    def githubToken = providers.environmentVariable("GITHUB_TOKEN").getOrElse("")
+    def modrinthToken = providers.environmentVariable("MODRINTH_TOKEN").getOrElse("")
+    def curseforgeToken = providers.environmentVariable("CURSEFORGE_TOKEN").getOrElse("")
+
+    def githubRepository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("")
+    def modrinthProject = providers.environmentVariable("MODRINTH_PROJECT").getOrElse("")
+    def curseforgeProject = providers.environmentVariable("CURSEFORGE_PROJECT").getOrElse("")
+
+    dryRun = githubToken == ""
+
+    def modVersion = providers.environmentVariable("MOD_VERSION").getOrElse("0.0.0")
+    def mcVersion = providers.environmentVariable("MC_VERSION").getOrElse("0.0.0")
+    def refName = providers.environmentVariable("REF_NAME").getOrElse("main")
+
+    version = modVersion
+    changelog = file("CHANGELOG.md").text
+    type = STABLE
+
+    def ghOptions = githubOptions {
+        repository = githubRepository
+        accessToken = githubToken
+        commitish = refName
+    }
+
+    def mrOptions = modrinthOptions {
+        accessToken = modrinthToken
+        projectId = modrinthProject
+    }
+
+    def cfOptions = curseforgeOptions {
+        accessToken = curseforgeToken
+        projectId = curseforgeProject
+        clientRequired = true
+        serverRequired = true
+    }
+
+    def loaders = ["Forge", "NeoForge", "Fabric"]
+
+    loaders.each { loader ->
+        def loaderSlug = loader.toLowerCase()
+        def loaderUpper = loader.toUpperCase()
+
+        def jarPath = providers.environmentVariable("${loaderUpper}_JAR_PATH")
+        if (!jarPath.isPresent()) {
+            return
+        }
+
+        def isFabric = loaderSlug == "fabric"
+        def startVersion = providers.environmentVariable("${loaderUpper}_VERSION_START").getOrElse("0.0.0")
+
+        def _file = file(jarPath.get())
+        def _type = isFabric ? STABLE : BETA
+        def _displayName = "v${modVersion} for ${loader} ${mcVersion}"
+
+        github("${loader}-GH") {
+            from ghOptions
+
+            tagName = "v${modVersion}-${loaderSlug}-${mcVersion}"
+            file = _file
+            displayName = _displayName
+        }
+
+        modrinth("${loader}-MR") {
+            from mrOptions
+            type = _type
+            file = _file
+            displayName = _displayName
+            modLoaders.add(loaderSlug)
+
+            minecraftVersionRange {
+                start = startVersion
+                end = mcVersion
+            }
+
+            if (isFabric) {
+                requires("fabric-api")
+            }
+        }
+
+        curseforge("${loader}-CF") {
+            from cfOptions
+            type = _type
+            file = _file
+            displayName = _displayName
+            modLoaders.add(loaderSlug)
+
+            minecraftVersionRange {
+                start = startVersion
+                end = mcVersion
+            }
+
+            if (isFabric) {
+                requires("fabric-api")
+            }
+        }
+    }
+}
+
+tasks.matching { it.name.startsWith("publishFabric-") }.configureEach {
+    mustRunAfter(tasks.matching { it.name.startsWith("publishNeoForge-") })
+    mustRunAfter(tasks.matching { it.name.startsWith("publishForge-") })
+}
+
+tasks.matching { it.name.startsWith("publishNeoForge-") }.configureEach {
+    mustRunAfter(tasks.matching { it.name.startsWith("publishForge-") })
+}

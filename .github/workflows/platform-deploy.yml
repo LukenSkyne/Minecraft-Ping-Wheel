@@ -3,16 +3,23 @@ name: "🚀 Deploy to Platforms"
 on:
   workflow_dispatch:
     inputs:
-      loaders:
-        description: 'Loaders'
-        required: true
-        type: string
-        default: 'forge, neoforge, fabric'
+      build_fabric:
+        description: "Fabric"
+        type: boolean
+        default: true
+      build_neoforge:
+        description: "Neoforge"
+        type: boolean
+        default: true
+      build_forge:
+        description: "Forge"
+        type: boolean
+        default: true
       versions:
-        description: 'Versions'
+        description: "Versions"
         required: true
         type: string
-        default: '1.18.2, 1.19.2, 1.19.3, 1.19.4, 1.20.1, 1.20.2, 1.20.4, 1.20.6, 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.8, 1.21.10'
+        default: "1.18.2, 1.19.2, 1.19.3, 1.19.4, 1.20.1, 1.20.2, 1.20.4, 1.20.6, 1.21.1, 1.21.3, 1.21.4, 1.21.5, 1.21.8, 1.21.10, 1.21.11, 26.1.2"
 
 jobs:
   prepare:
@@ -25,26 +32,17 @@ jobs:
         id: set-matrix
         run: |
           VERSIONS="${{ github.event.inputs.versions }}"
-          LOADERS="${{ github.event.inputs.loaders }}"
           MATRIX_JSON="{\"include\": ["
 
-          # Create a list of version and loader combinations
+          # Create a list of versions
           for VERSION in $(echo $VERSIONS | sed "s/,/ /g")
           do
-            for LOADER in $(echo $LOADERS | sed "s/,/ /g")
-            do
-              MINOR=$(echo $VERSION | cut -d'.' -f2)
-
-              if [ "$LOADER" == "neoforge" ] && [ "$MINOR" -lt 21 ]; then
-                continue
-              fi
-
-              MATRIX_JSON+="{\"version\": \"$VERSION\", \"loader\": \"$LOADER\"},"
-            done
+            MATRIX_JSON+="{\"version\": \"$VERSION\"},"
           done
 
           # Remove the last comma and close the JSON array
           MATRIX_JSON="${MATRIX_JSON%,}]}"
+
           echo "Matrix JSON: $MATRIX_JSON"
           echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
 
@@ -56,7 +54,7 @@ jobs:
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     steps:
       - name: "Check out repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ matrix.version }}
 
@@ -65,21 +63,23 @@ jobs:
           echo "JAVA_VERSION=$(awk -F'java_version=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
 
       - name: "Set up JDK ${{ env.JAVA_VERSION }}"
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "adopt"
           java-version: "${{ env.JAVA_VERSION }}"
 
       - name: "Build with Gradle"
         id: build
-        run: chmod +x gradlew && ./gradlew :${{ matrix.loader }}:build
+        run: chmod +x gradlew && ./gradlew build
 
       - name: "Archive build artifacts"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: build-${{ matrix.loader }}-${{ matrix.version }}
+          name: build-${{ matrix.version }}
           path: |
-            ./${{ matrix.loader }}/build/libs
+            ./fabric/build/libs
+            ./neoforge/build/libs
+            ./forge/build/libs
             CHANGELOG.md
             gradle.properties
 
@@ -92,67 +92,86 @@ jobs:
       matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
     steps:
       - name: "Check out repository"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          sparse-checkout: |
+            publish.gradle
+          sparse-checkout-cone-mode: false
           ref: ${{ matrix.version }}
 
-      - name: "Download build artifacts"
-        uses: actions/download-artifact@v4
+      - name: "Set up JDK 17"
+        uses: actions/setup-java@v5
         with:
-          name: build-${{ matrix.loader }}-${{ matrix.version }}
+          distribution: "adopt"
+          java-version: 17
 
-      - name: "Extract gradle properties"
-        run: |
-          echo "ARCHIVE_NAME=$(awk -F'archive_name=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
-          echo "MOD_VERSION=$(awk -F'mod_version=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
-          echo "MC_VERSION=$(awk -F'minecraft_version=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
-          echo "VERSION_RANGE=$(awk -F'${{ matrix.loader }}_compatible_range=' '{print $2}' gradle.properties | xargs)" >> $GITHUB_ENV
+      - name: "Setup Gradle 8.10"
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          add-job-summary: "never"
+          gradle-version: "8.10"
 
-      - name: "Set release info"
-        run: |
-          LOADER_NAME=$(echo ${{ matrix.loader }} | sed 's/[nf]/\U&/g')
-          echo "RELEASE_NAME=v${{ env.MOD_VERSION }} for $LOADER_NAME ${{ env.MC_VERSION }}" >> $GITHUB_ENV
-          echo "TAG_NAME=v${{ env.MOD_VERSION }}-${{ matrix.loader }}-${{ env.MC_VERSION }}" >> $GITHUB_ENV
+      - name: "Download build artifacts"
+        uses: actions/download-artifact@v8
+        with:
+          name: build-${{ matrix.version }}
 
-      - name: "Move output to build directory"
+      - name: "Extract gradle properties & prepare jars"
         run: |
+          get_prop() {
+            grep "^$1=" gradle.properties | cut -d'=' -f2- | xargs
+          }
+
+          ARCHIVE_NAME=$(get_prop "archive_name")
+          MOD_VERSION=$(get_prop "mod_version")
+          MC_VERSION=$(get_prop "minecraft_version")
+
+          {
+            echo "ARCHIVE_NAME=$ARCHIVE_NAME"
+            echo "MOD_VERSION=$MOD_VERSION"
+            echo "MC_VERSION=$MC_VERSION"
+          } >> $GITHUB_ENV
+
           mkdir -p ./build/libs
-          JAR_NAME="${{ env.ARCHIVE_NAME }}-${{ env.MOD_VERSION }}-${{ matrix.loader }}-${{ env.MC_VERSION }}"
-          mv "./${{ matrix.loader }}/build/libs/${JAR_NAME}.jar" "./build/libs/${JAR_NAME}.jar"
 
-      - name: "Create version tag"
-        run: |
-          git tag ${{ env.TAG_NAME }}
-          git push origin ${{ env.TAG_NAME }}
+          MAJOR=$(echo "$MC_VERSION" | cut -d'.' -f1)
+          MINOR=$(echo "$MC_VERSION" | cut -d'.' -f2)
+
+          LOADERS=()
+          if [ "${{ inputs.build_fabric }}" == "true" ]; then LOADERS+=("fabric"); fi
+          if [ "${{ inputs.build_neoforge }}" == "true" ]; then
+            if [ "$MAJOR" -gt 1 ] || [ "$MINOR" -gt 20 ]; then
+              LOADERS+=("neoforge")
+            fi
+          fi
+          if [ "${{ inputs.build_forge }}" == "true" ]; then LOADERS+=("forge"); fi
+
+          for LOADER in "${LOADERS[@]}"; do
+            LOADER_UPPER=$(echo "$LOADER" | tr '[:lower:]' '[:upper:]')
+
+            VERSION_RANGE=$(get_prop "${LOADER}_compatible_range")
+            VERSION_START=$(echo "$VERSION_RANGE" | grep -oP '\d+\.\d+(?:\.\d+)?' | head -n 1)
+            JAR_NAME="${ARCHIVE_NAME}-${MOD_VERSION}-${LOADER}-${MC_VERSION}"
+            JAR_PATH="./build/libs/${JAR_NAME}.jar"
+
+            {
+              echo "${LOADER_UPPER}_VERSION_START=${VERSION_START}"
+              echo "${LOADER_UPPER}_JAR_PATH=${JAR_PATH}"
+            } >> $GITHUB_ENV
+
+            mv "./${LOADER}/build/libs/${JAR_NAME}.jar" "$JAR_PATH"
+          done
 
       - name: "Publish to Platforms"
-        uses: Kira-NT/mc-publish@v3.3
-        with:
-          modrinth-id: QQXAdCzh
-          modrinth-token: ${{ secrets.MODRINTH_API_TOKEN }}
-          modrinth-featured: false
+        run: |
+          echo "rootProject.buildFileName = 'publish.gradle'" > settings.gradle
+          gradle publishMods
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
 
-          curseforge-id: 734339
-          curseforge-token: ${{ secrets.CURSEFORGE_API_TOKEN }}
+          MODRINTH_PROJECT: "QQXAdCzh"
+          CURSEFORGE_PROJECT: "734339"
 
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          github-tag: ${{ env.TAG_NAME }}
-          github-prerelease: false
-
-          name: ${{ env.RELEASE_NAME }}
-          changelog-file: CHANGELOG.md
-
-          loaders: |
-            ${{ matrix.loader }}
-          game-versions: |
-            ${{ env.VERSION_RANGE }}
-
-          # only needed for the 'fabric' loader, so we conditionally inject it
-          dependencies: ${{ matrix.loader == 'fabric' && 'fabric-api(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)' || '' }}
-
-          # (neo)forge releases are marked as beta for easier visual distinction
-          version-type: ${{ matrix.loader == 'fabric' && 'release' || 'beta' }}
-
-          retry-attempts: 2
-          retry-delay: 10000
-          fail-mode: fail
+          REF_NAME: ${{ matrix.version }}
