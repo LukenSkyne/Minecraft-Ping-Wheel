@@ -89,7 +89,7 @@ public class SettingsScreen extends OptionsSubScreen {
 		ClientConfig.HANDLER.save();
 
 		if (parent != null && this.minecraft != null) {
-			this.minecraft.setScreen(parent);
+			this.minecraft.gui.setScreen(parent);
 		} else {
 			super.onClose();
 		}

@@ -1,10 +1,8 @@
 package nx.pingwheel.common.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.state.GameRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -33,13 +31,8 @@ public abstract class GameRendererMixin {
 	@Shadow protected abstract void bobHurt(CameraRenderState cameraState, PoseStack poseStack);
 	@Shadow protected abstract void bobView(CameraRenderState cameraState, PoseStack poseStack);
 
-	@Inject(method = "extractGui", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"), remap = false)
-	public void extractGui(DeltaTracker deltaTracker,
-						   boolean shouldRenderLevel,
-						   boolean resourcesLoaded,
-						   CallbackInfo ci,
-						   @Local(name = "graphics") GuiGraphicsExtractor graphics
-	) {
+	@Inject(method = "extractCamera", at = @At("TAIL"), remap = false)
+	private void pingwheel$extractCamera(DeltaTracker deltaTracker, float worldPartialTicks, float cameraEntityPartialTicks, CallbackInfo ci) {
 		var cameraState = this.gameRenderState.levelRenderState.cameraRenderState;
 		var projectionMatrix = PingWheel_calculateProjectionMatrix(cameraState, deltaTracker);
 
@@ -51,16 +44,6 @@ public abstract class GameRendererMixin {
 				cameraState
 			)
 		);
-
-		if (this.minecraft.options.hideGui) {
-			return;
-		}
-
-		final var matrixStack = graphics.pose();
-		matrixStack.pushMatrix();
-		CommonClient.INSTANCE.onRenderGUI(graphics, deltaTracker.getGameTimeDeltaPartialTick(false));
-
-		matrixStack.popMatrix();
 	}
 
 	@Unique

@@ -61,7 +61,7 @@ public class ClientCommandBuilder {
 
 		var cmdConfig = LiteralArgumentBuilder.<S>literal("config")
 			.executes((context) -> {
-				Game.schedule(() -> Game.setScreen(new SettingsScreen()));
+				Game.schedule(() -> Game.gui.setScreen(new SettingsScreen()));
 				return 1;
 			});
 
