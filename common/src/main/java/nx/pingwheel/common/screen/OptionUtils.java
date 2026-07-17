@@ -22,7 +22,7 @@ public class OptionUtils {
 				.xmap((value) -> value * step, (value) -> value / step, true),
 			Codec.intRange(min, max),
 			getter.get(),
-			setter
+			setter::accept
 		);
 	}
 
@@ -38,7 +38,7 @@ public class OptionUtils {
 				.xmap((value) -> value * step, (value) -> (int) (value / step), true),
 			Codec.floatRange(iMin, iMax),
 			getter.get(),
-			setter
+			setter::accept
 		);
 	}
 
@@ -46,7 +46,7 @@ public class OptionUtils {
 		return OptionInstance.createBoolean(
 			key,
 			getter.get(),
-			setter
+			setter::accept
 		);
 	}
 
@@ -60,7 +60,7 @@ public class OptionUtils {
 				Enum::name
 			)),
 			getter.get(),
-			setter
+			setter::accept
 		);
 	}
 }

@@ -1,1 +1,1 @@
-* Update to 26.1.2
+* Update to 26.2

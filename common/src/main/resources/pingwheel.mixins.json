@@ -4,7 +4,8 @@
 	"package": "nx.pingwheel.common.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"client": [
-		"GameRendererMixin"
+		"GameRendererMixin",
+		"GuiMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

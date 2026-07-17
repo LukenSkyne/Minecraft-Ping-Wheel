@@ -59,7 +59,7 @@ public class CommonClient {
 		}
 
 		if (KEY_BINDING_SETTINGS.consumeClick()) {
-			Game.setScreen(new SettingsScreen());
+			Game.gui.setScreen(new SettingsScreen());
 		}
 	}
 

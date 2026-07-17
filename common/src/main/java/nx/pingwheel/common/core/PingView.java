@@ -3,7 +3,6 @@ package nx.pingwheel.common.core;
 import lombok.Getter;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
@@ -81,7 +80,7 @@ public class PingView extends PingData {
 			final var ent = GameContext.getEntity(this.entityId);
 
 			if (ent != null) {
-				if (ent.getType() == EntityType.ITEM && CLIENT_CONFIG.isItemIconVisible()) {
+				if (ent instanceof ItemEntity && CLIENT_CONFIG.isItemIconVisible()) {
 					this.itemStack = ((ItemEntity)ent).getItem().copy();
 				}
 
@@ -139,12 +138,10 @@ public class PingView extends PingData {
 
 	public int getTeamColor() {
 		if (this.playerInfo == null || this.playerInfo.getTeam() == null) return WHITE;
-		if (this.playerInfo == null) return WHITE;
 
-		final var teamColor = this.playerInfo.getTeam().getColor().getColor();
-		if (teamColor == null) return WHITE;
-
-		return (255 << 24) | teamColor;
+		return this.playerInfo.getTeam().getColor()
+			.map(teamColor -> (255 << 24) | teamColor.rgb())
+			.orElse(WHITE);
 	}
 
 	private void calculateScale() {
