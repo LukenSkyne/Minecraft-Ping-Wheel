@@ -1,1 +1,1 @@
-* Update to 26.3
+* Fixed invalid default Key Binding resulting in crashes
