@@ -33,6 +33,7 @@ body:
     label: What versions of Minecraft have you experienced the issue in?
     multiple: true
     options:
+      - "26.3"
       - "26.2"
       - "26.1–26.1.2"
       - "1.21.11"
