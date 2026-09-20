@@ -25,6 +25,7 @@ import static nx.pingwheel.common.util.InputUtils.KEY_BINDING_SETTINGS;
 public class LegacyMigrationHandler {
 
 	private static boolean gameOptionsSaveNeeded = false;
+	private static boolean resetSettingsBinding = false;
 	private static boolean notifyDeprecatedResourcePack = false;
 
 	public static void migrateConfig(String configExtension) {
@@ -53,6 +54,11 @@ public class LegacyMigrationHandler {
 			var lines = Files.readAllLines(optionsPath);
 
 			for (String line : lines) {
+				if (line.contains("pingwheel.open_settings") && line.contains("key.keyboard.-1")) {
+					resetSettingsBinding = true;
+					gameOptionsSaveNeeded = true;
+				}
+
 				if (!line.contains("ping-wheel")) continue;
 
 				var keyString = line.split(":")[1];
@@ -77,6 +83,10 @@ public class LegacyMigrationHandler {
 		if (Game == null) return;
 
 		if (gameOptionsSaveNeeded) {
+			if (resetSettingsBinding) {
+				KEY_BINDING_SETTINGS.setKey(KEY_BINDING_SETTINGS.getDefaultKey());
+			}
+
 			Game.options.save();
 			gameOptionsSaveNeeded = false;
 		}
