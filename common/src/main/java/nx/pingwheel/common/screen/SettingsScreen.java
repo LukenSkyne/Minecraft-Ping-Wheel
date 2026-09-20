@@ -121,7 +121,7 @@ public class SettingsScreen extends OptionsSubScreen {
 				.map(ClientTooltipComponent::create)
 				.toList();
 
-			ctx.tooltip(this.font, clientTooltipComponentList, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null);
+			ctx.tooltip(this.font, clientTooltipComponentList, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null, false);
 		}
 	}
 
